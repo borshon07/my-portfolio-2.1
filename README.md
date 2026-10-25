@@ -46,6 +46,7 @@ A modern, responsive developer portfolio with 3D animations, a liquid cursor, an
 | Animation | Motion (`motion/react`), CSS 3D transforms, SVG filters |
 | Icons | Lucide React |
 | Fonts | Geist Sans & Geist Mono |
+| Linting | ESLint |
 | Deployment | Vercel |
 
 ## Sections
@@ -59,30 +60,38 @@ A modern, responsive developer portfolio with 3D animations, a liquid cursor, an
 ## Project Structure
 
 ```
-src/
-├── app/
-│   ├── layout.tsx            # Root layout (Preloader, Cursor, Navbar, Footer)
-│   ├── page.tsx              # Home page
-│   └── icon.svg              # Favicon
-├── components/
-│   ├── ui/
-│   │   ├── Preloader.tsx     # 3D intro animation
-│   │   ├── CustomCursor.tsx  # Liquid morph cursor
-│   │   └── Icons.tsx         # Custom brand icons
-│   ├── Navbar.tsx
-│   ├── Hero.tsx
-│   ├── About.tsx
-│   ├── Skills.tsx
-│   ├── Projects.tsx
-│   ├── Contact.tsx
-│   └── Footer.tsx
-├── data/
-│   └── portfolioData.ts      # All portfolio content
-├── types/
-│   └── portfolio.ts          # TypeScript types
-└── utils/
-    ├── motion.ts             # Shared animation config
-    └── scrollToSection.ts    # Smooth scroll helper
+├── public/
+│   └── Assits/                   # Images (profile photo, etc.)
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx            # Root layout (Preloader, Cursor, Navbar, Footer)
+│   │   ├── page.tsx              # Home page
+│   │   ├── globals.css           # Global styles
+│   │   ├── favicon.ico
+│   │   └── icon.svg              # Favicon
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── Navbar.tsx        # 3D floating navbar
+│   │   │   └── Footer.tsx        # Footer with 3D wordmark
+│   │   ├── sections/
+│   │   │   ├── Hero.tsx
+│   │   │   ├── About.tsx
+│   │   │   ├── Skills.tsx
+│   │   │   ├── Projects.tsx
+│   │   │   └── Contact.tsx
+│   │   └── ui/
+│   │       ├── Preloader.tsx     # 3D intro animation
+│   │       ├── CustomCursor.tsx  # Liquid morph cursor
+│   │       └── Icons.tsx         # Custom brand icons
+│   ├── data/
+│   │   └── portfolioData.ts      # All portfolio content
+│   ├── types/
+│   │   └── portfolio.ts          # TypeScript types
+│   └── utils/
+│       ├── motion.ts             # Shared animation config
+│       └── scrollToSection.ts    # Smooth scroll helper
+├── eslint.config.mjs
+└── package.json
 ```
 
 ## Getting Started
@@ -125,14 +134,16 @@ All content is stored in `src/data/portfolioData.ts`:
 
 ```ts
 export const personalInfo = { /* name, title, bio, email, location */ };
+export const navItems = [ /* navigation links */ ];
 export const socialLinks = [ /* GitHub, LinkedIn, Email */ ];
 export const skillCategories = [ /* skills by category */ ];
 export const projects = [ /* featured projects */ ];
 ```
 
 - **Change the accent color:** replace `#FF7849` across the components with your preferred color.
-- **Change preloader duration:** edit `duration` in `Preloader.tsx`.
+- **Change preloader duration:** edit `duration` in `src/components/ui/Preloader.tsx`.
 - **Add a nav section:** add an item to `navItems` and give the section a matching `id`.
+- **Add a project:** add an object to the `projects` array.
 
 ## Deployment
 
