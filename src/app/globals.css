@@ -1,26 +1,85 @@
 @import "tailwindcss";
 
+@theme {
+  --color-obsidian: #141414;
+  --color-obsidian-deep: #0b0b0b;
+  --color-obsidian-surface: #1a1a1a;
+  --color-obsidian-elevated: #222222;
+  --color-graphite: #303030;
+  --color-graphite-light: #444444;
+  --color-graphite-muted: #262626;
+  --color-cream: #F4F0E8;
+  --color-cream-muted: #A39E93;
+  --color-cream-subtle: #7A766E;
+  --color-orange-warm: #FF7849;
+  --color-orange-hover: #ff6633;
+  --color-orange-subtle: rgba(255, 120, 73, 0.12);
+  --color-orange-glow: rgba(255, 120, 73, 0.25);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #141414;
+  --foreground: #F4F0E8;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  background-color: #141414;
+  color: #F4F0E8;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #141414;
+  color: #F4F0E8;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  selection-background-color: #FF7849;
+  selection-color: #141414;
 }
+
+::selection {
+  background-color: #FF7849;
+  color: #141414;
+}
+
+/* Accessible focus ring */
+:focus-visible {
+  outline: 2px solid #FF7849;
+  outline-offset: 3px;
+}
+
+/* Subtle background grain simulation */
+.bg-subtle-noise {
+  background-image: radial-gradient(rgba(244, 240, 232, 0.03) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Custom understated scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #141414;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #303030;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF7849;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
