@@ -43,4 +43,5 @@ export interface PersonalInfo {
   email: string;
   location: string;
   isAvailableForWork: boolean;
+  resumeUrl?: string;
 }

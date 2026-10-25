@@ -14,6 +14,7 @@ export const personalInfo: PersonalInfo = {
   email: "contact@borshonroy.dev",
   location: "Bangladesh",
   isAvailableForWork: true,
+  resumeUrl: "/resume/Borshon_Roy_Web_Developer_Intern_Resume.pdf",
 };
 
 export const navItems: NavItem[] = [

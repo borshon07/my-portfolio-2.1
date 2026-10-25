@@ -8,6 +8,8 @@ import {
   ArrowUpRight,
   Atom,
   Braces,
+  Download,
+  Eye,
   Layers,
   Mail,
   MapPin,
@@ -25,6 +27,7 @@ import {
   useTransform,
 } from "motion/react";
 import { personalInfo, socialLinks } from "@/data/portfolioData";
+import { scrollToSection } from "@/utils/scrollToSection";
 import {
   fadeInUp,
   headlineContainer,
@@ -76,6 +79,14 @@ function FloatingChip({
 
 export default function Hero() {
   const reduceMotion = useReducedMotion();
+
+  /* ---------- Resume button state ---------- */
+  const [resumeNote, setResumeNote] = useState(false);
+
+  const handleResumeMissing = () => {
+    setResumeNote(true);
+    setTimeout(() => setResumeNote(false), 2500);
+  };
 
   /* ---------- Section mouse: ambient light + parallax orbs ---------- */
   const lx = useMotionValue(50);
@@ -267,6 +278,7 @@ export default function Hero() {
           >
             <Link
               href="#projects"
+              onClick={(e) => scrollToSection(e, "#projects")}
               className="group relative inline-flex items-center gap-2.5 bg-[#FF7849] hover:bg-[#ff6633] text-[#141414] font-bold text-xs uppercase tracking-wider px-7 py-4 rounded-full transition-all duration-300 active:scale-95 shadow-lg shadow-[#FF7849]/20 hover:shadow-[#FF7849]/40 hover:-translate-y-0.5"
             >
               <span>Explore Projects</span>
@@ -275,18 +287,53 @@ export default function Hero() {
 
             <Link
               href="#contact"
+              onClick={(e) => scrollToSection(e, "#contact")}
               className="group relative inline-flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#242424] text-[#F4F0E8] border border-[#303030] hover:border-[#FF7849]/60 text-xs font-semibold uppercase tracking-wider px-6 py-4 rounded-full transition-all duration-300 active:scale-95 hover:-translate-y-0.5"
             >
               <span>Let&apos;s Connect</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#FF7849] opacity-70 group-hover:opacity-100 group-hover:scale-125 transition-all" />
             </Link>
 
+            {/* Resume: download + view */}
+            {personalInfo.resumeUrl ? (
+              <div className="inline-flex items-stretch rounded-full bg-[#1a1a1a] border border-[#303030] hover:border-[#FF7849]/60 transition-colors duration-300 overflow-hidden">
+                <a
+                  href={personalInfo.resumeUrl}
+                  download
+                  className="group inline-flex items-center gap-2 pl-6 pr-4 py-4 text-xs font-semibold uppercase tracking-wider text-[#F4F0E8] hover:text-[#FF7849] hover:bg-[#242424] transition-colors active:scale-95"
+                >
+                  <Download className="w-4 h-4 text-[#FF7849] transition-transform duration-300 group-hover:translate-y-0.5" />
+                  <span>Resume</span>
+                </a>
+
+                <a
+                  href={personalInfo.resumeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="View resume in a new tab"
+                  title="View resume"
+                  className="inline-flex items-center px-4 border-l border-[#303030] text-[#A39E93] hover:text-[#FF7849] hover:bg-[#242424] transition-colors"
+                >
+                  <Eye className="w-4 h-4" />
+                </a>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResumeMissing}
+                className="group inline-flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#242424] text-[#F4F0E8] border border-[#303030] hover:border-[#FF7849]/60 text-xs font-semibold uppercase tracking-wider px-6 py-4 rounded-full transition-all duration-300 active:scale-95 hover:-translate-y-0.5"
+              >
+                <Download className="w-4 h-4 text-[#FF7849]" />
+                <span>{resumeNote ? "Coming soon" : "Resume"}</span>
+              </button>
+            )}
+
             <div className="flex items-center gap-1.5 pl-2 sm:border-l sm:border-[#303030]/80">
               {socialLinks.map((social) => (
                 <a
                   key={social.platform}
                   href={social.url}
-                  target="_blank"
+                  target={social.iconName === "mail" ? undefined : "_blank"}
                   rel="noopener noreferrer"
                   aria-label={`${social.platform} profile`}
                   title={social.platform}
@@ -455,6 +502,7 @@ export default function Hero() {
 
         <Link
           href="#about"
+          onClick={(e) => scrollToSection(e, "#about")}
           className="group inline-flex items-center gap-2 text-xs font-mono text-[#A39E93] hover:text-[#FF7849] transition-colors"
         >
           <span>SCROLL TO EXPLORE</span>
