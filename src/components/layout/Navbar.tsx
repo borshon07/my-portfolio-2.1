@@ -14,6 +14,7 @@ import {
   type Variants,
 } from "motion/react";
 import { navItems, personalInfo } from "@/data/portfolioData";
+import { scrollToSection } from "@/utils/scrollToSection";
 
 /* ---------- Mini 3D cube logo ---------- */
 const CUBE_HALF = 9;
@@ -208,7 +209,10 @@ export default function Navbar() {
             {/* Brand */}
             <Link
               href="#hero"
-              onClick={() => setIsOpen(false)}
+              onClick={(e) => {
+                scrollToSection(e, "#hero");
+                setIsOpen(false);
+              }}
               className="group relative flex items-center gap-3 pl-1 text-[#F4F0E8] transition-colors hover:text-[#FF7849]"
             >
               <CubeLogo reduceMotion={reduceMotion} />
@@ -230,6 +234,7 @@ export default function Navbar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={(e) => scrollToSection(e, item.href)}
                     className={`group relative px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-colors ${
                       isActive
                         ? "text-[#141414] font-semibold"
@@ -256,6 +261,7 @@ export default function Navbar() {
               {/* 3D key-style CTA */}
               <Link
                 href="#contact"
+                onClick={(e) => scrollToSection(e, "#contact")}
                 className="group hidden md:inline-flex items-center gap-1.5 bg-[#FF7849] hover:bg-[#ff8559] text-[#141414] text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full shadow-[0_4px_0_#b94a22] hover:shadow-[0_3px_0_#b94a22] hover:translate-y-px active:shadow-[0_0_0_#b94a22] active:translate-y-1 transition-all duration-150"
               >
                 <span>Let&apos;s Talk</span>
@@ -327,7 +333,10 @@ export default function Navbar() {
                   >
                     <Link
                       href={item.href}
-                      onClick={() => setIsOpen(false)}
+                      onClick={(e) => {
+                        scrollToSection(e, item.href);
+                        setIsOpen(false);
+                      }}
                       className={`flex items-center justify-between py-4 px-5 rounded-2xl border text-lg font-semibold tracking-tight transition-colors ${
                         isActive
                           ? "border-[#FF7849]/50 bg-[#FF7849]/10 text-[#FF7849]"
@@ -360,7 +369,10 @@ export default function Navbar() {
             >
               <Link
                 href="#contact"
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => {
+                  scrollToSection(e, "#contact");
+                  setIsOpen(false);
+                }}
                 className="w-full inline-flex items-center justify-center gap-2 bg-[#FF7849] text-[#141414] font-bold text-xs uppercase tracking-wider py-4 rounded-2xl shadow-[0_4px_0_#b94a22] active:shadow-[0_0_0_#b94a22] active:translate-y-1 transition-all duration-150"
               >
                 <span>Let&apos;s Connect</span>
