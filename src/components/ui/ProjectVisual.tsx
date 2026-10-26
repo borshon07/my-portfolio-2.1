@@ -13,7 +13,7 @@ export default function ProjectVisual({
   priority?: boolean;
 }) {
   return (
-    <div className={`relative overflow-hidden bg-[#121212] ${className}`}>
+    <div className={`relative overflow-hidden bg-sunken ${className}`}>
       {project.image ? (
         <Image
           src={project.image}
@@ -30,7 +30,7 @@ export default function ProjectVisual({
             className="absolute inset-0 opacity-[0.06]"
             style={{
               backgroundImage:
-                "linear-gradient(#F4F0E8 1px, transparent 1px), linear-gradient(90deg, #F4F0E8 1px, transparent 1px)",
+                "linear-gradient(var(--fg) 1px, transparent 1px), linear-gradient(90deg, var(--fg) 1px, transparent 1px)",
               backgroundSize: "32px 32px",
             }}
           />
@@ -39,21 +39,21 @@ export default function ProjectVisual({
             className="absolute inset-0"
             style={{
               background:
-                "radial-gradient(circle at 70% 20%, rgba(255,120,73,0.18), transparent 60%)",
+                "radial-gradient(circle at 70% 20%, rgb(var(--accent-rgb)/0.18), transparent 60%)",
             }}
           />
           <div className="absolute top-4 left-4 flex gap-1.5" aria-hidden>
-            <span className="w-2.5 h-2.5 rounded-full bg-[#333]" />
-            <span className="w-2.5 h-2.5 rounded-full bg-[#333]" />
-            <span className="w-2.5 h-2.5 rounded-full bg-[#333]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-line-strong" />
+            <span className="w-2.5 h-2.5 rounded-full bg-line-strong" />
+            <span className="w-2.5 h-2.5 rounded-full bg-line-strong" />
           </div>
-          <span className="relative text-[11px] font-mono uppercase tracking-wider text-[#FF7849]">
+          <span className="relative text-[11px] font-mono uppercase tracking-wider text-accent-fg">
             {project.eyebrow || "Web Application"}
           </span>
-          <span className="relative text-xl sm:text-2xl font-bold tracking-tight text-[#F4F0E8]">
+          <span className="relative text-xl sm:text-2xl font-bold tracking-tight text-fg">
             {project.title}
           </span>
-          <span className="relative text-[11px] font-mono text-[#A39E93]/70">
+          <span className="relative text-[11px] font-mono text-muted/70">
             Screenshot coming soon
           </span>
         </div>

@@ -54,10 +54,10 @@ function Block({
       whileInView="visible"
       viewport={defaultViewport}
       variants={fadeInUp}
-      className="p-6 sm:p-8 rounded-2xl bg-[#181818] border border-[#303030] shadow-xl shadow-black/20"
+      className="p-6 sm:p-8 rounded-2xl bg-surface border border-line shadow-xl shadow-black/20"
     >
-      <h2 className="flex items-center gap-3 text-lg sm:text-xl font-semibold text-[#F4F0E8] tracking-tight mb-5">
-        <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-[#222222] border border-[#353535] text-[#FF7849]">
+      <h2 className="flex items-center gap-3 text-lg sm:text-xl font-semibold text-fg tracking-tight mb-5">
+        <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-surface-3 border border-line-strong text-accent-fg">
           <Icon className="w-4 h-4" />
         </span>
         {title}
@@ -108,7 +108,7 @@ export default function ProjectDetail({
         <motion.div variants={item}>
           <Link
             href="/#projects"
-            className="group inline-flex items-center gap-2 text-xs font-mono text-[#A39E93] hover:text-[#FF7849] transition-colors mb-8"
+            className="group inline-flex items-center gap-2 text-xs font-mono text-muted hover:text-accent-fg transition-colors mb-8"
           >
             <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-1" />
             <span>All projects</span>
@@ -116,15 +116,15 @@ export default function ProjectDetail({
         </motion.div>
 
         <motion.div variants={item} className="flex flex-wrap items-center gap-3 mb-4">
-          <span className="text-xs font-mono text-[#FF7849] uppercase tracking-widest font-semibold">
+          <span className="text-xs font-mono text-accent-fg uppercase tracking-widest font-semibold">
             {project.eyebrow || "Web Application"}
           </span>
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-[#A39E93] px-2.5 py-1 rounded-lg bg-[#202020] border border-[#2e2e2e]">
-            <Calendar className="w-3 h-3 text-[#FF7849]" />
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-mono text-muted px-2.5 py-1 rounded-lg bg-surface-3 border border-line">
+            <Calendar className="w-3 h-3 text-accent-fg" />
             {project.year}
           </span>
           {project.featured && (
-            <span className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#FF7849]/15 text-[#FF7849] border border-[#FF7849]/35">
+            <span className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-accent/15 text-accent-fg border border-accent/35">
               Featured
             </span>
           )}
@@ -132,14 +132,14 @@ export default function ProjectDetail({
 
         <motion.h1
           variants={item}
-          className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[#F4F0E8] leading-[1.1] mb-5"
+          className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-fg leading-[1.1] mb-5"
         >
           {project.title}
         </motion.h1>
 
         <motion.p
           variants={item}
-          className="text-base sm:text-lg text-[#A39E93] leading-relaxed max-w-2xl mb-8"
+          className="text-base sm:text-lg text-muted leading-relaxed max-w-2xl mb-8"
         >
           {project.tagline}
         </motion.p>
@@ -150,7 +150,7 @@ export default function ProjectDetail({
               href={project.liveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center gap-2 bg-[#FF7849] hover:bg-[#ff8559] text-[#141414] text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full shadow-[0_4px_0_#b94a22] hover:shadow-[0_3px_0_#b94a22] hover:translate-y-px active:shadow-[0_0_0_#b94a22] active:translate-y-1 transition-all duration-150"
+              className="group inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-on-accent text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full shadow-[0_4px_0_var(--accent-deep)] hover:shadow-[0_3px_0_var(--accent-deep)] hover:translate-y-px active:shadow-[0_0_0_var(--accent-deep)] active:translate-y-1 transition-all duration-150"
             >
               <ExternalLink className="w-4 h-4" />
               <span>Live Project</span>
@@ -159,7 +159,7 @@ export default function ProjectDetail({
           ) : (
             <span
               aria-disabled
-              className="inline-flex items-center gap-2 text-xs font-mono px-6 py-3.5 rounded-full bg-[#1a1a1a] border border-dashed border-[#404040] text-[#A39E93] cursor-not-allowed"
+              className="inline-flex items-center gap-2 text-xs font-mono px-6 py-3.5 rounded-full bg-surface-2 border border-dashed border-line-strong text-muted cursor-not-allowed"
             >
               <ExternalLink className="w-4 h-4" />
               Live link coming soon
@@ -171,9 +171,9 @@ export default function ProjectDetail({
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#242424] text-[#F4F0E8] border border-[#303030] hover:border-[#FF7849]/60 text-xs font-semibold uppercase tracking-wider px-6 py-3.5 rounded-full transition-colors active:scale-95"
+              className="group inline-flex items-center gap-2 bg-surface-2 hover:bg-surface-4 text-fg border border-line hover:border-accent/60 text-xs font-semibold uppercase tracking-wider px-6 py-3.5 rounded-full transition-colors active:scale-95"
             >
-              <GithubIcon className="w-4 h-4 text-[#FF7849]" />
+              <GithubIcon className="w-4 h-4 text-accent-fg" />
               <span>GitHub Repository</span>
             </a>
           )}
@@ -191,9 +191,9 @@ export default function ProjectDetail({
             <div
               aria-hidden
               style={{ transform: "translateZ(-40px)" }}
-              className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-[#FF7849]/20 via-[#FF7849]/5 to-transparent blur-2xl pointer-events-none"
+              className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-accent/20 via-accent/5 to-transparent blur-2xl pointer-events-none"
             />
-            <div className="relative p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl bg-[#181818] border border-[#303030] shadow-2xl shadow-black/50">
+            <div className="relative p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl bg-surface border border-line shadow-2xl shadow-black/50">
               <ProjectVisual
                 project={project}
                 priority
@@ -209,7 +209,7 @@ export default function ProjectDetail({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
         <div className="lg:col-span-8 flex flex-col gap-6">
           <Block icon={Layers} title="Overview">
-            <p className="text-sm sm:text-base text-[#A39E93] leading-relaxed">
+            <p className="text-sm sm:text-base text-muted leading-relaxed">
               {project.description}
             </p>
           </Block>
@@ -218,8 +218,8 @@ export default function ProjectDetail({
             <ul className="flex flex-col gap-4">
               {project.challenges.map((challenge) => (
                 <li key={challenge} className="flex gap-3">
-                  <span className="mt-2 w-1.5 h-1.5 rounded-full bg-[#FF7849] shrink-0" />
-                  <span className="text-sm sm:text-base text-[#A39E93] leading-relaxed">
+                  <span className="mt-2 w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
+                  <span className="text-sm sm:text-base text-muted leading-relaxed">
                     {challenge}
                   </span>
                 </li>
@@ -231,8 +231,8 @@ export default function ProjectDetail({
             <ul className="flex flex-col gap-4">
               {project.improvements.map((idea) => (
                 <li key={idea} className="flex gap-3">
-                  <ArrowRight className="mt-1 w-4 h-4 text-[#FF7849] shrink-0" />
-                  <span className="text-sm sm:text-base text-[#A39E93] leading-relaxed">
+                  <ArrowRight className="mt-1 w-4 h-4 text-accent-fg shrink-0" />
+                  <span className="text-sm sm:text-base text-muted leading-relaxed">
                     {idea}
                   </span>
                 </li>
@@ -248,9 +248,9 @@ export default function ProjectDetail({
             whileInView="visible"
             viewport={defaultViewport}
             variants={fadeInUp}
-            className="p-6 rounded-2xl bg-[#181818] border border-[#303030] shadow-xl shadow-black/20"
+            className="p-6 rounded-2xl bg-surface border border-line shadow-xl shadow-black/20"
           >
-            <h2 className="text-xs font-mono text-[#A39E93] uppercase tracking-wider mb-4">
+            <h2 className="text-xs font-mono text-muted uppercase tracking-wider mb-4">
               Tech stack
             </h2>
             <div className="flex flex-wrap gap-2">
@@ -261,7 +261,7 @@ export default function ProjectDetail({
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={defaultViewport}
                   transition={{ duration: 0.35, delay: 0.1 + i * 0.05 }}
-                  className="text-xs font-mono px-3 py-1.5 rounded-lg bg-[#202020] text-[#F4F0E8]/90 border border-[#2e2e2e] hover:border-[#FF7849]/50 hover:text-[#FF7849] transition-colors"
+                  className="text-xs font-mono px-3 py-1.5 rounded-lg bg-surface-3 text-fg/90 border border-line hover:border-accent/50 hover:text-accent-fg transition-colors"
                 >
                   {tech}
                 </motion.span>
@@ -274,9 +274,9 @@ export default function ProjectDetail({
             whileInView="visible"
             viewport={defaultViewport}
             variants={fadeInUp}
-            className="p-6 rounded-2xl bg-[#181818] border border-[#303030] shadow-xl shadow-black/20"
+            className="p-6 rounded-2xl bg-surface border border-line shadow-xl shadow-black/20"
           >
-            <h2 className="text-xs font-mono text-[#A39E93] uppercase tracking-wider mb-4">
+            <h2 className="text-xs font-mono text-muted uppercase tracking-wider mb-4">
               Links
             </h2>
             <div className="flex flex-col gap-2 text-sm">
@@ -285,16 +285,16 @@ export default function ProjectDetail({
                   href={project.liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-[#202020] border border-[#2e2e2e] text-[#F4F0E8] hover:border-[#FF7849]/50 hover:text-[#FF7849] transition-colors"
+                  className="group flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-surface-3 border border-line text-fg hover:border-accent/50 hover:text-accent-fg transition-colors"
                 >
                   <span className="inline-flex items-center gap-2">
-                    <ExternalLink className="w-4 h-4 text-[#FF7849]" />
+                    <ExternalLink className="w-4 h-4 text-accent-fg" />
                     Live project
                   </span>
-                  <ArrowUpRight className="w-3.5 h-3.5 text-[#A39E93] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRight className="w-3.5 h-3.5 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </a>
               ) : (
-                <div className="px-4 py-3 rounded-xl border border-dashed border-[#404040] text-xs font-mono text-[#A39E93]">
+                <div className="px-4 py-3 rounded-xl border border-dashed border-line-strong text-xs font-mono text-muted">
                   Live link coming soon
                 </div>
               )}
@@ -304,13 +304,13 @@ export default function ProjectDetail({
                   href={project.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-[#202020] border border-[#2e2e2e] text-[#F4F0E8] hover:border-[#FF7849]/50 hover:text-[#FF7849] transition-colors"
+                  className="group flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-surface-3 border border-line text-fg hover:border-accent/50 hover:text-accent-fg transition-colors"
                 >
                   <span className="inline-flex items-center gap-2">
-                    <GithubIcon className="w-4 h-4 text-[#FF7849]" />
+                    <GithubIcon className="w-4 h-4 text-accent-fg" />
                     GitHub repository
                   </span>
-                  <ArrowUpRight className="w-3.5 h-3.5 text-[#A39E93] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRight className="w-3.5 h-3.5 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </a>
               )}
             </div>
@@ -326,30 +326,30 @@ export default function ProjectDetail({
           whileInView="visible"
           viewport={defaultViewport}
           variants={fadeInUp}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-16 pt-10 border-t border-[#303030]/80"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-16 pt-10 border-t border-line/80"
         >
           <Link
             href={`/projects/${prev.id}`}
-            className="group p-5 rounded-2xl bg-[#181818] border border-[#303030] hover:border-[#FF7849]/50 transition-colors"
+            className="group p-5 rounded-2xl bg-surface border border-line hover:border-accent/50 transition-colors"
           >
-            <span className="inline-flex items-center gap-2 text-[11px] font-mono text-[#A39E93] mb-2">
+            <span className="inline-flex items-center gap-2 text-[11px] font-mono text-muted mb-2">
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
               Previous project
             </span>
-            <span className="block text-base font-semibold text-[#F4F0E8] group-hover:text-[#FF7849] transition-colors">
+            <span className="block text-base font-semibold text-fg group-hover:text-accent-fg transition-colors">
               {prev.title}
             </span>
           </Link>
 
           <Link
             href={`/projects/${next.id}`}
-            className="group p-5 rounded-2xl bg-[#181818] border border-[#303030] hover:border-[#FF7849]/50 transition-colors sm:text-right"
+            className="group p-5 rounded-2xl bg-surface border border-line hover:border-accent/50 transition-colors sm:text-right"
           >
-            <span className="inline-flex items-center gap-2 text-[11px] font-mono text-[#A39E93] mb-2 sm:flex-row-reverse">
+            <span className="inline-flex items-center gap-2 text-[11px] font-mono text-muted mb-2 sm:flex-row-reverse">
               <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
               Next project
             </span>
-            <span className="block text-base font-semibold text-[#F4F0E8] group-hover:text-[#FF7849] transition-colors">
+            <span className="block text-base font-semibold text-fg group-hover:text-accent-fg transition-colors">
               {next.title}
             </span>
           </Link>

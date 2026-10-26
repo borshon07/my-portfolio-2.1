@@ -43,7 +43,7 @@ function CubeLogo({ reduceMotion }: { reduceMotion: boolean | null }) {
           <span
             key={i}
             style={{ transform }}
-            className="absolute inset-0 rounded-[3px] border border-[#FF7849]/80 bg-[#FF7849]/20"
+            className="absolute inset-0 rounded-[3px] border border-accent/80 bg-accent/20"
           />
         ))}
       </motion.span>
@@ -61,7 +61,7 @@ function FlipLabel({ label }: { label: string }) {
         </span>
         <span
           aria-hidden
-          className="absolute inset-0 block h-4 leading-4 text-[#FF7849] [transform:rotateX(90deg)_translateZ(8px)] [backface-visibility:hidden]"
+          className="absolute inset-0 block h-4 leading-4 text-accent-fg [transform:rotateX(90deg)_translateZ(8px)] [backface-visibility:hidden]"
         >
           {label}
         </span>
@@ -106,7 +106,7 @@ export default function Footer() {
   const rotateY = useSpring(ry, { stiffness: 120, damping: 16, mass: 0.6 });
   const gx = useMotionValue(50);
   const gy = useMotionValue(50);
-  const wordGlow = useMotionTemplate`radial-gradient(500px circle at ${gx}% ${gy}%, rgba(255,120,73,0.16), transparent 65%)`;
+  const wordGlow = useMotionTemplate`radial-gradient(500px circle at ${gx}% ${gy}%, rgb(var(--accent-rgb)/0.16), transparent 65%)`;
 
   const handleWordMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (reduceMotion || !wordRef.current) return;
@@ -125,17 +125,17 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative w-full bg-[#101010] border-t border-[#303030]/80 pt-20 pb-10 px-6 md:px-12 mt-12 overflow-hidden">
+    <footer className="theme-inverse relative w-full bg-sunken border-t border-line/80 pt-20 pb-10 px-6 md:px-12 mt-12 overflow-hidden">
       {/* Top accent line */}
       <div
         aria-hidden
-        className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#FF7849]/60 to-transparent"
+        className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent"
       />
 
       {/* Ambient glow */}
       <div
         aria-hidden
-        className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#FF7849]/8 rounded-full blur-3xl pointer-events-none"
+        className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent/8 rounded-full blur-3xl pointer-events-none"
       />
 
       <motion.div
@@ -152,17 +152,17 @@ export default function Footer() {
               <div className="flex items-center gap-2 mb-3">
                 {personalInfo.isAvailableForWork && (
                   <span className="relative flex w-2 h-2">
-                    <span className="absolute inline-flex w-full h-full rounded-full bg-[#FF7849] opacity-75 animate-ping" />
-                    <span className="relative inline-flex w-2 h-2 rounded-full bg-[#FF7849]" />
+                    <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />
+                    <span className="relative inline-flex w-2 h-2 rounded-full bg-accent" />
                   </span>
                 )}
-                <span className="text-xs font-mono text-[#FF7849] uppercase tracking-widest font-semibold">
+                <span className="text-xs font-mono text-accent-fg uppercase tracking-widest font-semibold">
                   {personalInfo.isAvailableForWork
                     ? "Available for new projects"
                     : "Say hello"}
                 </span>
               </div>
-              <p className="text-lg sm:text-xl text-[#F4F0E8] font-light leading-relaxed">
+              <p className="text-lg sm:text-xl text-fg font-light leading-relaxed">
                 Have a project in mind? Let&apos;s talk about how I can help bring it to life.
               </p>
             </div>
@@ -170,7 +170,7 @@ export default function Footer() {
             <Link
               href={resolve("#contact")}
               onClick={(e) => scrollToSection(e, "#contact")}
-              className="group self-start md:self-auto inline-flex items-center gap-2 bg-[#FF7849] hover:bg-[#ff8559] text-[#141414] text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full shadow-[0_4px_0_#b94a22] hover:shadow-[0_3px_0_#b94a22] hover:translate-y-px active:shadow-[0_0_0_#b94a22] active:translate-y-1 transition-all duration-150"
+              className="group self-start md:self-auto inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-on-accent text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full shadow-[0_4px_0_var(--accent-deep)] hover:shadow-[0_3px_0_var(--accent-deep)] hover:translate-y-px active:shadow-[0_0_0_var(--accent-deep)] active:translate-y-1 transition-all duration-150"
             >
               <span>Start a Conversation</span>
               <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -198,7 +198,7 @@ export default function Footer() {
               {/* Back layer (extrusion) */}
               <div
                 style={{ transform: "translateZ(-28px)" }}
-                className="absolute inset-0 flex items-center justify-center text-[length:min(10vw,8.5rem)] leading-none font-extrabold tracking-tighter uppercase text-[#FF7849]/12 whitespace-nowrap py-4"
+                className="absolute inset-0 flex items-center justify-center text-[length:min(10vw,8.5rem)] leading-none font-extrabold tracking-tighter uppercase text-accent-fg/12 whitespace-nowrap py-4"
               >
                 {personalInfo.name}
               </div>
@@ -207,9 +207,9 @@ export default function Footer() {
               <div
                 style={{
                   transform: "translateZ(0px)",
-                  WebkitTextStroke: "1px #3a3a3a",
+                  WebkitTextStroke: "1px var(--line-strong)",
                 }}
-                className="relative flex items-center justify-center text-[length:min(10vw,8.5rem)] leading-none font-extrabold tracking-tighter uppercase text-transparent whitespace-nowrap hover:text-[#F4F0E8]/5 transition-colors duration-500"
+                className="relative flex items-center justify-center text-[length:min(10vw,8.5rem)] leading-none font-extrabold tracking-tighter uppercase text-transparent whitespace-nowrap hover:text-fg/5 transition-colors duration-500"
               >
                 {personalInfo.name}
               </div>
@@ -220,30 +220,30 @@ export default function Footer() {
         {/* Row 2: brand, nav, socials */}
         <motion.div
           variants={item}
-          className="grid grid-cols-1 md:grid-cols-12 gap-10 pt-12 border-t border-[#262626]"
+          className="grid grid-cols-1 md:grid-cols-12 gap-10 pt-12 border-t border-line-soft"
         >
           {/* Brand */}
           <div className="md:col-span-5">
             <Link
               href={resolve("#hero")}
               onClick={(e) => scrollToSection(e, "#hero")}
-              className="group inline-flex items-center gap-3 text-[#F4F0E8] font-bold text-xl tracking-tight hover:text-[#FF7849] transition-colors"
+              className="group inline-flex items-center gap-3 text-fg font-bold text-xl tracking-tight hover:text-accent-fg transition-colors"
             >
               <CubeLogo reduceMotion={reduceMotion} />
               <span>{personalInfo.name}</span>
             </Link>
-            <p className="text-xs text-[#A39E93] font-mono mt-3 max-w-sm leading-relaxed">
+            <p className="text-xs text-muted font-mono mt-3 max-w-sm leading-relaxed">
               Web Developer crafting responsive, clean, and thoughtful web interfaces.
             </p>
-            <div className="flex items-center gap-1.5 mt-4 text-xs font-mono text-[#A39E93]">
-              <MapPin className="w-3.5 h-3.5 text-[#FF7849]" />
+            <div className="flex items-center gap-1.5 mt-4 text-xs font-mono text-muted">
+              <MapPin className="w-3.5 h-3.5 text-accent-fg" />
               {personalInfo.location}
             </div>
           </div>
 
           {/* Navigation */}
           <div className="md:col-span-3">
-            <div className="text-[11px] font-mono text-[#A39E93]/70 uppercase tracking-widest mb-4">
+            <div className="text-[11px] font-mono text-muted/70 uppercase tracking-widest mb-4">
               Navigate
             </div>
             <nav className="flex flex-col gap-3">
@@ -252,7 +252,7 @@ export default function Footer() {
                   key={navItem.href}
                   href={resolve(navItem.href)}
                   onClick={(e) => scrollToSection(e, navItem.href)}
-                  className="group w-fit text-xs font-mono uppercase tracking-wider text-[#A39E93] hover:text-[#F4F0E8] transition-colors"
+                  className="group w-fit text-xs font-mono uppercase tracking-wider text-muted hover:text-fg transition-colors"
                 >
                   <FlipLabel label={navItem.label} />
                 </Link>
@@ -262,7 +262,7 @@ export default function Footer() {
 
           {/* Socials */}
           <div className="md:col-span-4">
-            <div className="text-[11px] font-mono text-[#A39E93]/70 uppercase tracking-widest mb-4">
+            <div className="text-[11px] font-mono text-muted/70 uppercase tracking-widest mb-4">
               Find me online
             </div>
             <div className="flex items-center gap-3">
@@ -274,7 +274,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label={`${social.platform} profile`}
                   title={social.platform}
-                  className="group flex items-center justify-center w-11 h-11 rounded-xl bg-[#1c1c1c] border border-[#303030] text-[#A39E93] shadow-[0_4px_0_#262626] hover:text-[#141414] hover:bg-[#FF7849] hover:border-[#FF7849] hover:shadow-[0_3px_0_#b94a22] hover:translate-y-px active:shadow-[0_0_0_#b94a22] active:translate-y-1 transition-all duration-150"
+                  className="group flex items-center justify-center w-11 h-11 rounded-xl bg-surface-2 border border-line text-muted shadow-[0_4px_0_var(--line-soft)] hover:text-on-accent hover:bg-accent hover:border-accent hover:shadow-[0_3px_0_var(--accent-deep)] hover:translate-y-px active:shadow-[0_0_0_var(--accent-deep)] active:translate-y-1 transition-all duration-150"
                 >
                   {social.iconName === "github" ? (
                     <GithubIcon className="w-4 h-4" />
@@ -292,7 +292,7 @@ export default function Footer() {
         {/* Row 3: copyright + back to top */}
         <motion.div
           variants={item}
-          className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 border-t border-[#262626] text-xs font-mono text-[#A39E93]"
+          className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 border-t border-line-soft text-xs font-mono text-muted"
         >
           <div>
             &copy; {currentYear} {personalInfo.name}. All rights reserved.
@@ -301,10 +301,10 @@ export default function Footer() {
           <Link
             href={resolve("#hero")}
             onClick={(e) => scrollToSection(e, "#hero")}
-            className="group inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c1c1c] border border-[#303030] text-[#F4F0E8] shadow-[0_4px_0_#262626] hover:text-[#FF7849] hover:border-[#FF7849]/50 hover:shadow-[0_3px_0_#262626] hover:translate-y-px active:shadow-[0_0_0_#262626] active:translate-y-1 transition-all duration-150"
+            className="group inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-2 border border-line text-fg shadow-[0_4px_0_var(--line-soft)] hover:text-accent-fg hover:border-accent/50 hover:shadow-[0_3px_0_var(--line-soft)] hover:translate-y-px active:shadow-[0_0_0_var(--line-soft)] active:translate-y-1 transition-all duration-150"
           >
             <span>Back to Top</span>
-            <ArrowUp className="w-3.5 h-3.5 text-[#FF7849] transition-transform duration-200 group-hover:-translate-y-0.5" />
+            <ArrowUp className="w-3.5 h-3.5 text-accent-fg transition-transform duration-200 group-hover:-translate-y-0.5" />
           </Link>
         </motion.div>
       </motion.div>

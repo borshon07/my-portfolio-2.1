@@ -114,8 +114,8 @@ export const projects: Project[] = [
       "A Bangla grocery market tracker built with Next.js 16 App Router, TypeScript, and Better Auth. Features an infinite scrolling price ticker, top price risers and fallers, category browsing, and bazar-wise price comparisons connected to MongoDB.",
     technologies: ["Next.js 16", "TypeScript", "Tailwind CSS", "HeroUI", "Better Auth", "MongoDB"],
     githubUrl: "https://github.com/borshon07/BazarDor-web-B14-Ass-07",
-    liveUrl: "https://bazar-dor-web-b14-ass-07.vercel.app",
-    // image: "/projects/bazardor.png", // screenshot rakhar por uncomment koro
+    liveUrl: "https://bazar-dor-web-b14-ass-07.vercel.app/",
+    image: "/projects/bazardor.png", // screenshot rakhar por uncomment koro
     challenges: [
       "Setting up authentication with Better Auth in the Next.js App Router and keeping server and client session handling clear.",
       "Designing MongoDB data for products, categories and bazar-wise prices so daily changes could be compared quickly.",
@@ -139,8 +139,8 @@ export const projects: Project[] = [
       "A distraction-free training companion featuring a categorized workout directory with muscle groups, equipment requirements, difficulty filters, and saved exercises built with Next.js and Tailwind CSS.",
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "DaisyUI", "next-themes", "Sonner"],
     githubUrl: "https://github.com/borshon07/B-14-A06--FitLog-by-Borshon",
-    // liveUrl: "https://...", // live link ache hole boshao
-    // image: "/projects/fitlog.png",
+    liveUrl: "https://fitlog.vercel.app/",
+    image: "/projects/fitlog.png",
     challenges: [
       "Building filters for muscle group, equipment and difficulty that work together without confusing results.",
       "Keeping saved exercises and the theme preference consistent across pages.",
@@ -164,8 +164,8 @@ export const projects: Project[] = [
       "An interactive web application enabling developers to explore frontend, backend, database, and dev tool catalogs. Features real-time stack assembly, duplicate-selection prevention, and dynamic toast feedback.",
     technologies: ["React", "TypeScript", "Tailwind CSS", "Vite", "React-Toastify"],
     githubUrl: "https://github.com/borshon07/B-14-A05--DevStack-",
-    // liveUrl: "https://...",
-    // image: "/projects/devstack.png",
+    liveUrl: "https://devstack-builder.vercel.app/",
+    image: "/projects/devstack.png",
     challenges: [
       "Managing the selected-technology state and preventing duplicates while keeping the UI responsive.",
       "Giving clear toast feedback for add, remove and duplicate actions.",

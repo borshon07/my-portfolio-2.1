@@ -56,7 +56,7 @@ export default function Contact() {
   /* ---------- Cursor-following glow ---------- */
   const glowX = useMotionValue(-500);
   const glowY = useMotionValue(-500);
-  const glowBackground = useMotionTemplate`radial-gradient(450px circle at ${glowX}px ${glowY}px, rgba(255,120,73,0.14), transparent 65%)`;
+  const glowBackground = useMotionTemplate`radial-gradient(450px circle at ${glowX}px ${glowY}px, rgb(var(--accent-rgb)/0.14), transparent 65%)`;
 
   const handleCardMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (reduceMotion) return;
@@ -105,10 +105,10 @@ export default function Contact() {
         viewport={defaultViewport}
         variants={container}
         onMouseMove={handleCardMove}
-        className="relative rounded-3xl bg-[#161616] border border-[#303030] p-8 sm:p-14 md:p-18 overflow-hidden shadow-2xl"
+        className="theme-inverse relative rounded-3xl bg-surface border border-line p-8 ..."
       >
         {/* Static ambient glow */}
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#FF7849]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Cursor-following glow */}
         {!reduceMotion && (
@@ -123,10 +123,10 @@ export default function Contact() {
           {/* Eyebrow */}
           <motion.div variants={item} className="flex items-center gap-2 mb-6">
             <span className="relative flex w-2 h-2">
-              <span className="absolute inline-flex w-full h-full rounded-full bg-[#FF7849] opacity-75 animate-ping" />
-              <span className="relative inline-flex w-2 h-2 rounded-full bg-[#FF7849]" />
+              <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />
+              <span className="relative inline-flex w-2 h-2 rounded-full bg-accent" />
             </span>
-            <span className="text-xs font-mono uppercase tracking-widest text-[#FF7849] font-semibold">
+            <span className="text-xs font-mono uppercase tracking-widest text-accent-fg font-semibold">
               04 // Get In Touch
             </span>
           </motion.div>
@@ -134,10 +134,10 @@ export default function Contact() {
           {/* Headline */}
           <motion.h2
             variants={item}
-            className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[#F4F0E8] leading-[1.1] mb-6"
+            className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-fg leading-[1.1] mb-6"
           >
             Have an idea?{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F4F0E8] via-[#FF7849] to-[#FF7849] block sm:inline">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-fg via-accent to-accent block sm:inline">
               Let&apos;s build something meaningful.
             </span>
           </motion.h2>
@@ -145,7 +145,7 @@ export default function Contact() {
           {/* Supporting copy */}
           <motion.p
             variants={item}
-            className="text-base sm:text-lg text-[#A39E93] leading-relaxed mb-10 max-w-2xl font-normal"
+            className="text-base sm:text-lg text-muted leading-relaxed mb-10 max-w-2xl font-normal"
           >
             Whether you are looking for a dedicated web developer for your team, have an
             open-source project to collaborate on, or just want to discuss modern frontend
@@ -164,7 +164,7 @@ export default function Contact() {
               onMouseMove={handleMagnetMove}
               onMouseLeave={handleMagnetLeave}
               whileTap={{ scale: 0.95 }}
-              className="group inline-flex items-center justify-center gap-2.5 bg-[#FF7849] hover:bg-[#ff6633] text-[#141414] font-bold text-xs uppercase tracking-wider px-8 py-4 rounded-full transition-colors duration-300 shadow-xl shadow-[#FF7849]/25 hover:shadow-[#FF7849]/40"
+              className="group inline-flex items-center justify-center gap-2.5 bg-accent hover:bg-accent-hover text-on-accent font-bold text-xs uppercase tracking-wider px-8 py-4 rounded-full transition-colors duration-300 shadow-xl shadow-accent/25 hover:shadow-accent/40"
             >
               <Mail className="w-4 h-4" />
               <span>Send an Email</span>
@@ -175,7 +175,7 @@ export default function Contact() {
             <button
               onClick={handleCopyEmail}
               aria-label="Copy email address to clipboard"
-              className="inline-flex items-center justify-center gap-2 bg-[#202020] hover:bg-[#282828] text-[#F4F0E8] border border-[#303030] hover:border-[#FF7849]/50 px-6 py-4 rounded-full text-xs font-mono transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
+              className="inline-flex items-center justify-center gap-2 bg-surface-3 hover:bg-surface-4 text-fg border border-line hover:border-accent/50 px-6 py-4 rounded-full text-xs font-mono transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
             >
               <AnimatePresence mode="wait" initial={false}>
                 <motion.span
@@ -187,13 +187,13 @@ export default function Contact() {
                   className="inline-flex"
                 >
                   {copied ? (
-                    <Check className="w-4 h-4 text-[#FF7849]" />
+                    <Check className="w-4 h-4 text-accent-fg" />
                   ) : (
-                    <Copy className="w-4 h-4 text-[#A39E93]" />
+                    <Copy className="w-4 h-4 text-muted" />
                   )}
                 </motion.span>
               </AnimatePresence>
-              <span className={copied ? "text-[#FF7849] font-medium" : ""}>
+              <span className={copied ? "text-accent-fg font-medium" : ""}>
                 {copied ? "Copied to Clipboard!" : EMAIL}
               </span>
             </button>
@@ -208,14 +208,14 @@ export default function Contact() {
               {personalInfo.phone && (
                 <a
                   href={`tel:${personalInfo.phone.replace(/[\s-]/g, "")}`}
-                  className="group flex items-center gap-4 p-4 rounded-2xl bg-[#1a1a1a] border border-[#303030] hover:border-[#FF7849]/50 transition-colors"
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-surface-2 border border-line hover:border-accent/50 transition-colors"
                 >
-                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#222222] border border-[#353535] text-[#FF7849] group-hover:bg-[#FF7849] group-hover:text-[#141414] group-hover:border-[#FF7849] transition-colors">
+                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-surface-3 border border-line-strong text-accent-fg group-hover:bg-accent group-hover:text-on-accent group-hover:border-accent transition-colors">
                     <Phone className="w-4 h-4" />
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-[11px] font-mono text-[#A39E93]">Phone</span>
-                    <span className="text-sm font-mono text-[#F4F0E8]">
+                    <span className="text-[11px] font-mono text-muted">Phone</span>
+                    <span className="text-sm font-mono text-fg">
                       {personalInfo.phone}
                     </span>
                   </span>
@@ -228,16 +228,16 @@ export default function Contact() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Chat with me on WhatsApp"
-                  className="group flex items-center gap-4 p-4 rounded-2xl bg-[#1a1a1a] border border-[#303030] hover:border-[#FF7849]/50 transition-colors"
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-surface-2 border border-line hover:border-accent/50 transition-colors"
                 >
-                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#222222] border border-[#353535] text-[#FF7849] group-hover:bg-[#FF7849] group-hover:text-[#141414] group-hover:border-[#FF7849] transition-colors">
+                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-surface-3 border border-line-strong text-accent-fg group-hover:bg-accent group-hover:text-on-accent group-hover:border-accent transition-colors">
                     <MessageCircle className="w-4 h-4" />
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-[11px] font-mono text-[#A39E93]">WhatsApp</span>
-                    <span className="text-sm font-mono text-[#F4F0E8] inline-flex items-center gap-1.5">
+                    <span className="text-[11px] font-mono text-muted">WhatsApp</span>
+                    <span className="text-sm font-mono text-fg inline-flex items-center gap-1.5">
                       Chat on WhatsApp
-                      <ArrowUpRight className="w-3.5 h-3.5 text-[#A39E93] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      <ArrowUpRight className="w-3.5 h-3.5 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </span>
                   </span>
                 </a>
@@ -248,10 +248,10 @@ export default function Contact() {
           {/* Direct channels */}
           <motion.div
             variants={item}
-            className="pt-8 border-t border-[#303030]/80 flex flex-wrap items-center justify-between gap-6 text-xs font-mono text-[#A39E93]"
+            className="pt-8 border-t border-line/80 flex flex-wrap items-center justify-between gap-6 text-xs font-mono text-muted"
           >
             <div className="flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-[#FF7849]" />
+              <MessageSquare className="w-4 h-4 text-accent-fg" />
               <span>Response time: Usually within 24–48 hours</span>
             </div>
 
@@ -263,7 +263,7 @@ export default function Contact() {
                   href={social.url}
                   target={social.iconName === "mail" ? undefined : "_blank"}
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-1.5 text-[#F4F0E8] hover:text-[#FF7849] transition-all hover:scale-105"
+                  className="group inline-flex items-center gap-1.5 text-fg hover:text-accent-fg transition-all hover:scale-105"
                 >
                   {social.iconName === "github" ? (
                     <GithubIcon className="w-4 h-4" />
@@ -273,7 +273,7 @@ export default function Contact() {
                     <Mail className="w-4 h-4" />
                   )}
                   <span>{social.platform}</span>
-                  <ArrowUpRight className="w-3 h-3 text-[#A39E93] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#FF7849]" />
+                  <ArrowUpRight className="w-3 h-3 text-muted transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent-fg" />
                 </a>
               ))}
             </div>

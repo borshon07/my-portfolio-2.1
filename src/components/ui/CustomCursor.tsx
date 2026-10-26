@@ -65,7 +65,7 @@ function TrailBlob({
 
   return (
     <motion.div
-      className="absolute top-0 left-0 rounded-full bg-[#FF7849]"
+      className="absolute top-0 left-0 rounded-full bg-accent"
       style={{ width: size, height: size, x: left, y: top }}
     />
   );
@@ -306,7 +306,7 @@ export default function CustomCursor() {
         ))}
 
         <motion.div
-          className="absolute top-0 left-0 bg-[#FF7849]"
+          className="absolute top-0 left-0 bg-accent"
           style={{
             x: headX,
             y: headY,
@@ -323,7 +323,7 @@ export default function CustomCursor() {
 
       {/* Crisp outline: snap korle element er chardike ring */}
       <motion.div
-        className="absolute top-0 left-0 border border-[#FF7849]/70"
+        className="absolute top-0 left-0 border border-accent/70"
         style={{
           x: headX,
           y: headY,
@@ -337,7 +337,7 @@ export default function CustomCursor() {
 
       {/* Precise center dot */}
       <motion.div
-        className="absolute top-0 left-0 w-1 h-1 rounded-full bg-[#F4F0E8]"
+        className="absolute top-0 left-0 w-1 h-1 rounded-full bg-fg"
         style={{ x: dotX, y: dotY }}
         animate={{ scale: mode === "idle" ? 1 : 0 }}
         transition={{ duration: 0.15 }}

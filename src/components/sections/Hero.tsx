@@ -67,9 +67,9 @@ function FloatingChip({
         scale: { duration: 0.5, delay: 0.9 + delay },
         y: { duration, delay, repeat: Infinity, ease: "easeInOut" },
       }}
-      className={`absolute hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-[#1a1a1a]/90 backdrop-blur-md border border-[#303030] shadow-xl shadow-black/40 text-[11px] font-mono text-[#F4F0E8] ${className}`}
+      className={`absolute hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-2/90 backdrop-blur-md border border-line shadow-xl shadow-black/40 text-[11px] font-mono text-fg ${className}`}
     >
-      <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-[#FF7849]/15 text-[#FF7849]">
+      <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-accent/15 text-accent-fg">
         <Icon className="w-3.5 h-3.5" />
       </span>
       {label}
@@ -91,7 +91,7 @@ export default function Hero() {
   /* ---------- Section mouse: ambient light + parallax orbs ---------- */
   const lx = useMotionValue(50);
   const ly = useMotionValue(50);
-  const ambient = useMotionTemplate`radial-gradient(circle 520px at ${lx}% ${ly}%, rgba(255,120,73,0.14), transparent 75%)`;
+  const ambient = useMotionTemplate`radial-gradient(circle 520px at ${lx}% ${ly}%, rgb(var(--accent-rgb)/0.14), transparent 75%)`;
 
   const slx = useSpring(lx, { stiffness: 60, damping: 20 });
   const sly = useSpring(ly, { stiffness: 60, damping: 20 });
@@ -152,6 +152,8 @@ export default function Hero() {
       onMouseMove={handleSectionMove}
       className="relative min-h-[94vh] flex flex-col justify-between pt-28 sm:pt-36 pb-12 px-6 md:px-12 max-w-6xl mx-auto w-full overflow-hidden"
     >
+      <div aria-hidden className="bg-aurora absolute inset-0 pointer-events-none -z-10" />
+
       {/* Background: cursor light */}
       <motion.div
         aria-hidden
@@ -165,7 +167,7 @@ export default function Hero() {
         className="absolute inset-0 pointer-events-none -z-10 opacity-[0.05]"
         style={{
           backgroundImage:
-            "linear-gradient(#F4F0E8 1px, transparent 1px), linear-gradient(90deg, #F4F0E8 1px, transparent 1px)",
+            "linear-gradient(var(--fg) 1px, transparent 1px), linear-gradient(90deg, var(--fg) 1px, transparent 1px)",
           backgroundSize: "56px 56px",
           maskImage:
             "radial-gradient(ellipse 70% 60% at 60% 45%, #000 20%, transparent 75%)",
@@ -178,12 +180,12 @@ export default function Hero() {
       <motion.div
         aria-hidden
         style={{ x: orb1X, y: orb1Y }}
-        className="absolute top-1/4 -right-24 w-96 h-96 bg-[#FF7849]/8 rounded-full blur-3xl pointer-events-none -z-10"
+        className="absolute top-1/4 -right-24 w-96 h-96 bg-accent/8 rounded-full blur-3xl pointer-events-none -z-10"
       />
       <motion.div
         aria-hidden
         style={{ x: orb2X, y: orb2Y }}
-        className="absolute -top-12 left-1/3 w-72 h-72 bg-[#303030]/30 rounded-full blur-2xl pointer-events-none -z-10"
+        className="absolute -top-12 left-1/3 w-72 h-72 bg-line/30 rounded-full blur-2xl pointer-events-none -z-10"
       />
 
       {/* Main grid */}
@@ -198,21 +200,21 @@ export default function Hero() {
             custom={0.1}
             className="flex flex-wrap items-center gap-3 mb-6"
           >
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-medium tracking-wider uppercase bg-[#1a1a1a] border border-[#303030] text-[#FF7849] shadow-sm">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-medium tracking-wider uppercase bg-surface-2 border border-line text-accent-fg shadow-sm">
               <span className="relative flex w-1.5 h-1.5">
-                <span className="absolute inline-flex w-full h-full rounded-full bg-[#FF7849] opacity-75 animate-ping" />
-                <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-[#FF7849]" />
+                <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />
+                <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-accent" />
               </span>
               {personalInfo.eyebrow}
             </span>
 
-            <span className="inline-flex items-center gap-1.5 text-xs font-mono text-[#A39E93]">
-              <MapPin className="w-3.5 h-3.5 text-[#FF7849]" />
+            <span className="inline-flex items-center gap-1.5 text-xs font-mono text-muted">
+              <MapPin className="w-3.5 h-3.5 text-accent-fg" />
               {personalInfo.location}
             </span>
 
             {personalInfo.isAvailableForWork && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-mono text-[#F4F0E8] px-3 py-1 rounded-full bg-[#FF7849]/10 border border-[#FF7849]/30">
+              <span className="inline-flex items-center gap-1.5 text-xs font-mono text-fg px-3 py-1 rounded-full bg-accent/10 border border-accent/30">
                 Open to work
               </span>
             )}
@@ -226,10 +228,10 @@ export default function Hero() {
             custom={0.2}
             className="mb-4"
           >
-            <span className="text-xs sm:text-sm font-mono uppercase tracking-[0.25em] text-[#A39E93]">
+            <span className="text-xs sm:text-sm font-mono uppercase tracking-[0.25em] text-muted">
               Personal Portfolio of
             </span>
-            <h2 className="text-2xl sm:text-3xl text-[#F4F0E8] tracking-tight mt-0.5">
+            <h2 className="text-2xl sm:text-3xl text-fg tracking-tight mt-0.5">
               <span className="font-bold">{personalInfo.name}</span>
             </h2>
           </motion.div>
@@ -239,7 +241,7 @@ export default function Hero() {
             variants={headlineContainer}
             initial="hidden"
             animate="visible"
-            className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-[#F4F0E8] leading-[1.08] mb-6 sm:mb-8 flex flex-wrap gap-x-3.5 sm:gap-x-4 gap-y-1"
+            className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-fg leading-[1.08] mb-6 sm:mb-8 flex flex-wrap gap-x-3.5 sm:gap-x-4 gap-y-1"
           >
             {headlineWords.map((word, i) => (
               <span key={i} className="inline-block overflow-hidden py-0.5">
@@ -247,8 +249,8 @@ export default function Hero() {
                   variants={headlineWord}
                   className={`inline-block ${
                     word.highlight
-                      ? "text-transparent bg-clip-text bg-gradient-to-r from-[#F4F0E8] to-[#FF7849]"
-                      : "text-[#F4F0E8]"
+                      ? "text-transparent bg-clip-text bg-gradient-to-r from-fg to-accent"
+                      : "text-fg"
                   }`}
                 >
                   {word.text}
@@ -263,7 +265,7 @@ export default function Hero() {
             initial="hidden"
             animate="visible"
             custom={0.5}
-            className="text-base sm:text-lg text-[#A39E93] max-w-xl leading-relaxed mb-8 sm:mb-10 font-normal"
+            className="text-base sm:text-lg text-muted max-w-xl leading-relaxed mb-8 sm:mb-10 font-normal"
           >
             {personalInfo.supportingText}
           </motion.p>
@@ -279,7 +281,7 @@ export default function Hero() {
             <Link
               href="#projects"
               onClick={(e) => scrollToSection(e, "#projects")}
-              className="group relative inline-flex items-center gap-2.5 bg-[#FF7849] hover:bg-[#ff6633] text-[#141414] font-bold text-xs uppercase tracking-wider px-7 py-4 rounded-full transition-all duration-300 active:scale-95 shadow-lg shadow-[#FF7849]/20 hover:shadow-[#FF7849]/40 hover:-translate-y-0.5"
+              className="group relative inline-flex items-center gap-2.5 bg-accent hover:bg-accent-hover text-on-accent font-bold text-xs uppercase tracking-wider px-7 py-4 rounded-full transition-all duration-300 active:scale-95 shadow-lg shadow-accent/20 hover:shadow-accent/40 hover:-translate-y-0.5"
             >
               <span>Explore Projects</span>
               <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
@@ -288,21 +290,21 @@ export default function Hero() {
             <Link
               href="#contact"
               onClick={(e) => scrollToSection(e, "#contact")}
-              className="group relative inline-flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#242424] text-[#F4F0E8] border border-[#303030] hover:border-[#FF7849]/60 text-xs font-semibold uppercase tracking-wider px-6 py-4 rounded-full transition-all duration-300 active:scale-95 hover:-translate-y-0.5"
+              className="group relative inline-flex items-center gap-2 bg-surface-2 hover:bg-surface-4 text-fg border border-line hover:border-accent/60 text-xs font-semibold uppercase tracking-wider px-6 py-4 rounded-full transition-all duration-300 active:scale-95 hover:-translate-y-0.5"
             >
               <span>Let&apos;s Connect</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF7849] opacity-70 group-hover:opacity-100 group-hover:scale-125 transition-all" />
+              <span className="w-1.5 h-1.5 rounded-full bg-accent opacity-70 group-hover:opacity-100 group-hover:scale-125 transition-all" />
             </Link>
 
             {/* Resume: download + view */}
             {personalInfo.resumeUrl ? (
-              <div className="inline-flex items-stretch rounded-full bg-[#1a1a1a] border border-[#303030] hover:border-[#FF7849]/60 transition-colors duration-300 overflow-hidden">
+              <div className="inline-flex items-stretch rounded-full bg-surface-2 border border-line hover:border-accent/60 transition-colors duration-300 overflow-hidden">
                 <a
                   href={personalInfo.resumeUrl}
                   download
-                  className="group inline-flex items-center gap-2 pl-6 pr-4 py-4 text-xs font-semibold uppercase tracking-wider text-[#F4F0E8] hover:text-[#FF7849] hover:bg-[#242424] transition-colors active:scale-95"
+                  className="group inline-flex items-center gap-2 pl-6 pr-4 py-4 text-xs font-semibold uppercase tracking-wider text-fg hover:text-accent-fg hover:bg-surface-4 transition-colors active:scale-95"
                 >
-                  <Download className="w-4 h-4 text-[#FF7849] transition-transform duration-300 group-hover:translate-y-0.5" />
+                  <Download className="w-4 h-4 text-accent-fg transition-transform duration-300 group-hover:translate-y-0.5" />
                   <span>Resume</span>
                 </a>
 
@@ -312,7 +314,7 @@ export default function Hero() {
                   rel="noopener noreferrer"
                   aria-label="View resume in a new tab"
                   title="View resume"
-                  className="inline-flex items-center px-4 border-l border-[#303030] text-[#A39E93] hover:text-[#FF7849] hover:bg-[#242424] transition-colors"
+                  className="inline-flex items-center px-4 border-l border-line text-muted hover:text-accent-fg hover:bg-surface-4 transition-colors"
                 >
                   <Eye className="w-4 h-4" />
                 </a>
@@ -321,14 +323,14 @@ export default function Hero() {
               <button
                 type="button"
                 onClick={handleResumeMissing}
-                className="group inline-flex items-center gap-2 bg-[#1a1a1a] hover:bg-[#242424] text-[#F4F0E8] border border-[#303030] hover:border-[#FF7849]/60 text-xs font-semibold uppercase tracking-wider px-6 py-4 rounded-full transition-all duration-300 active:scale-95 hover:-translate-y-0.5"
+                className="group inline-flex items-center gap-2 bg-surface-2 hover:bg-surface-4 text-fg border border-line hover:border-accent/60 text-xs font-semibold uppercase tracking-wider px-6 py-4 rounded-full transition-all duration-300 active:scale-95 hover:-translate-y-0.5"
               >
-                <Download className="w-4 h-4 text-[#FF7849]" />
+                <Download className="w-4 h-4 text-accent-fg" />
                 <span>{resumeNote ? "Coming soon" : "Resume"}</span>
               </button>
             )}
 
-            <div className="flex items-center gap-1.5 pl-2 sm:border-l sm:border-[#303030]/80">
+            <div className="flex items-center gap-1.5 pl-2 sm:border-l sm:border-line/80">
               {socialLinks.map((social) => (
                 <a
                   key={social.platform}
@@ -337,7 +339,7 @@ export default function Hero() {
                   rel="noopener noreferrer"
                   aria-label={`${social.platform} profile`}
                   title={social.platform}
-                  className="p-3 rounded-full text-[#A39E93] hover:text-[#FF7849] hover:bg-[#303030]/50 transition-all duration-200 hover:scale-110"
+                  className="p-3 rounded-full text-muted hover:text-accent-fg hover:bg-line/50 transition-all duration-200 hover:scale-110"
                 >
                   {social.iconName === "github" ? (
                     <GithubIcon className="w-4 h-4" />
@@ -378,7 +380,7 @@ export default function Hero() {
               <div
                 aria-hidden
                 style={{ transform: "translateZ(-60px)" }}
-                className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-[#FF7849]/30 via-[#FF7849]/10 to-transparent blur-2xl opacity-80 pointer-events-none"
+                className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-accent/30 via-accent/10 to-transparent blur-2xl opacity-80 pointer-events-none"
               />
 
               {/* Back layer: rotating dashed ring */}
@@ -392,15 +394,15 @@ export default function Hero() {
                     repeat: Infinity,
                     ease: "linear",
                   }}
-                  className="absolute -inset-8 rounded-full border border-dashed border-[#FF7849]/25 pointer-events-none"
+                  className="absolute -inset-8 rounded-full border border-dashed border-accent/25 pointer-events-none"
                 />
               )}
 
               {/* Main frame */}
-              <div className="relative p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl bg-[#181818] border border-[#303030] hover:border-[#FF7849]/50 shadow-2xl shadow-black/50 transition-colors duration-300">
-                <div className="absolute top-3.5 right-3.5 z-10 w-2 h-2 rounded-full bg-[#FF7849] opacity-80" />
+              <div className="relative p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl bg-surface border border-line hover:border-accent/50 shadow-2xl shadow-black/50 transition-colors duration-300">
+                <div className="absolute top-3.5 right-3.5 z-10 w-2 h-2 rounded-full bg-accent opacity-80" />
 
-                <div className="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[3/4] bg-[#121212]">
+                <div className="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[3/4] bg-sunken">
                   <Image
                     src="/Assits/profile images/profile image.jpg"
                     alt="Portrait of Borshon Roy, Web Developer"
@@ -411,7 +413,7 @@ export default function Hero() {
                     sizes="(max-width: 640px) 280px, (max-width: 1024px) 340px, 370px"
                   />
 
-                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#141414]/70 to-transparent pointer-events-none" />
+                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-canvas/70 to-transparent pointer-events-none" />
 
                   {/* Glare that follows the cursor */}
                   {!reduceMotion && (
@@ -426,13 +428,13 @@ export default function Hero() {
                 {/* Floating name plate */}
                 <div
                   style={{ transform: "translateZ(40px)" }}
-                  className="mt-3 px-3.5 py-2.5 rounded-xl bg-[#141414]/95 border border-[#303030]/90 flex items-center justify-between text-[11px] font-mono shadow-lg shadow-black/40"
+                  className="mt-3 px-3.5 py-2.5 rounded-xl bg-canvas/95 border border-line/90 flex items-center justify-between text-[11px] font-mono shadow-lg shadow-black/40"
                 >
-                  <span className="text-[#A39E93] flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF7849] animate-pulse" />
+                  <span className="text-muted flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                     {personalInfo.name}
                   </span>
-                  <span className="text-[#F4F0E8] font-sans font-semibold">
+                  <span className="text-fg font-sans font-semibold">
                     {personalInfo.title}
                   </span>
                 </div>
@@ -486,14 +488,14 @@ export default function Hero() {
         initial="hidden"
         animate="visible"
         custom={0.8}
-        className="pt-8 sm:pt-12 flex flex-col sm:flex-row sm:items-center justify-between border-t border-[#303030]/60 gap-4"
+        className="pt-8 sm:pt-12 flex flex-col sm:flex-row sm:items-center justify-between border-t border-line/60 gap-4"
       >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg border border-[#303030] bg-[#1a1a1a] flex items-center justify-center text-[#FF7849]">
+          <div className="w-9 h-9 rounded-lg border border-line bg-surface-2 flex items-center justify-center text-accent-fg">
             <Sparkles className="w-4 h-4" />
           </div>
-          <div className="text-xs font-mono text-[#A39E93]">
-            <span className="text-[#F4F0E8] block font-sans font-medium">
+          <div className="text-xs font-mono text-muted">
+            <span className="text-fg block font-sans font-medium">
               Crafted with precision
             </span>
             Next.js App Router &bull; TypeScript &bull; Motion
@@ -503,10 +505,10 @@ export default function Hero() {
         <Link
           href="#about"
           onClick={(e) => scrollToSection(e, "#about")}
-          className="group inline-flex items-center gap-2 text-xs font-mono text-[#A39E93] hover:text-[#FF7849] transition-colors"
+          className="group inline-flex items-center gap-2 text-xs font-mono text-muted hover:text-accent-fg transition-colors"
         >
           <span>SCROLL TO EXPLORE</span>
-          <ArrowDown className="w-3.5 h-3.5 animate-bounce text-[#FF7849]" />
+          <ArrowDown className="w-3.5 h-3.5 animate-bounce text-accent-fg" />
         </Link>
       </motion.div>
     </section>

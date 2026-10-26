@@ -138,7 +138,7 @@ function TiltCard({
 
   const gx = useMotionValue(50);
   const gy = useMotionValue(50);
-  const glare = useMotionTemplate`radial-gradient(circle at ${gx}% ${gy}%, rgba(255,120,73,0.16), transparent 55%)`;
+  const glare = useMotionTemplate`radial-gradient(circle at ${gx}% ${gy}%, rgb(var(--accent-rgb)/0.16), transparent 55%)`;
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (reduceMotion || !ref.current) return;
@@ -250,7 +250,7 @@ function FlipCard({
             setFlipped((v) => !v);
           }
         }}
-        className="relative h-44 outline-none focus-visible:ring-2 focus-visible:ring-[#FF7849]/60 rounded-2xl"
+        className="relative h-44 outline-none focus-visible:ring-2 focus-visible:ring-accent/60 rounded-2xl"
       >
         <motion.div
           animate={{ rotateY: flipped ? 180 : 0 }}
@@ -265,12 +265,12 @@ function FlipCard({
           {/* Front */}
           <div
             style={face}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl bg-[#181818] border border-[#303030] shadow-lg shadow-black/20"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl bg-surface border border-line shadow-lg shadow-black/20"
           >
-            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#222222] border border-[#353535] text-[#FF7849]">
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-surface-3 border border-line-strong text-accent-fg">
               <Icon className="w-5 h-5" />
             </div>
-            <span className="text-base font-semibold text-[#F4F0E8]">
+            <span className="text-base font-semibold text-fg">
               {title}
             </span>
           </div>
@@ -278,10 +278,10 @@ function FlipCard({
           {/* Back */}
           <div
             style={{ ...face, transform: "rotateY(180deg)" }}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-5 text-center rounded-2xl bg-[#1d1713] border border-[#FF7849]/50 shadow-lg shadow-[#FF7849]/10"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-5 text-center rounded-2xl bg-tint border border-accent/50 shadow-lg shadow-accent/10"
           >
-            <Icon className="w-4 h-4 text-[#FF7849]" />
-            <p className="text-xs text-[#F4F0E8]/85 leading-relaxed">{text}</p>
+            <Icon className="w-4 h-4 text-accent-fg" />
+            <p className="text-xs text-fg/85 leading-relaxed">{text}</p>
           </div>
         </motion.div>
       </div>
@@ -306,11 +306,11 @@ export default function About() {
         whileInView="visible"
         viewport={defaultViewport}
         variants={fadeInUp}
-        className="flex flex-col md:flex-row md:items-end justify-between border-b border-[#303030]/80 pb-8 mb-16 gap-6 relative"
+        className="flex flex-col md:flex-row md:items-end justify-between border-b border-line/80 pb-8 mb-16 gap-6 relative"
       >
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-xs font-mono text-[#FF7849] uppercase tracking-widest font-semibold">
+            <span className="text-xs font-mono text-accent-fg uppercase tracking-widest font-semibold">
               01 // Profile &amp; Purpose
             </span>
             <motion.span
@@ -318,14 +318,14 @@ export default function About() {
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="w-12 h-[1px] bg-[#FF7849] origin-left"
+              className="w-12 h-[1px] bg-accent origin-left"
             />
           </div>
-          <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[#F4F0E8]">
+          <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-fg">
             About Me
           </h2>
         </div>
-        <p className="text-xs sm:text-sm font-mono text-[#A39E93] max-w-xs md:text-right">
+        <p className="text-xs sm:text-sm font-mono text-muted max-w-xs md:text-right">
           My journey, the work I enjoy, and who I am outside of code.
         </p>
       </motion.div>
@@ -347,16 +347,16 @@ export default function About() {
             style={{ transformPerspective: 1200, transformOrigin: "top center" }}
             className="flex flex-col gap-6"
           >
-            <h3 className="text-xl sm:text-2xl font-light text-[#F4F0E8] leading-relaxed">
+            <h3 className="text-xl sm:text-2xl font-light text-fg leading-relaxed">
               Hi, I&apos;m{" "}
-              <span className="font-semibold text-[#FF7849]">
+              <span className="font-semibold text-accent-fg">
                 {personalInfo.name}
               </span>
               , a {personalInfo.title.toLowerCase()} who learns by building real
               things.
             </h3>
 
-            <div className="space-y-4 text-base text-[#A39E93] leading-relaxed font-normal">
+            <div className="space-y-4 text-base text-muted leading-relaxed font-normal">
               {bio.map((paragraph, idx) => (
                 <p key={idx}>{paragraph}</p>
               ))}
@@ -369,9 +369,9 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={defaultViewport}
             transition={{ duration: 0.6, ease: transitionConfig.easeEditorial }}
-            className="pt-6 border-t border-[#303030]/60"
+            className="pt-6 border-t border-line/60"
           >
-            <div className="text-xs font-mono text-[#A39E93] uppercase tracking-wider mb-4">
+            <div className="text-xs font-mono text-muted uppercase tracking-wider mb-4">
               Work I enjoy
             </div>
             <div className="flex flex-wrap gap-2.5">
@@ -382,9 +382,9 @@ export default function About() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={defaultViewport}
                   transition={{ duration: 0.4, delay: 0.1 + i * 0.07 }}
-                  className="inline-flex items-center gap-2 text-xs font-mono px-3.5 py-2 rounded-xl bg-[#202020] text-[#F4F0E8] border border-[#2e2e2e] hover:border-[#FF7849]/50 hover:text-[#FF7849] transition-colors"
+                  className="inline-flex items-center gap-2 text-xs font-mono px-3.5 py-2 rounded-xl bg-surface-3 text-fg border border-line hover:border-accent/50 hover:text-accent-fg transition-colors"
                 >
-                  <Sparkles className="w-3 h-3 text-[#FF7849]" />
+                  <Sparkles className="w-3 h-3 text-accent-fg" />
                   {item}
                 </motion.span>
               ))}
@@ -396,12 +396,12 @@ export default function About() {
             <TiltCard
               intensity={14}
               delay={0}
-              className="h-full bg-[#181818] p-4 rounded-xl border border-[#303030]/80 hover:border-[#FF7849]/40 transition-colors"
+              className="h-full bg-surface p-4 rounded-xl border border-line/80 hover:border-accent/40 transition-colors"
             >
-              <span className="text-[#A39E93] block mb-1">LOCATION</span>
+              <span className="text-muted block mb-1">LOCATION</span>
               <span
                 style={{ transform: "translateZ(24px)" }}
-                className="block text-[#F4F0E8] font-medium"
+                className="block text-fg font-medium"
               >
                 {personalInfo.location}
               </span>
@@ -410,12 +410,12 @@ export default function About() {
             <TiltCard
               intensity={14}
               delay={0.08}
-              className="h-full bg-[#181818] p-4 rounded-xl border border-[#303030]/80 hover:border-[#FF7849]/40 transition-colors"
+              className="h-full bg-surface p-4 rounded-xl border border-line/80 hover:border-accent/40 transition-colors"
             >
-              <span className="text-[#A39E93] block mb-1">ROLE</span>
+              <span className="text-muted block mb-1">ROLE</span>
               <span
                 style={{ transform: "translateZ(24px)" }}
-                className="block text-[#F4F0E8] font-medium"
+                className="block text-fg font-medium"
               >
                 {personalInfo.title}
               </span>
@@ -425,16 +425,16 @@ export default function About() {
               <TiltCard
                 intensity={14}
                 delay={0.16}
-                className="h-full bg-[#181818] p-4 rounded-xl border border-[#303030]/80 hover:border-[#FF7849]/40 transition-colors"
+                className="h-full bg-surface p-4 rounded-xl border border-line/80 hover:border-accent/40 transition-colors"
               >
-                <span className="text-[#A39E93] block mb-1">STATUS</span>
+                <span className="text-muted block mb-1">STATUS</span>
                 <span
                   style={{ transform: "translateZ(24px)" }}
-                  className="text-[#FF7849] font-medium flex items-center gap-1.5"
+                  className="text-accent-fg font-medium flex items-center gap-1.5"
                 >
                   <span className="relative flex w-1.5 h-1.5">
-                    <span className="absolute inline-flex w-full h-full rounded-full bg-[#FF7849] opacity-75 animate-ping" />
-                    <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-[#FF7849]" />
+                    <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />
+                    <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-accent" />
                   </span>
                   {personalInfo.isAvailableForWork
                     ? "Open to internships"
@@ -447,14 +447,14 @@ export default function About() {
 
         {/* Right column: journey timeline */}
         <div className="lg:col-span-5">
-          <div className="text-xs font-mono text-[#A39E93] uppercase tracking-wider mb-6">
+          <div className="text-xs font-mono text-muted uppercase tracking-wider mb-6">
             My programming journey
           </div>
 
           <div className="relative">
             <div
               aria-hidden
-              className="absolute left-[19px] top-6 bottom-6 w-px bg-gradient-to-b from-[#FF7849]/60 via-[#303030] to-transparent"
+              className="absolute left-[19px] top-6 bottom-6 w-px bg-gradient-to-b from-accent/60 via-line to-transparent"
             />
 
             <div className="flex flex-col gap-4">
@@ -465,9 +465,9 @@ export default function About() {
                 return (
                   <div key={item.title} className="relative pl-14">
                     {/* Timeline node */}
-                    <span className="absolute left-0 top-5 flex items-center justify-center w-10 h-10 rounded-xl bg-[#181818] border border-[#FF7849]/50 text-[#FF7849]">
+                    <span className="absolute left-0 top-5 flex items-center justify-center w-10 h-10 rounded-xl bg-surface border border-accent/50 text-accent-fg">
                       {isNow && (
-                        <span className="absolute inset-0 rounded-xl bg-[#FF7849]/20 animate-ping" />
+                        <span className="absolute inset-0 rounded-xl bg-accent/20 animate-ping" />
                       )}
                       <Icon className="relative w-4 h-4" />
                     </span>
@@ -475,24 +475,24 @@ export default function About() {
                     <TiltCard
                       intensity={8}
                       delay={index * 0.1}
-                      className="p-5 rounded-2xl bg-[#181818] border border-[#303030] hover:border-[#FF7849]/60 transition-colors duration-300 shadow-lg shadow-black/20"
+                      className="p-5 rounded-2xl bg-surface border border-line hover:border-accent/60 transition-colors duration-300 shadow-lg shadow-black/20"
                     >
                       <div className="relative">
                         <span
                           style={{ transform: "translateZ(14px)" }}
-                          className="block text-[10px] font-mono uppercase tracking-wider text-[#FF7849] mb-1"
+                          className="block text-[10px] font-mono uppercase tracking-wider text-accent-fg mb-1"
                         >
                           {item.step}
                         </span>
                         <h4
                           style={{ transform: "translateZ(28px)" }}
-                          className="text-base font-semibold text-[#F4F0E8] mb-1.5 group-hover:text-[#FF7849] transition-colors"
+                          className="text-base font-semibold text-fg mb-1.5 group-hover:text-accent-fg transition-colors"
                         >
                           {item.title}
                         </h4>
                         <p
                           style={{ transform: "translateZ(10px)" }}
-                          className="text-xs text-[#A39E93] leading-relaxed"
+                          className="text-xs text-muted leading-relaxed"
                         >
                           {item.text}
                         </p>
@@ -515,10 +515,10 @@ export default function About() {
           variants={fadeInUp}
           className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8"
         >
-          <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F4F0E8]">
+          <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-fg">
             Beyond the code
           </h3>
-          <span className="text-xs font-mono text-[#A39E93]">
+          <span className="text-xs font-mono text-muted">
             Hover or tap a card to flip it
           </span>
         </motion.div>
@@ -539,16 +539,16 @@ export default function About() {
         <TiltCard
           intensity={4}
           delay={0.1}
-          className="mt-6 p-6 sm:p-8 rounded-2xl bg-[#181818] border border-[#303030] hover:border-[#FF7849]/50 transition-colors duration-300 shadow-xl shadow-black/20"
+          className="mt-6 p-6 sm:p-8 rounded-2xl bg-surface border border-line hover:border-accent/50 transition-colors duration-300 shadow-xl shadow-black/20"
         >
           <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <p
               style={{ transform: "translateZ(24px)" }}
-              className="text-lg sm:text-xl font-light text-[#F4F0E8] leading-relaxed max-w-2xl"
+              className="text-lg sm:text-xl font-light text-fg leading-relaxed max-w-2xl"
             >
-              <span className="text-[#FF7849] font-semibold">&ldquo;</span>
+              <span className="text-accent-fg font-semibold">&ldquo;</span>
               {personality.quote}
-              <span className="text-[#FF7849] font-semibold">&rdquo;</span>
+              <span className="text-accent-fg font-semibold">&rdquo;</span>
             </p>
 
             <div
@@ -558,7 +558,7 @@ export default function About() {
               {personality.traits.map((trait) => (
                 <span
                   key={trait}
-                  className="text-xs font-mono px-3 py-1.5 rounded-full bg-[#FF7849]/10 text-[#FF7849] border border-[#FF7849]/30"
+                  className="text-xs font-mono px-3 py-1.5 rounded-full bg-accent/10 text-accent-fg border border-accent/30"
                 >
                   {trait}
                 </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import Link from "next/link";
 import { projects } from "@/data/portfolioData";
 import type { Project } from "@/types/portfolio";
@@ -10,161 +10,236 @@ import ProjectVisual from "@/components/ui/ProjectVisual";
 import {
   motion,
   useMotionValue,
-  useMotionTemplate,
   useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
 } from "motion/react";
-import { defaultViewport, fadeInUp, transitionConfig } from "@/utils/motion";
+import { defaultViewport, fadeInUp } from "@/utils/motion";
 
-/* ---------- Single project card ---------- */
-function ProjectCard({ project, idx }: { project: Project; idx: number }) {
+/* ---------- One project row ---------- */
+function ProjectRow({
+  project,
+  index,
+  total,
+}: {
+  project: Project;
+  index: number;
+  total: number;
+}) {
   const reduceMotion = useReducedMotion();
+  const rowRef = useRef<HTMLElement>(null);
+  const flip = index % 2 === 1;
+  const detailsHref = `/projects/${project.id}`;
 
-  const x = useMotionValue(-500);
-  const y = useMotionValue(-500);
-  const spotlight = useMotionTemplate`radial-gradient(340px circle at ${x}px ${y}px, rgba(255,120,73,0.12), transparent 65%)`;
+  /* Scroll-linked 3D reveal */
+  const { scrollYProgress } = useScroll({
+    target: rowRef,
+    offset: ["start end", "center center"],
+  });
+  const rotateX = useTransform(scrollYProgress, [0, 1], [reduceMotion ? 0 : 20, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], [reduceMotion ? 0 : 90, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], [reduceMotion ? 1 : 0.92, 1]);
+  const opacity = useTransform(scrollYProgress, [0, 0.55], [0, 1]);
 
-  const handleMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (reduceMotion) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    x.set(e.clientX - rect.left);
-    y.set(e.clientY - rect.top);
+  /* Hover tilt on the image */
+  const frameRef = useRef<HTMLDivElement>(null);
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const tiltX = useSpring(rx, { stiffness: 140, damping: 16, mass: 0.6 });
+  const tiltY = useSpring(ry, { stiffness: 140, damping: 16, mass: 0.6 });
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (reduceMotion || !frameRef.current) return;
+    const rect = frameRef.current.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width;
+    const py = (e.clientY - rect.top) / rect.height;
+    ry.set((px - 0.5) * 10);
+    rx.set((0.5 - py) * 10);
   };
 
-  const detailsHref = `/projects/${project.id}`;
-  const visibleTech = project.technologies.slice(0, 4);
-  const extraTech = project.technologies.length - visibleTech.length;
+  const handleLeave = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+
+  const chips = project.technologies.slice(0, 3);
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 35 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      whileHover={reduceMotion ? undefined : { y: -6, transition: { duration: 0.25 } }}
-      viewport={defaultViewport}
-      transition={{
-        duration: 0.6,
-        delay: idx * 0.1,
-        ease: transitionConfig.easeEditorial,
+      ref={rowRef}
+      style={{
+        opacity,
+        y,
+        scale,
+        rotateX,
+        transformPerspective: 1400,
+        transformOrigin: "center bottom",
       }}
-      onMouseMove={handleMove}
-      className="group relative flex flex-col rounded-2xl bg-[#181818] border border-[#303030] hover:border-[#FF7849]/60 transition-colors duration-300 overflow-hidden shadow-2xl shadow-black/30"
+      className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
     >
-      <div className="absolute top-0 left-0 right-0 h-[2px] z-20 bg-gradient-to-r from-transparent via-[#FF7849] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-      {!reduceMotion && (
-        <motion.div
-          aria-hidden
-          className="absolute inset-0 z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          style={{ background: spotlight }}
-        />
-      )}
-
-      {/* Image */}
-      <Link
-        href={detailsHref}
-        tabIndex={-1}
+      {/* Big outline number */}
+      <span
         aria-hidden
-        className="relative block border-b border-[#282828]"
+        style={{ WebkitTextStroke: "1px var(--line-strong)" }}
+        className={`pointer-events-none select-none absolute -top-10 sm:-top-14 text-[6rem] sm:text-[9rem] leading-none font-extrabold text-transparent ${
+          flip ? "right-0 lg:left-auto lg:right-4" : "left-0 lg:left-4"
+        }`}
       >
-        <ProjectVisual
-          project={project}
-          className="aspect-[16/10]"
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
+        {String(index + 1).padStart(2, "0")}
+      </span>
 
-        <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            {project.liveUrl && (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded-full bg-[#141414]/85 backdrop-blur-sm border border-[#303030] text-[#F4F0E8]">
-                <span className="relative flex w-1.5 h-1.5">
-                  <span className="absolute inline-flex w-full h-full rounded-full bg-[#FF7849] opacity-75 animate-ping" />
-                  <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-[#FF7849]" />
-                </span>
-                Live
+      {/* Image side */}
+      <div
+        className={`relative lg:col-span-7 ${flip ? "lg:order-2" : ""}`}
+        style={{ perspective: 1200 }}
+      >
+        <motion.div
+          ref={frameRef}
+          onMouseMove={handleMove}
+          onMouseLeave={handleLeave}
+          style={{ rotateX: tiltX, rotateY: tiltY, transformStyle: "preserve-3d" }}
+          className="group relative"
+        >
+          {/* Glow behind */}
+          <div
+            aria-hidden
+            style={{ transform: "translateZ(-50px)" }}
+            className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-accent/25 via-accent/5 to-transparent blur-2xl pointer-events-none"
+          />
+
+          <Link
+            href={detailsHref}
+            aria-label={`View ${project.title} details`}
+            className="relative block overflow-hidden rounded-2xl bg-surface border border-line group-hover:border-accent/60 transition-colors duration-300 shadow-2xl shadow-black/40"
+          >
+            {/* Browser chrome */}
+            <div className="flex items-center gap-1.5 px-4 py-3 bg-surface-2 border-b border-line-soft">
+              <span className="w-2.5 h-2.5 rounded-full bg-line-strong group-hover:bg-accent transition-colors duration-300" />
+              <span className="w-2.5 h-2.5 rounded-full bg-line-strong group-hover:bg-accent/60 transition-colors duration-500" />
+              <span className="w-2.5 h-2.5 rounded-full bg-line-strong group-hover:bg-accent/30 transition-colors duration-700" />
+              <span className="ml-3 hidden sm:block flex-1 truncate text-[10px] font-mono text-muted px-3 py-1 rounded-md bg-surface-3">
+                {project.liveUrl
+                  ? project.liveUrl.replace(/^https?:\/\//, "")
+                  : project.id}
               </span>
-            )}
-            {project.featured && (
-              <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#FF7849]/15 text-[#FF7849] border border-[#FF7849]/35 backdrop-blur-sm">
-                Featured
+            </div>
+
+            <div className="relative overflow-hidden">
+              <ProjectVisual
+                project={project}
+                className="aspect-[16/10] transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                sizes="(max-width: 1024px) 100vw, 720px"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-canvas/40 via-transparent to-transparent pointer-events-none" />
+            </div>
+          </Link>
+
+          {/* Floating tech chips */}
+          {chips.map((tech, i) => (
+            <motion.span
+              key={tech}
+              style={{ z: 70 + i * 25 }}
+              animate={reduceMotion ? undefined : { y: [0, -8, 0] }}
+              transition={{
+                duration: 4 + i,
+                delay: i * 0.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className={`absolute hidden sm:inline-flex items-center px-3 py-1.5 rounded-xl bg-surface/90 backdrop-blur-md border border-line text-[11px] font-mono text-fg shadow-xl shadow-black/30 ${
+                i === 0
+                  ? "-top-4 -left-4"
+                  : i === 1
+                    ? "top-1/3 -right-5"
+                    : "-bottom-4 left-10"
+              }`}
+            >
+              {tech}
+            </motion.span>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Details side */}
+      <div className="lg:col-span-5 flex flex-col">
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <span className="text-xs font-mono text-accent-fg uppercase tracking-widest font-semibold">
+            {project.eyebrow || "Web Application"}
+          </span>
+          {project.liveUrl && (
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-mono px-2.5 py-1 rounded-full bg-surface-3 border border-line text-fg">
+              <span className="relative flex w-1.5 h-1.5">
+                <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />
+                <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-accent" />
               </span>
-            )}
-          </div>
-          <span className="text-[10px] font-mono text-[#A39E93] px-2 py-1 rounded bg-[#141414]/85 backdrop-blur-sm">
+              Live
+            </span>
+          )}
+          <span className="text-[10px] font-mono text-muted px-2 py-1 rounded bg-surface-3">
             {project.year}
           </span>
         </div>
-      </Link>
 
-      {/* Body */}
-      <div className="relative z-20 p-6 flex-1 flex flex-col">
-        <span className="text-[11px] font-mono text-[#FF7849] uppercase tracking-wider mb-2">
-          {project.eyebrow || "Web Application"}
-        </span>
-
-        <h3 className="text-xl font-bold text-[#F4F0E8] tracking-tight mb-2">
-          <Link
-            href={detailsHref}
-            className="hover:text-[#FF7849] transition-colors"
-          >
+        <h3 className="text-3xl sm:text-4xl font-extrabold text-fg tracking-tight leading-[1.1] mb-4">
+          <Link href={detailsHref} className="hover:text-accent-fg transition-colors">
             {project.title}
           </Link>
         </h3>
 
-        <p className="text-sm text-[#A39E93] leading-relaxed line-clamp-3 mb-5">
+        <p className="text-sm sm:text-base text-muted leading-relaxed mb-6">
           {project.tagline}
         </p>
 
-        <div className="flex flex-wrap gap-2 mb-6">
-          {visibleTech.map((tech) => (
+        <div className="flex flex-wrap gap-2 mb-8">
+          {project.technologies.map((tech) => (
             <span
               key={tech}
-              className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-[#202020] text-[#F4F0E8]/90 border border-[#2e2e2e] group-hover:border-[#3a3a3a] transition-colors"
+              className="text-[11px] font-mono px-2.5 py-1 rounded-lg bg-surface-3 text-fg/90 border border-line hover:border-accent/50 hover:text-accent-fg transition-colors"
             >
               {tech}
             </span>
           ))}
-          {extraTech > 0 && (
-            <span className="text-[11px] font-mono px-2.5 py-1 rounded-lg text-[#A39E93]">
-              +{extraTech}
-            </span>
-          )}
         </div>
 
-        <div className="mt-auto flex items-center justify-between pt-5 border-t border-[#303030]/70">
+        <div className="flex flex-wrap items-center gap-3">
           <Link
             href={detailsHref}
-            className="group/cta inline-flex items-center gap-2 bg-[#FF7849] hover:bg-[#ff8559] text-[#141414] text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full transition-colors active:scale-95"
+            className="group/cta inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-on-accent text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full shadow-[0_4px_0_var(--accent-deep)] hover:shadow-[0_3px_0_var(--accent-deep)] hover:translate-y-px active:shadow-[0_0_0_var(--accent-deep)] active:translate-y-1 transition-all duration-150"
           >
             <span>View Details</span>
             <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5" />
           </Link>
 
-          <div className="flex items-center gap-1">
-            {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${project.title} source code`}
-                title="Source code"
-                className="p-2.5 rounded-full text-[#A39E93] hover:text-[#FF7849] hover:bg-[#303030]/50 transition-colors"
-              >
-                <GithubIcon className="w-4 h-4" />
-              </a>
-            )}
-            {project.liveUrl && (
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${project.title} live demo`}
-                title="Live demo"
-                className="p-2.5 rounded-full text-[#A39E93] hover:text-[#FF7849] hover:bg-[#303030]/50 transition-colors"
-              >
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            )}
-          </div>
+          {project.githubUrl && (
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${project.title} source code`}
+              title="Source code"
+              className="flex items-center justify-center w-11 h-11 rounded-xl bg-surface-2 border border-line text-muted hover:text-accent-fg hover:border-accent/50 transition-colors"
+            >
+              <GithubIcon className="w-4 h-4" />
+            </a>
+          )}
+          {project.liveUrl && (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${project.title} live demo`}
+              title="Live demo"
+              className="flex items-center justify-center w-11 h-11 rounded-xl bg-surface-2 border border-line text-muted hover:text-accent-fg hover:border-accent/50 transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          )}
         </div>
+
+        <span className="mt-6 text-xs font-mono text-muted/70 tabular-nums">
+          {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+        </span>
       </div>
     </motion.article>
   );
@@ -182,11 +257,11 @@ export default function Projects() {
         whileInView="visible"
         viewport={defaultViewport}
         variants={fadeInUp}
-        className="flex flex-col md:flex-row md:items-end justify-between border-b border-[#303030]/80 pb-8 mb-16 gap-6"
+        className="flex flex-col md:flex-row md:items-end justify-between border-b border-line/80 pb-8 mb-20 sm:mb-24 gap-6"
       >
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <span className="text-xs font-mono text-[#FF7849] uppercase tracking-widest font-semibold">
+            <span className="text-xs font-mono text-accent-fg uppercase tracking-widest font-semibold">
               03 // Selected Work
             </span>
             <motion.span
@@ -194,21 +269,26 @@ export default function Projects() {
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="w-12 h-[1px] bg-[#FF7849] origin-left"
+              className="w-12 h-[1px] bg-accent origin-left"
             />
           </div>
-          <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[#F4F0E8]">
+          <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-fg">
             Featured Projects
           </h2>
         </div>
-        <p className="text-xs sm:text-sm font-mono text-[#A39E93] max-w-xs md:text-right">
-          Real web applications, tools, and platforms built with modern stacks.
+        <p className="text-xs sm:text-sm font-mono text-muted max-w-xs md:text-right">
+          Real web applications, built end to end. Open one for the full story.
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-        {projects.map((project, idx) => (
-          <ProjectCard key={project.id} project={project} idx={idx} />
+      <div className="flex flex-col gap-28 sm:gap-36">
+        {projects.map((project, index) => (
+          <ProjectRow
+            key={project.id}
+            project={project}
+            index={index}
+            total={projects.length}
+          />
         ))}
       </div>
 
@@ -217,10 +297,10 @@ export default function Projects() {
         whileInView="visible"
         viewport={defaultViewport}
         variants={fadeInUp}
-        className="mt-12 p-6 sm:p-7 rounded-2xl bg-[#171717] border border-[#303030] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl"
+        className="mt-28 p-6 sm:p-7 rounded-2xl bg-surface-2 border border-line flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl"
       >
-        <div className="flex items-center gap-3 text-sm text-[#A39E93]">
-          <FolderGit2 className="w-5 h-5 text-[#FF7849] shrink-0" />
+        <div className="flex items-center gap-3 text-sm text-muted">
+          <FolderGit2 className="w-5 h-5 text-accent-fg shrink-0" />
           <span>
             More experimental builds, logic practices, and repositories are on
             GitHub.
@@ -230,7 +310,7 @@ export default function Projects() {
           href="https://github.com/borshon07"
           target="_blank"
           rel="noopener noreferrer"
-          className="group inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#F4F0E8] hover:text-[#FF7849] px-5 py-2.5 rounded-xl bg-[#222222] hover:bg-[#282828] border border-[#303030] hover:border-[#FF7849]/50 transition-all shrink-0 active:scale-95 shadow-sm"
+          className="group inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-fg hover:text-accent-fg px-5 py-2.5 rounded-xl bg-surface-3 hover:bg-surface-4 border border-line hover:border-accent/50 transition-all shrink-0 active:scale-95 shadow-sm"
         >
           <span>Explore GitHub</span>
           <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

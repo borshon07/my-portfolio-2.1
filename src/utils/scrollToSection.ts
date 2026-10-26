@@ -12,9 +12,9 @@ export function scrollToSection(
   e.preventDefault();
   el.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  // URL theke # muche dao
+  // URL theke # muche dao, kintu Next.js er history state ta rekhe
   history.replaceState(
-    null,
+    history.state,
     "",
     window.location.pathname + window.location.search
   );

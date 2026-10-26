@@ -45,7 +45,7 @@ function CubeLogo({ reduceMotion }: { reduceMotion: boolean | null }) {
           <span
             key={i}
             style={{ transform }}
-            className="absolute inset-0 rounded-[3px] border border-[#FF7849]/80 bg-[#FF7849]/20"
+            className="absolute inset-0 rounded-[3px] border border-accent/80 bg-accent/20"
           />
         ))}
       </motion.span>
@@ -64,7 +64,7 @@ function FlipLabel({ label, isActive }: { label: string; isActive: boolean }) {
         <span
           aria-hidden
           className={`absolute inset-0 block h-4 leading-4 [transform:rotateX(90deg)_translateZ(8px)] [backface-visibility:hidden] ${
-            isActive ? "" : "text-[#F4F0E8]"
+            isActive ? "" : "text-fg"
           }`}
         >
           {label}
@@ -97,8 +97,14 @@ export default function Navbar() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
-  // Home page e "#about" thik ache, onno page e (jemon /projects/...) "/#about" lagbe
+  // Home e "#about" thik ache, onno page e (jemon /projects/...) "/#about" lagbe
   const resolve = (href: string) => (isHome ? href : `/${href}`);
+
+  // Kon nav item active: home e scroll position dhore, project page e "Projects"
+  const isItemActive = (target: string) =>
+    isHome
+      ? activeSection === target
+      : target === "projects" && pathname.startsWith("/projects");
 
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -106,11 +112,12 @@ export default function Navbar() {
 
   const [prevPathname, setPrevPathname] = useState(pathname);
 
-  // Page change hole mobile menu bondho (render er somoy state adjust kora, effect lagbe na)
+  // Page change hole mobile menu bondho (render er somoy state adjust, effect lagbe na)
   if (pathname !== prevPathname) {
     setPrevPathname(pathname);
     setIsOpen(false);
   }
+
   /* ---------- Scroll progress ---------- */
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -145,8 +152,6 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* ---------- Page change hole menu bondho ---------- */
-
   /* ---------- Lock scroll + Esc to close ---------- */
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -170,7 +175,7 @@ export default function Navbar() {
   const rotateY = useSpring(ry, { stiffness: 140, damping: 18, mass: 0.5 });
   const gx = useMotionValue(50);
   const gy = useMotionValue(50);
-  const glare = useMotionTemplate`radial-gradient(260px circle at ${gx}% ${gy}%, rgba(255,120,73,0.14), transparent 65%)`;
+  const glare = useMotionTemplate`radial-gradient(260px circle at ${gx}% ${gy}%, rgb(var(--accent-rgb)/0.14), transparent 65%)`;
 
   const handlePillMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (reduceMotion || !pillRef.current) return;
@@ -193,7 +198,7 @@ export default function Navbar() {
       {/* Scroll progress bar */}
       <motion.div
         aria-hidden
-        className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#FF7849] via-[#ff8e66] to-[#FF7849] z-[60] origin-left"
+        className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent via-accent-hover to-accent z-[60] origin-left"
         style={{ scaleX }}
       />
 
@@ -214,8 +219,8 @@ export default function Navbar() {
             style={{ rotateX, rotateY }}
             className={`pointer-events-auto relative flex items-center justify-between rounded-full border backdrop-blur-xl px-3 sm:px-4 transition-all duration-300 ${
               scrolled
-                ? "py-2 bg-[#141414]/90 border-[#3a3a3a] shadow-2xl shadow-black/50"
-                : "py-2.5 bg-[#161616]/60 border-[#303030]/80 shadow-lg shadow-black/20"
+                ? "py-2 bg-canvas/90 border-line-strong shadow-2xl shadow-black/50"
+                : "py-2.5 bg-surface/60 border-line/80 shadow-lg shadow-black/20"
             }`}
           >
             {/* Cursor glare */}
@@ -234,22 +239,22 @@ export default function Navbar() {
                 scrollToSection(e, "#hero");
                 setIsOpen(false);
               }}
-              className="group relative flex items-center gap-3 pl-1 text-[#F4F0E8] transition-colors hover:text-[#FF7849]"
+              className="group relative flex items-center gap-3 pl-1 text-fg transition-colors hover:text-accent-fg"
             >
               <CubeLogo reduceMotion={reduceMotion} />
               <span className="font-semibold tracking-tight text-sm sm:text-base">
                 {personalInfo.name}
               </span>
-              <span className="hidden sm:inline text-[10px] font-mono uppercase tracking-widest text-[#A39E93] pl-3 border-l border-[#303030]">
+              <span className="hidden sm:inline text-[10px] font-mono uppercase tracking-widest text-muted pl-3 border-l border-line">
                 Dev
               </span>
             </Link>
 
-            {/* Desktop navigation */}
-            <nav className="relative hidden md:flex items-center gap-1 rounded-full bg-[#1a1a1a]/80 border border-[#303030]/80 p-1">
+            {/* Desktop navigation (lg theke, tablet e hamburger) */}
+            <nav className="relative hidden lg:flex items-center gap-1 rounded-full bg-surface-2/80 border border-line/80 p-1">
               {navItems.map((item) => {
                 const target = item.href.replace("#", "");
-                const isActive = isHome && activeSection === target;
+                const isActive = isItemActive(target);
 
                 return (
                   <Link
@@ -258,8 +263,8 @@ export default function Navbar() {
                     onClick={(e) => scrollToSection(e, item.href)}
                     className={`group relative px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-colors ${
                       isActive
-                        ? "text-[#141414] font-semibold"
-                        : "text-[#A39E93] hover:text-[#F4F0E8]"
+                        ? "text-on-accent font-semibold"
+                        : "text-muted hover:text-fg"
                     }`}
                   >
                     {isActive && (
@@ -270,7 +275,7 @@ export default function Navbar() {
                           stiffness: 400,
                           damping: 32,
                         }}
-                        className="absolute inset-0 z-0 rounded-full bg-[#FF7849] shadow-md shadow-[#FF7849]/30"
+                        className="absolute inset-0 z-0 rounded-full bg-accent shadow-md shadow-accent/30"
                       />
                     )}
                     <span className="relative z-10 block">
@@ -283,12 +288,13 @@ export default function Navbar() {
 
             {/* Right side */}
             <div className="relative flex items-center gap-2">
-               <ThemeToggle />
+              <ThemeToggle />
+
               {/* 3D key-style CTA */}
               <Link
                 href={resolve("#contact")}
                 onClick={(e) => scrollToSection(e, "#contact")}
-                className="group hidden md:inline-flex items-center gap-1.5 bg-[#FF7849] hover:bg-[#ff8559] text-[#141414] text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full shadow-[0_4px_0_#b94a22] hover:shadow-[0_3px_0_#b94a22] hover:translate-y-px active:shadow-[0_0_0_#b94a22] active:translate-y-1 transition-all duration-150"
+                className="group hidden lg:inline-flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-on-accent text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full shadow-[0_4px_0_var(--accent-deep)] hover:shadow-[0_3px_0_var(--accent-deep)] hover:translate-y-px active:shadow-[0_0_0_var(--accent-deep)] active:translate-y-1 transition-all duration-150"
               >
                 <span>Let&apos;s Talk</span>
                 <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -299,7 +305,7 @@ export default function Navbar() {
                 onClick={() => setIsOpen((v) => !v)}
                 aria-expanded={isOpen}
                 aria-label={isOpen ? "Close menu" : "Open menu"}
-                className="md:hidden relative z-50 w-10 h-10 rounded-full text-[#F4F0E8] hover:text-[#FF7849] hover:bg-[#303030]/50 transition-colors"
+                className="lg:hidden relative z-50 w-10 h-10 rounded-full text-fg hover:text-accent-fg hover:bg-line/50 transition-colors"
               >
                 <motion.span
                   aria-hidden
@@ -328,14 +334,14 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="md:hidden fixed inset-0 z-40 bg-[#141414]/97 backdrop-blur-2xl px-6 pt-28 pb-10 flex flex-col justify-between overflow-y-auto"
+            className="lg:hidden fixed inset-0 z-40 bg-canvas/97 backdrop-blur-2xl px-6 pt-28 pb-10 flex flex-col justify-between overflow-y-auto"
           >
             <div
               aria-hidden
               className="absolute inset-0 pointer-events-none"
               style={{
                 background:
-                  "radial-gradient(circle 360px at 80% 20%, rgba(255,120,73,0.12), transparent 70%)",
+                  "radial-gradient(circle 360px at 80% 20%, rgb(var(--accent-rgb)/0.12), transparent 70%)",
               }}
             />
 
@@ -349,7 +355,7 @@ export default function Navbar() {
             >
               {navItems.map((item, i) => {
                 const target = item.href.replace("#", "");
-                const isActive = isHome && activeSection === target;
+                const isActive = isItemActive(target);
 
                 return (
                   <motion.div
@@ -365,20 +371,20 @@ export default function Navbar() {
                       }}
                       className={`flex items-center justify-between py-4 px-5 rounded-2xl border text-lg font-semibold tracking-tight transition-colors ${
                         isActive
-                          ? "border-[#FF7849]/50 bg-[#FF7849]/10 text-[#FF7849]"
-                          : "border-[#303030] bg-[#181818] text-[#F4F0E8] hover:border-[#FF7849]/40"
+                          ? "border-accent/50 bg-accent/10 text-accent-fg"
+                          : "border-line bg-surface text-fg hover:border-accent/40"
                       }`}
                     >
                       <span className="flex items-center gap-4">
-                        <span className="text-xs font-mono text-[#A39E93]">
+                        <span className="text-xs font-mono text-muted">
                           {String(i + 1).padStart(2, "0")}
                         </span>
                         {item.label}
                       </span>
                       {isActive ? (
-                        <span className="w-2 h-2 rounded-full bg-[#FF7849]" />
+                        <span className="w-2 h-2 rounded-full bg-accent" />
                       ) : (
-                        <ArrowUpRight className="w-4 h-4 text-[#A39E93]" />
+                        <ArrowUpRight className="w-4 h-4 text-muted" />
                       )}
                     </Link>
                   </motion.div>
@@ -399,13 +405,13 @@ export default function Navbar() {
                   scrollToSection(e, "#contact");
                   setIsOpen(false);
                 }}
-                className="w-full inline-flex items-center justify-center gap-2 bg-[#FF7849] text-[#141414] font-bold text-xs uppercase tracking-wider py-4 rounded-2xl shadow-[0_4px_0_#b94a22] active:shadow-[0_0_0_#b94a22] active:translate-y-1 transition-all duration-150"
+                className="w-full inline-flex items-center justify-center gap-2 bg-accent text-on-accent font-bold text-xs uppercase tracking-wider py-4 rounded-2xl shadow-[0_4px_0_var(--accent-deep)] active:shadow-[0_0_0_var(--accent-deep)] active:translate-y-1 transition-all duration-150"
               >
                 <span>Let&apos;s Connect</span>
                 <ArrowUpRight className="w-4 h-4" />
               </Link>
-              <div className="flex items-center justify-center gap-1.5 text-xs text-[#A39E93] font-mono">
-                <MapPin className="w-3.5 h-3.5 text-[#FF7849]" />
+              <div className="flex items-center justify-center gap-1.5 text-xs text-muted font-mono">
+                <MapPin className="w-3.5 h-3.5 text-accent-fg" />
                 {personalInfo.location}
                 {personalInfo.isAvailableForWork && " • Open for work"}
               </div>
