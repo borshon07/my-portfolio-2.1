@@ -1,8 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { socialLinks } from "@/data/portfolioData";
-import { ArrowUpRight, Check, Copy, Mail, MessageSquare } from "lucide-react";
+import { personalInfo, socialLinks } from "@/data/portfolioData";
+import {
+  ArrowUpRight,
+  Check,
+  Copy,
+  Mail,
+  MessageCircle,
+  MessageSquare,
+  Phone,
+} from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/Icons";
 import {
   motion,
@@ -135,7 +143,7 @@ export default function Contact() {
           {/* Action bar */}
           <motion.div
             variants={item}
-            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-12"
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-8"
           >
             {/* Magnetic email button */}
             <motion.a
@@ -179,6 +187,51 @@ export default function Contact() {
             </button>
           </motion.div>
 
+          {/* Phone + WhatsApp */}
+          {(personalInfo.phone || personalInfo.whatsapp) && (
+            <motion.div
+              variants={item}
+              className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-12"
+            >
+              {personalInfo.phone && (
+                <a
+                  href={`tel:${personalInfo.phone.replace(/[\s-]/g, "")}`}
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-[#1a1a1a] border border-[#303030] hover:border-[#FF7849]/50 transition-colors"
+                >
+                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#222222] border border-[#353535] text-[#FF7849] group-hover:bg-[#FF7849] group-hover:text-[#141414] group-hover:border-[#FF7849] transition-colors">
+                    <Phone className="w-4 h-4" />
+                  </span>
+                  <span className="flex flex-col">
+                    <span className="text-[11px] font-mono text-[#A39E93]">Phone</span>
+                    <span className="text-sm font-mono text-[#F4F0E8]">
+                      {personalInfo.phone}
+                    </span>
+                  </span>
+                </a>
+              )}
+
+              {personalInfo.whatsapp && (
+                <a
+                  href={`https://wa.me/${personalInfo.whatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-4 p-4 rounded-2xl bg-[#1a1a1a] border border-[#303030] hover:border-[#FF7849]/50 transition-colors"
+                >
+                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#222222] border border-[#353535] text-[#FF7849] group-hover:bg-[#FF7849] group-hover:text-[#141414] group-hover:border-[#FF7849] transition-colors">
+                    <MessageCircle className="w-4 h-4" />
+                  </span>
+                  <span className="flex flex-col">
+                    <span className="text-[11px] font-mono text-[#A39E93]">WhatsApp</span>
+                    <span className="text-sm font-mono text-[#F4F0E8] inline-flex items-center gap-1.5">
+                      Chat on WhatsApp
+                      <ArrowUpRight className="w-3.5 h-3.5 text-[#A39E93] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </span>
+                  </span>
+                </a>
+              )}
+            </motion.div>
+          )}
+
           {/* Direct channels */}
           <motion.div
             variants={item}
@@ -195,7 +248,7 @@ export default function Contact() {
                 <a
                   key={social.platform}
                   href={social.url}
-                  target="_blank"
+                  target={social.iconName === "mail" ? undefined : "_blank"}
                   rel="noopener noreferrer"
                   className="group inline-flex items-center gap-1.5 text-[#F4F0E8] hover:text-[#FF7849] transition-all hover:scale-105"
                 >

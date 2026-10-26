@@ -44,4 +44,6 @@ export interface PersonalInfo {
   location: string;
   isAvailableForWork: boolean;
   resumeUrl?: string;
+  phone?: string;
+  whatsapp?: string;
 }
