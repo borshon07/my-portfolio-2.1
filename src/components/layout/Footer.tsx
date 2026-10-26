@@ -5,6 +5,8 @@ import Link from "next/link";
 import { navItems, personalInfo, socialLinks } from "@/data/portfolioData";
 import { ArrowUp, ArrowUpRight, Mail, MapPin } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/Icons";
+import { usePathname } from "next/navigation";
+import { scrollToSection } from "@/utils/scrollToSection";
 import {
   motion,
   useMotionTemplate,
@@ -85,6 +87,10 @@ const item: Variants = {
 
 export default function Footer() {
   const reduceMotion = useReducedMotion();
+  const pathname = usePathname();
+
+  // Home page e "#about" thik ache, onno page e (jemon /projects/...) "/#about" lagbe
+  const resolve = (href: string) => (pathname === "/" ? href : `/${href}`);
 
   const currentYear = useSyncExternalStore(
     emptySubscribe,
@@ -162,7 +168,8 @@ export default function Footer() {
             </div>
 
             <Link
-              href="#contact"
+              href={resolve("#contact")}
+              onClick={(e) => scrollToSection(e, "#contact")}
               className="group self-start md:self-auto inline-flex items-center gap-2 bg-[#FF7849] hover:bg-[#ff8559] text-[#141414] text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full shadow-[0_4px_0_#b94a22] hover:shadow-[0_3px_0_#b94a22] hover:translate-y-px active:shadow-[0_0_0_#b94a22] active:translate-y-1 transition-all duration-150"
             >
               <span>Start a Conversation</span>
@@ -170,7 +177,7 @@ export default function Footer() {
             </Link>
           </div>
 
-          {/* 3D wordmark */}
+          {/* 3D wordmark (size screen er sathe chhoto-boro hoy, 8.5rem er beshi na) */}
           <div style={{ perspective: 1000 }}>
             <motion.div
               ref={wordRef}
@@ -191,7 +198,7 @@ export default function Footer() {
               {/* Back layer (extrusion) */}
               <div
                 style={{ transform: "translateZ(-28px)" }}
-                className="absolute inset-0 flex items-center justify-center text-[13vw] md:text-[8.5rem] leading-none font-extrabold tracking-tighter uppercase text-[#FF7849]/12 whitespace-nowrap py-4"
+                className="absolute inset-0 flex items-center justify-center text-[length:min(10vw,8.5rem)] leading-none font-extrabold tracking-tighter uppercase text-[#FF7849]/12 whitespace-nowrap py-4"
               >
                 {personalInfo.name}
               </div>
@@ -202,7 +209,7 @@ export default function Footer() {
                   transform: "translateZ(0px)",
                   WebkitTextStroke: "1px #3a3a3a",
                 }}
-                className="relative flex items-center justify-center text-[13vw] md:text-[8.5rem] leading-none font-extrabold tracking-tighter uppercase text-transparent whitespace-nowrap hover:text-[#F4F0E8]/5 transition-colors duration-500"
+                className="relative flex items-center justify-center text-[length:min(10vw,8.5rem)] leading-none font-extrabold tracking-tighter uppercase text-transparent whitespace-nowrap hover:text-[#F4F0E8]/5 transition-colors duration-500"
               >
                 {personalInfo.name}
               </div>
@@ -218,7 +225,8 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-5">
             <Link
-              href="#hero"
+              href={resolve("#hero")}
+              onClick={(e) => scrollToSection(e, "#hero")}
               className="group inline-flex items-center gap-3 text-[#F4F0E8] font-bold text-xl tracking-tight hover:text-[#FF7849] transition-colors"
             >
               <CubeLogo reduceMotion={reduceMotion} />
@@ -242,7 +250,8 @@ export default function Footer() {
               {navItems.map((navItem) => (
                 <Link
                   key={navItem.href}
-                  href={navItem.href}
+                  href={resolve(navItem.href)}
+                  onClick={(e) => scrollToSection(e, navItem.href)}
                   className="group w-fit text-xs font-mono uppercase tracking-wider text-[#A39E93] hover:text-[#F4F0E8] transition-colors"
                 >
                   <FlipLabel label={navItem.label} />
@@ -290,7 +299,8 @@ export default function Footer() {
           </div>
 
           <Link
-            href="#hero"
+            href={resolve("#hero")}
+            onClick={(e) => scrollToSection(e, "#hero")}
             className="group inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1c1c1c] border border-[#303030] text-[#F4F0E8] shadow-[0_4px_0_#262626] hover:text-[#FF7849] hover:border-[#FF7849]/50 hover:shadow-[0_3px_0_#262626] hover:translate-y-px active:shadow-[0_0_0_#262626] active:translate-y-1 transition-all duration-150"
           >
             <span>Back to Top</span>

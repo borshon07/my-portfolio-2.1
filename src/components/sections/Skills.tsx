@@ -258,7 +258,7 @@ export default function Skills() {
         <div
           role="tablist"
           aria-label="Filter skills by category"
-          className="flex flex-wrap gap-1.5 p-1.5 rounded-full bg-[#141414] border border-[#303030]"
+          className="flex flex-nowrap gap-1.5 p-1.5 rounded-full bg-[#141414] border border-[#303030] max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {categories.map((category) => {
             const isActive = activeTab === category;
@@ -268,7 +268,7 @@ export default function Skills() {
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => setActiveTab(category)}
-                className={`relative px-4 py-2 rounded-full text-xs font-mono transition-colors duration-200 ${
+                className={`shrink-0 whitespace-nowrap relative px-4 py-2 rounded-full text-xs font-mono transition-colors duration-200 ${
                   isActive ? "text-[#141414] font-bold" : "text-[#A39E93] hover:text-[#F4F0E8]"
                 }`}
               >

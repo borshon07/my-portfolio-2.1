@@ -5,8 +5,6 @@ import ProjectDetail from "@/components/sections/ProjectDetail";
 
 type Props = { params: Promise<{ id: string }> };
 
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return projects.map((project) => ({ id: project.id }));
 }

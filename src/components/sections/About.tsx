@@ -189,7 +189,8 @@ function TiltCard({
 }
 
 /* =====================================================================
-   3D flip card (hover, focus ba tap korle ghure)
+   3D flip card
+   Mouse: hover | Keyboard: Tab / Enter / Space | Touch: tap
    ===================================================================== */
 function FlipCard({
   icon: Icon,
@@ -227,11 +228,22 @@ function FlipCard({
         tabIndex={0}
         aria-pressed={flipped}
         aria-label={`${title}. Press to ${flipped ? "hide" : "show"} details`}
-        onMouseEnter={() => setFlipped(true)}
-        onMouseLeave={() => setFlipped(false)}
-        onFocus={() => setFlipped(true)}
+        onPointerEnter={(e) => {
+          if (e.pointerType === "mouse") setFlipped(true);
+        }}
+        onPointerLeave={(e) => {
+          if (e.pointerType === "mouse") setFlipped(false);
+        }}
+        onFocus={(e) => {
+          // Shudhu keyboard focus e flip hoy, tap e na
+          if (e.currentTarget.matches(":focus-visible")) setFlipped(true);
+        }}
         onBlur={() => setFlipped(false)}
-        onClick={() => setFlipped((v) => !v)}
+        onClick={(e) => {
+          // Mouse e hover-i flip kore, tai click e touch/pen e toggle hoy
+          const type = (e.nativeEvent as PointerEvent).pointerType;
+          if (type !== "mouse") setFlipped((v) => !v);
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
