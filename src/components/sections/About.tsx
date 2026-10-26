@@ -1,8 +1,20 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { personalInfo } from "@/data/portfolioData";
-import { Terminal, Code2, Compass } from "lucide-react";
+import {
+  Atom,
+  BookOpen,
+  Code2,
+  Database,
+  Gamepad2,
+  Headphones,
+  Layers,
+  Palette,
+  Rocket,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import {
   motion,
   useMotionTemplate,
@@ -12,7 +24,99 @@ import {
 } from "motion/react";
 import { defaultViewport, fadeInUp, transitionConfig } from "@/utils/motion";
 
-/* ---------- Reusable 3D tilt card ---------- */
+/* =====================================================================
+   EDIT: apnar nijer kotha ekhane likhun
+   ===================================================================== */
+
+const bio = [
+  "I'm a web developer intern in the making, currently studying for a Diploma in Computer Science & Technology. I enjoy turning ideas into clean, responsive interfaces that feel good to use.",
+  "I learn by building. Every project I start is a chance to try something I haven't done before, from my first JavaScript exercises to a full-stack app with authentication and a database.",
+  "I'm now looking for a web developer internship where I can learn from an experienced team and contribute to real products.",
+];
+
+const journey: {
+  icon: LucideIcon;
+  step: string;
+  title: string;
+  text: string;
+}[] = [
+  {
+    icon: Code2,
+    step: "Foundations",
+    title: "HTML, CSS & JavaScript",
+    text: "Started with the basics and practiced problem solving in a public JavaScript repository.",
+  },
+  {
+    icon: Atom,
+    step: "First app",
+    title: "React & TypeScript",
+    text: "Built DevStack Builder with React, TypeScript and Vite, learning components, state and toast feedback.",
+  },
+  {
+    icon: Layers,
+    step: "Leveling up",
+    title: "Next.js & Tailwind",
+    text: "Created FitLog, a workout tracker with filters, detail pages and saved exercises.",
+  },
+  {
+    icon: Database,
+    step: "Full-stack",
+    title: "Auth & MongoDB",
+    text: "Shipped BazarDor with Next.js App Router, Better Auth and MongoDB.",
+  },
+  {
+    icon: Rocket,
+    step: "Now",
+    title: "Polish & animation",
+    text: "Refining my craft with motion, 3D effects and this portfolio, while looking for an internship.",
+  },
+];
+
+const enjoy = [
+  "Responsive interfaces",
+  "Animation & micro-interactions",
+  "Next.js apps",
+  "Problem solving",
+];
+
+// EDIT: hobby gulo apnar moto bodlan (icon + naam + chhoto lekha)
+const hobbies: {
+  icon: LucideIcon;
+  title: string;
+  text: string;
+}[] = [
+  {
+    icon: Gamepad2,
+    title: "Gaming",
+    text: "A good way to unwind and a source of UI and game design ideas.",
+  },
+  {
+    icon: Headphones,
+    title: "Music",
+    text: "Headphones on while coding keeps me focused for hours.",
+  },
+  {
+    icon: BookOpen,
+    title: "Reading",
+    text: "Docs, blogs and books. I like learning something new every day.",
+  },
+  {
+    icon: Palette,
+    title: "Design",
+    text: "I love studying great websites and figuring out why they feel right.",
+  },
+];
+
+// EDIT: nijeke kemon bolben
+const personality = {
+  quote:
+    "Curious by nature, detail-oriented by habit, and always building something.",
+  traits: ["Curious", "Detail-oriented", "Consistent learner", "Team player"],
+};
+
+/* =====================================================================
+   Reusable 3D tilt card
+   ===================================================================== */
 function TiltCard({
   children,
   className = "",
@@ -53,7 +157,6 @@ function TiltCard({
   };
 
   return (
-    // Outer layer: scroll entrance + perspective
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -65,7 +168,6 @@ function TiltCard({
       }}
       style={{ perspective: 900 }}
     >
-      {/* Inner layer: tilt */}
       <motion.div
         ref={ref}
         onMouseMove={handleMove}
@@ -86,29 +188,106 @@ function TiltCard({
   );
 }
 
+/* =====================================================================
+   3D flip card (hover, focus ba tap korle ghure)
+   ===================================================================== */
+function FlipCard({
+  icon: Icon,
+  title,
+  text,
+  index,
+}: {
+  icon: LucideIcon;
+  title: string;
+  text: string;
+  index: number;
+}) {
+  const reduceMotion = useReducedMotion();
+  const [flipped, setFlipped] = useState(false);
+
+  const face: React.CSSProperties = {
+    backfaceVisibility: "hidden",
+    WebkitBackfaceVisibility: "hidden",
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={defaultViewport}
+      transition={{
+        duration: 0.6,
+        delay: index * 0.1,
+        ease: transitionConfig.easeEditorial,
+      }}
+      style={{ perspective: 900 }}
+    >
+      <div
+        role="button"
+        tabIndex={0}
+        aria-pressed={flipped}
+        aria-label={`${title}. Press to ${flipped ? "hide" : "show"} details`}
+        onMouseEnter={() => setFlipped(true)}
+        onMouseLeave={() => setFlipped(false)}
+        onFocus={() => setFlipped(true)}
+        onBlur={() => setFlipped(false)}
+        onClick={() => setFlipped((v) => !v)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setFlipped((v) => !v);
+          }
+        }}
+        className="relative h-44 outline-none focus-visible:ring-2 focus-visible:ring-[#FF7849]/60 rounded-2xl"
+      >
+        <motion.div
+          animate={{ rotateY: flipped ? 180 : 0 }}
+          transition={
+            reduceMotion
+              ? { duration: 0 }
+              : { type: "spring", stiffness: 110, damping: 16 }
+          }
+          style={{ transformStyle: "preserve-3d" }}
+          className="relative w-full h-full"
+        >
+          {/* Front */}
+          <div
+            style={face}
+            className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl bg-[#181818] border border-[#303030] shadow-lg shadow-black/20"
+          >
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-[#222222] border border-[#353535] text-[#FF7849]">
+              <Icon className="w-5 h-5" />
+            </div>
+            <span className="text-base font-semibold text-[#F4F0E8]">
+              {title}
+            </span>
+          </div>
+
+          {/* Back */}
+          <div
+            style={{ ...face, transform: "rotateY(180deg)" }}
+            className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-5 text-center rounded-2xl bg-[#1d1713] border border-[#FF7849]/50 shadow-lg shadow-[#FF7849]/10"
+          >
+            <Icon className="w-4 h-4 text-[#FF7849]" />
+            <p className="text-xs text-[#F4F0E8]/85 leading-relaxed">{text}</p>
+          </div>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* =====================================================================
+   Section
+   ===================================================================== */
 export default function About() {
   const reduceMotion = useReducedMotion();
 
-  const principles = [
-    {
-      icon: Code2,
-      title: "Clean Semantic Code",
-      text: "Prioritizing maintainable, accessible structure with semantic HTML, modern TypeScript, and clear component architecture.",
-    },
-    {
-      icon: Compass,
-      title: "Design-Driven Engineering",
-      text: "Bridging the gap between visual craftsmanship and technical performance with purposeful spacing, typography, and contrast.",
-    },
-    {
-      icon: Terminal,
-      title: "Continuous Evolution",
-      text: "Actively building hands-on projects, learning modern full-stack workflows, and refining problem-solving patterns every day.",
-    },
-  ];
-
   return (
-    <section id="about" className="py-24 sm:py-32 px-6 md:px-12 max-w-6xl mx-auto w-full">
+    <section
+      id="about"
+      className="scroll-mt-24 py-24 sm:py-32 px-6 md:px-12 max-w-6xl mx-auto w-full"
+    >
       {/* Section header */}
       <motion.div
         initial="hidden"
@@ -131,19 +310,19 @@ export default function About() {
             />
           </div>
           <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[#F4F0E8]">
-            About My Craft
+            About Me
           </h2>
         </div>
         <p className="text-xs sm:text-sm font-mono text-[#A39E93] max-w-xs md:text-right">
-          Building thoughtful web interfaces with a focus on usability &amp; clarity.
+          My journey, the work I enjoy, and who I am outside of code.
         </p>
       </motion.div>
 
       {/* Main grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-        {/* Left column */}
-        <div className="lg:col-span-7 flex flex-col gap-6">
-          {/* 3D flip-up reveal for the statement + bio */}
+        {/* Left column: story */}
+        <div className="lg:col-span-7 flex flex-col gap-8">
+          {/* 3D flip-up reveal */}
           <motion.div
             initial={
               reduceMotion
@@ -157,20 +336,51 @@ export default function About() {
             className="flex flex-col gap-6"
           >
             <h3 className="text-xl sm:text-2xl font-light text-[#F4F0E8] leading-relaxed">
-              <span className="font-semibold text-[#FF7849]">{personalInfo.name}</span> is a web
-              developer passionate about translating digital concepts into engaging, highly
-              functional web realities.
+              Hi, I&apos;m{" "}
+              <span className="font-semibold text-[#FF7849]">
+                {personalInfo.name}
+              </span>
+              , a {personalInfo.title.toLowerCase()} who learns by building real
+              things.
             </h3>
 
             <div className="space-y-4 text-base text-[#A39E93] leading-relaxed font-normal">
-              {personalInfo.bioParagraphs.map((paragraph, idx) => (
+              {bio.map((paragraph, idx) => (
                 <p key={idx}>{paragraph}</p>
               ))}
             </div>
           </motion.div>
 
+          {/* Work I enjoy */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={defaultViewport}
+            transition={{ duration: 0.6, ease: transitionConfig.easeEditorial }}
+            className="pt-6 border-t border-[#303030]/60"
+          >
+            <div className="text-xs font-mono text-[#A39E93] uppercase tracking-wider mb-4">
+              Work I enjoy
+            </div>
+            <div className="flex flex-wrap gap-2.5">
+              {enjoy.map((item, i) => (
+                <motion.span
+                  key={item}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={defaultViewport}
+                  transition={{ duration: 0.4, delay: 0.1 + i * 0.07 }}
+                  className="inline-flex items-center gap-2 text-xs font-mono px-3.5 py-2 rounded-xl bg-[#202020] text-[#F4F0E8] border border-[#2e2e2e] hover:border-[#FF7849]/50 hover:text-[#FF7849] transition-colors"
+                >
+                  <Sparkles className="w-3 h-3 text-[#FF7849]" />
+                  {item}
+                </motion.span>
+              ))}
+            </div>
+          </motion.div>
+
           {/* Info tiles (3D tilt) */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-6 border-t border-[#303030]/60 text-xs font-mono">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs font-mono">
             <TiltCard
               intensity={14}
               delay={0}
@@ -214,58 +424,136 @@ export default function About() {
                     <span className="absolute inline-flex w-full h-full rounded-full bg-[#FF7849] opacity-75 animate-ping" />
                     <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-[#FF7849]" />
                   </span>
-                  {personalInfo.isAvailableForWork ? "Available for work" : "Currently busy"}
+                  {personalInfo.isAvailableForWork
+                    ? "Open to internships"
+                    : "Currently busy"}
                 </span>
               </TiltCard>
             </div>
           </div>
         </div>
 
-        {/* Right column: principle cards */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
-          <div className="text-xs font-mono text-[#A39E93] uppercase tracking-wider mb-2">
-            Engineering Values
+        {/* Right column: journey timeline */}
+        <div className="lg:col-span-5">
+          <div className="text-xs font-mono text-[#A39E93] uppercase tracking-wider mb-6">
+            My programming journey
           </div>
 
-          {principles.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <TiltCard
-                key={item.title}
-                intensity={9}
-                delay={index * 0.12}
-                className="p-5 sm:p-6 rounded-2xl bg-[#181818] border border-[#303030] hover:border-[#FF7849]/60 transition-colors duration-300 shadow-lg shadow-black/20"
-              >
-                {/* Hover wash */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#FF7849]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+          <div className="relative">
+            <div
+              aria-hidden
+              className="absolute left-[19px] top-6 bottom-6 w-px bg-gradient-to-b from-[#FF7849]/60 via-[#303030] to-transparent"
+            />
 
-                <div className="relative">
-                  <div className="flex items-center gap-3.5 mb-2.5">
-                    {/* Icon pops out in 3D */}
-                    <div
-                      style={{ transform: "translateZ(45px)" }}
-                      className="w-9 h-9 rounded-xl bg-[#262626] border border-[#3a3a3a] flex items-center justify-center text-[#FF7849] shadow-lg shadow-black/40 group-hover:bg-[#FF7849] group-hover:text-[#141414] group-hover:border-[#FF7849] transition-colors duration-300"
+            <div className="flex flex-col gap-4">
+              {journey.map((item, index) => {
+                const Icon = item.icon;
+                const isNow = index === journey.length - 1;
+
+                return (
+                  <div key={item.title} className="relative pl-14">
+                    {/* Timeline node */}
+                    <span className="absolute left-0 top-5 flex items-center justify-center w-10 h-10 rounded-xl bg-[#181818] border border-[#FF7849]/50 text-[#FF7849]">
+                      {isNow && (
+                        <span className="absolute inset-0 rounded-xl bg-[#FF7849]/20 animate-ping" />
+                      )}
+                      <Icon className="relative w-4 h-4" />
+                    </span>
+
+                    <TiltCard
+                      intensity={8}
+                      delay={index * 0.1}
+                      className="p-5 rounded-2xl bg-[#181818] border border-[#303030] hover:border-[#FF7849]/60 transition-colors duration-300 shadow-lg shadow-black/20"
                     >
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <h4
-                      style={{ transform: "translateZ(28px)" }}
-                      className="text-base font-semibold text-[#F4F0E8] group-hover:text-[#FF7849] transition-colors"
-                    >
-                      {item.title}
-                    </h4>
+                      <div className="relative">
+                        <span
+                          style={{ transform: "translateZ(14px)" }}
+                          className="block text-[10px] font-mono uppercase tracking-wider text-[#FF7849] mb-1"
+                        >
+                          {item.step}
+                        </span>
+                        <h4
+                          style={{ transform: "translateZ(28px)" }}
+                          className="text-base font-semibold text-[#F4F0E8] mb-1.5 group-hover:text-[#FF7849] transition-colors"
+                        >
+                          {item.title}
+                        </h4>
+                        <p
+                          style={{ transform: "translateZ(10px)" }}
+                          className="text-xs text-[#A39E93] leading-relaxed"
+                        >
+                          {item.text}
+                        </p>
+                      </div>
+                    </TiltCard>
                   </div>
-                  <p
-                    style={{ transform: "translateZ(12px)" }}
-                    className="text-xs text-[#A39E93] leading-relaxed pl-12 font-normal"
-                  >
-                    {item.text}
-                  </p>
-                </div>
-              </TiltCard>
-            );
-          })}
+                );
+              })}
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Beyond code */}
+      <div className="mt-24">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={defaultViewport}
+          variants={fadeInUp}
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8"
+        >
+          <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#F4F0E8]">
+            Beyond the code
+          </h3>
+          <span className="text-xs font-mono text-[#A39E93]">
+            Hover or tap a card to flip it
+          </span>
+        </motion.div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {hobbies.map((hobby, i) => (
+            <FlipCard
+              key={hobby.title}
+              icon={hobby.icon}
+              title={hobby.title}
+              text={hobby.text}
+              index={i}
+            />
+          ))}
+        </div>
+
+        {/* Personality */}
+        <TiltCard
+          intensity={4}
+          delay={0.1}
+          className="mt-6 p-6 sm:p-8 rounded-2xl bg-[#181818] border border-[#303030] hover:border-[#FF7849]/50 transition-colors duration-300 shadow-xl shadow-black/20"
+        >
+          <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <p
+              style={{ transform: "translateZ(24px)" }}
+              className="text-lg sm:text-xl font-light text-[#F4F0E8] leading-relaxed max-w-2xl"
+            >
+              <span className="text-[#FF7849] font-semibold">&ldquo;</span>
+              {personality.quote}
+              <span className="text-[#FF7849] font-semibold">&rdquo;</span>
+            </p>
+
+            <div
+              style={{ transform: "translateZ(14px)" }}
+              className="flex flex-wrap gap-2 lg:justify-end"
+            >
+              {personality.traits.map((trait) => (
+                <span
+                  key={trait}
+                  className="text-xs font-mono px-3 py-1.5 rounded-full bg-[#FF7849]/10 text-[#FF7849] border border-[#FF7849]/30"
+                >
+                  {trait}
+                </span>
+              ))}
+            </div>
+          </div>
+        </TiltCard>
       </div>
     </section>
   );
