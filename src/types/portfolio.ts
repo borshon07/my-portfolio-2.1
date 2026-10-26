@@ -31,6 +31,9 @@ export interface Project {
   featured: boolean;
   year: string;
   aspect?: "wide" | "square" | "tall";
+  image?: string;
+  challenges: string[];
+  improvements: string[];
 }
 
 export interface PersonalInfo {

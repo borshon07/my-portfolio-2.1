@@ -25,6 +25,9 @@ import { defaultViewport } from "@/utils/motion";
 
 const EMAIL = "borshonroy73@gmail.com";
 
+const WHATSAPP_MESSAGE =
+  "Hi Borshon, I found your portfolio and would like to talk.";
+
 /* ---------- Animation variants ---------- */
 const container: Variants = {
   hidden: {},
@@ -43,6 +46,12 @@ const item: Variants = {
 export default function Contact() {
   const [copied, setCopied] = useState(false);
   const reduceMotion = useReducedMotion();
+
+  // WhatsApp link: number theke +, space, - muche shudhu digit rakhe
+  const whatsappDigits = personalInfo.whatsapp?.replace(/\D/g, "") ?? "";
+  const whatsappHref = whatsappDigits
+    ? `https://wa.me/${whatsappDigits}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`
+    : "";
 
   /* ---------- Cursor-following glow ---------- */
   const glowX = useMotionValue(-500);
@@ -86,7 +95,10 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-24 sm:py-32 px-6 md:px-12 max-w-6xl mx-auto w-full">
+    <section
+      id="contact"
+      className="scroll-mt-24 py-24 sm:py-32 px-6 md:px-12 max-w-6xl mx-auto w-full"
+    >
       <motion.div
         initial="hidden"
         whileInView="visible"
@@ -188,7 +200,7 @@ export default function Contact() {
           </motion.div>
 
           {/* Phone + WhatsApp */}
-          {(personalInfo.phone || personalInfo.whatsapp) && (
+          {(personalInfo.phone || whatsappHref) && (
             <motion.div
               variants={item}
               className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-12"
@@ -210,11 +222,12 @@ export default function Contact() {
                 </a>
               )}
 
-              {personalInfo.whatsapp && (
+              {whatsappHref && (
                 <a
-                  href={`https://wa.me/${personalInfo.whatsapp}`}
+                  href={whatsappHref}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Chat with me on WhatsApp"
                   className="group flex items-center gap-4 p-4 rounded-2xl bg-[#1a1a1a] border border-[#303030] hover:border-[#FF7849]/50 transition-colors"
                 >
                   <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#222222] border border-[#353535] text-[#FF7849] group-hover:bg-[#FF7849] group-hover:text-[#141414] group-hover:border-[#FF7849] transition-colors">

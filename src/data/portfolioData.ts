@@ -109,20 +109,23 @@ export const projects: Project[] = [
     id: "bazardor-market-tracker",
     title: "বাজার দর (BazarDor)",
     eyebrow: "Full-Stack Next.js 16 App",
-    tagline:
-      "Today's grocery market prices in Bangladesh at a glance with daily change tickers.",
+    tagline: "Today's grocery market prices in Bangladesh at a glance with daily change tickers.",
     description:
       "A Bangla grocery market tracker built with Next.js 16 App Router, TypeScript, and Better Auth. Features an infinite scrolling price ticker, top price risers and fallers, category browsing, and bazar-wise price comparisons connected to MongoDB.",
-    technologies: [
-      "Next.js 16",
-      "TypeScript",
-      "Tailwind CSS",
-      "HeroUI",
-      "Better Auth",
-      "MongoDB",
-    ],
+    technologies: ["Next.js 16", "TypeScript", "Tailwind CSS", "HeroUI", "Better Auth", "MongoDB"],
     githubUrl: "https://github.com/borshon07/BazarDor-web-B14-Ass-07",
     liveUrl: "https://bazar-dor-web-b14-ass-07.vercel.app",
+    // image: "/projects/bazardor.png", // screenshot rakhar por uncomment koro
+    challenges: [
+      "Setting up authentication with Better Auth in the Next.js App Router and keeping server and client session handling clear.",
+      "Designing MongoDB data for products, categories and bazar-wise prices so daily changes could be compared quickly.",
+      "Building a smooth infinite price ticker and risers/fallers lists without hurting performance.",
+    ],
+    improvements: [
+      "Add price history charts for each product.",
+      "Let users set price alerts for the items they follow.",
+      "Add an admin dashboard for managing prices and categories.",
+    ],
     featured: true,
     year: "2026",
     aspect: "wide",
@@ -131,19 +134,23 @@ export const projects: Project[] = [
     id: "fitlog-workout-tracker",
     title: "FitLog Workout Companion",
     eyebrow: "Fitness Web Application",
-    tagline:
-      "Dark-themed workout tracking app with exercise library and personalized workout plans.",
+    tagline: "Dark-themed workout tracking app with exercise library and personalized workout plans.",
     description:
       "A distraction-free training companion featuring a categorized workout directory with muscle groups, equipment requirements, difficulty filters, and saved exercises built with Next.js and Tailwind CSS.",
-    technologies: [
-      "Next.js",
-      "TypeScript",
-      "Tailwind CSS",
-      "DaisyUI",
-      "next-themes",
-      "Sonner",
-    ],
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "DaisyUI", "next-themes", "Sonner"],
     githubUrl: "https://github.com/borshon07/B-14-A06--FitLog-by-Borshon",
+    // liveUrl: "https://...", // live link ache hole boshao
+    // image: "/projects/fitlog.png",
+    challenges: [
+      "Building filters for muscle group, equipment and difficulty that work together without confusing results.",
+      "Keeping saved exercises and the theme preference consistent across pages.",
+      "Designing a dark interface that stays readable with enough contrast.",
+    ],
+    improvements: [
+      "Add workout logging with sets, reps and weight.",
+      "Add progress charts over time.",
+      "Add user accounts so plans sync across devices.",
+    ],
     featured: true,
     year: "2026",
     aspect: "square",
@@ -152,18 +159,23 @@ export const projects: Project[] = [
     id: "devstack-builder",
     title: "DevStack Builder",
     eyebrow: "Interactive Developer Utility",
-    tagline:
-      "Modern developer stack builder for discovering technologies and saving custom stacks.",
+    tagline: "Modern developer stack builder for discovering technologies and saving custom stacks.",
     description:
       "An interactive web application enabling developers to explore frontend, backend, database, and dev tool catalogs. Features real-time stack assembly, duplicate-selection prevention, and dynamic toast feedback.",
-    technologies: [
-      "React",
-      "TypeScript",
-      "Tailwind CSS",
-      "Vite",
-      "React-Toastify",
-    ],
+    technologies: ["React", "TypeScript", "Tailwind CSS", "Vite", "React-Toastify"],
     githubUrl: "https://github.com/borshon07/B-14-A05--DevStack-",
+    // liveUrl: "https://...",
+    // image: "/projects/devstack.png",
+    challenges: [
+      "Managing the selected-technology state and preventing duplicates while keeping the UI responsive.",
+      "Giving clear toast feedback for add, remove and duplicate actions.",
+      "Organizing a large catalog of technologies into categories that are easy to browse.",
+    ],
+    improvements: [
+      "Let users save and share their stacks with a link.",
+      "Add search and more technology categories.",
+      "Suggest compatible technologies based on the current stack.",
+    ],
     featured: false,
     year: "2026",
     aspect: "tall",

@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, MapPin } from "lucide-react";
+import { usePathname } from "next/navigation";
 import {
   AnimatePresence,
   motion,
@@ -95,10 +96,23 @@ const menuItem: Variants = {
 
 export default function Navbar() {
   const reduceMotion = useReducedMotion();
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
+  // Home page e "#about" thik ache, onno page e (jemon /projects/...) "/#about" lagbe
+  const resolve = (href: string) => (isHome ? href : `/${href}`);
+
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
 
+  const [prevPathname, setPrevPathname] = useState(pathname);
+
+// Page change hole mobile menu bondho (render er somoy state adjust kora, effect lagbe na)
+if (pathname !== prevPathname) {
+  setPrevPathname(pathname);
+  setIsOpen(false);
+}
   /* ---------- Scroll progress ---------- */
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -128,6 +142,9 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  /* ---------- Page change hole menu bondho ---------- */
+  
 
   /* ---------- Lock scroll + Esc to close ---------- */
   useEffect(() => {
@@ -208,7 +225,7 @@ export default function Navbar() {
 
             {/* Brand */}
             <Link
-              href="#hero"
+              href={resolve("#hero")}
               onClick={(e) => {
                 scrollToSection(e, "#hero");
                 setIsOpen(false);
@@ -228,12 +245,12 @@ export default function Navbar() {
             <nav className="relative hidden md:flex items-center gap-1 rounded-full bg-[#1a1a1a]/80 border border-[#303030]/80 p-1">
               {navItems.map((item) => {
                 const target = item.href.replace("#", "");
-                const isActive = activeSection === target;
+                const isActive = isHome && activeSection === target;
 
                 return (
                   <Link
                     key={item.href}
-                    href={item.href}
+                    href={resolve(item.href)}
                     onClick={(e) => scrollToSection(e, item.href)}
                     className={`group relative px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-colors ${
                       isActive
@@ -260,7 +277,7 @@ export default function Navbar() {
             <div className="relative flex items-center gap-2">
               {/* 3D key-style CTA */}
               <Link
-                href="#contact"
+                href={resolve("#contact")}
                 onClick={(e) => scrollToSection(e, "#contact")}
                 className="group hidden md:inline-flex items-center gap-1.5 bg-[#FF7849] hover:bg-[#ff8559] text-[#141414] text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full shadow-[0_4px_0_#b94a22] hover:shadow-[0_3px_0_#b94a22] hover:translate-y-px active:shadow-[0_0_0_#b94a22] active:translate-y-1 transition-all duration-150"
               >
@@ -323,7 +340,7 @@ export default function Navbar() {
             >
               {navItems.map((item, i) => {
                 const target = item.href.replace("#", "");
-                const isActive = activeSection === target;
+                const isActive = isHome && activeSection === target;
 
                 return (
                   <motion.div
@@ -332,7 +349,7 @@ export default function Navbar() {
                     style={{ transformOrigin: "top center" }}
                   >
                     <Link
-                      href={item.href}
+                      href={resolve(item.href)}
                       onClick={(e) => {
                         scrollToSection(e, item.href);
                         setIsOpen(false);
@@ -368,7 +385,7 @@ export default function Navbar() {
               className="relative flex flex-col gap-4 mt-8"
             >
               <Link
-                href="#contact"
+                href={resolve("#contact")}
                 onClick={(e) => {
                   scrollToSection(e, "#contact");
                   setIsOpen(false);
