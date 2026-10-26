@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import CustomCursor from "@/components/ui/CustomCursor";
 import "./globals.css";
 import Preloader from "@/components/ui/Preloader";
-import HashScroller from "@/components/ui/HashScroller";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -80,7 +80,7 @@ export default function RootLayout({
         {/* baki ager moto */}
 
         <Preloader />
-        <HashScroller />
+        
         <CustomCursor />
         <Navbar />
         <div className="flex-1 w-full flex flex-col">{children}</div>

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, MapPin } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import {
   AnimatePresence,
@@ -16,7 +16,7 @@ import {
   type Variants,
 } from "motion/react";
 import { navItems, personalInfo } from "@/data/portfolioData";
-import { scrollToSection } from "@/utils/scrollToSection";
+import { goToSection, PENDING_KEY } from "@/utils/goToSection";
 
 /* ---------- Mini 3D cube logo ---------- */
 const CUBE_HALF = 9;
@@ -95,20 +95,26 @@ const menuItem: Variants = {
 export default function Navbar() {
   const reduceMotion = useReducedMotion();
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === "/";
 
-  // Home e "#about" thik ache, onno page e (jemon /projects/...) "/#about" lagbe
+  // Link er href: home e "#about", onno page e "/#about" (new tab e khulleo thik kaj kore)
   const resolve = (href: string) => (isHome ? href : `/${href}`);
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("hero");
+
+  // Click: home e smooth scroll, onno page e home e giye oi section e jay
+  const handleNav = (e: React.MouseEvent<HTMLElement>, href: string) => {
+    goToSection(e, href, isHome, (url) => router.push(url));
+  };
 
   // Kon nav item active: home e scroll position dhore, project page e "Projects"
   const isItemActive = (target: string) =>
     isHome
       ? activeSection === target
       : target === "projects" && pathname.startsWith("/projects");
-
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState("hero");
 
   const [prevPathname, setPrevPathname] = useState(pathname);
 
@@ -117,6 +123,41 @@ export default function Navbar() {
     setPrevPathname(pathname);
     setIsOpen(false);
   }
+
+  /* ---------- Onno page theke ese home e pouchale pending section e scroll ---------- */
+  useEffect(() => {
+    if (pathname !== "/") return;
+
+    let target: string | null = null;
+    try {
+      target = sessionStorage.getItem(PENDING_KEY);
+    } catch {
+      /* storage blocked */
+    }
+    if (!target) return;
+
+    const id = target;
+    let tries = 0;
+
+    const timer = setInterval(() => {
+      tries += 1;
+      const el = document.getElementById(id);
+
+      if (el) {
+        clearInterval(timer);
+        try {
+          sessionStorage.removeItem(PENDING_KEY);
+        } catch {
+          /* storage blocked */
+        }
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (tries > 40) {
+        clearInterval(timer);
+      }
+    }, 50);
+
+    return () => clearInterval(timer);
+  }, [pathname]);
 
   /* ---------- Scroll progress ---------- */
   const { scrollYProgress } = useScroll();
@@ -236,7 +277,7 @@ export default function Navbar() {
             <Link
               href={resolve("#hero")}
               onClick={(e) => {
-                scrollToSection(e, "#hero");
+                handleNav(e, "#hero");
                 setIsOpen(false);
               }}
               className="group relative flex items-center gap-3 pl-1 text-fg transition-colors hover:text-accent-fg"
@@ -260,7 +301,7 @@ export default function Navbar() {
                   <Link
                     key={item.href}
                     href={resolve(item.href)}
-                    onClick={(e) => scrollToSection(e, item.href)}
+                    onClick={(e) => handleNav(e, item.href)}
                     className={`group relative px-4 py-1.5 rounded-full text-xs font-mono uppercase tracking-wider transition-colors ${
                       isActive
                         ? "text-on-accent font-semibold"
@@ -293,7 +334,7 @@ export default function Navbar() {
               {/* 3D key-style CTA */}
               <Link
                 href={resolve("#contact")}
-                onClick={(e) => scrollToSection(e, "#contact")}
+                onClick={(e) => handleNav(e, "#contact")}
                 className="group hidden lg:inline-flex items-center gap-1.5 bg-accent hover:bg-accent-hover text-on-accent text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-full shadow-[0_4px_0_var(--accent-deep)] hover:shadow-[0_3px_0_var(--accent-deep)] hover:translate-y-px active:shadow-[0_0_0_var(--accent-deep)] active:translate-y-1 transition-all duration-150"
               >
                 <span>Let&apos;s Talk</span>
@@ -366,7 +407,7 @@ export default function Navbar() {
                     <Link
                       href={resolve(item.href)}
                       onClick={(e) => {
-                        scrollToSection(e, item.href);
+                        handleNav(e, item.href);
                         setIsOpen(false);
                       }}
                       className={`flex items-center justify-between py-4 px-5 rounded-2xl border text-lg font-semibold tracking-tight transition-colors ${
@@ -402,7 +443,7 @@ export default function Navbar() {
               <Link
                 href={resolve("#contact")}
                 onClick={(e) => {
-                  scrollToSection(e, "#contact");
+                  handleNav(e, "#contact");
                   setIsOpen(false);
                 }}
                 className="w-full inline-flex items-center justify-center gap-2 bg-accent text-on-accent font-bold text-xs uppercase tracking-wider py-4 rounded-2xl shadow-[0_4px_0_var(--accent-deep)] active:shadow-[0_0_0_var(--accent-deep)] active:translate-y-1 transition-all duration-150"

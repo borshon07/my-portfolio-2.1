@@ -5,8 +5,8 @@ import Link from "next/link";
 import { navItems, personalInfo, socialLinks } from "@/data/portfolioData";
 import { ArrowUp, ArrowUpRight, Mail, MapPin } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/Icons";
-import { usePathname } from "next/navigation";
-import { scrollToSection } from "@/utils/scrollToSection";
+import { usePathname, useRouter } from "next/navigation";
+import { goToSection } from "@/utils/goToSection";
 import {
   motion,
   useMotionTemplate,
@@ -88,9 +88,15 @@ const item: Variants = {
 export default function Footer() {
   const reduceMotion = useReducedMotion();
   const pathname = usePathname();
+  const router = useRouter();
+  const isHome = pathname === "/";
 
-  // Home page e "#about" thik ache, onno page e (jemon /projects/...) "/#about" lagbe
-  const resolve = (href: string) => (pathname === "/" ? href : `/${href}`);
+  // Link er href: home e "#about", onno page e "/#about" (new tab e khulleo thik kaj kore)
+  const resolve = (href: string) => (isHome ? href : `/${href}`);
+
+  // Click: home e smooth scroll, onno page e home e giye oi section e jay
+  const handleNav = (e: React.MouseEvent<HTMLElement>, href: string) =>
+    goToSection(e, href, isHome, (url) => router.push(url));
 
   const currentYear = useSyncExternalStore(
     emptySubscribe,
@@ -169,7 +175,7 @@ export default function Footer() {
 
             <Link
               href={resolve("#contact")}
-              onClick={(e) => scrollToSection(e, "#contact")}
+              onClick={(e) => handleNav(e, "#contact")}
               className="group self-start md:self-auto inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-on-accent text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full shadow-[0_4px_0_var(--accent-deep)] hover:shadow-[0_3px_0_var(--accent-deep)] hover:translate-y-px active:shadow-[0_0_0_var(--accent-deep)] active:translate-y-1 transition-all duration-150"
             >
               <span>Start a Conversation</span>
@@ -226,7 +232,7 @@ export default function Footer() {
           <div className="md:col-span-5">
             <Link
               href={resolve("#hero")}
-              onClick={(e) => scrollToSection(e, "#hero")}
+              onClick={(e) => handleNav(e, "#hero")}
               className="group inline-flex items-center gap-3 text-fg font-bold text-xl tracking-tight hover:text-accent-fg transition-colors"
             >
               <CubeLogo reduceMotion={reduceMotion} />
@@ -251,7 +257,7 @@ export default function Footer() {
                 <Link
                   key={navItem.href}
                   href={resolve(navItem.href)}
-                  onClick={(e) => scrollToSection(e, navItem.href)}
+                  onClick={(e) => handleNav(e, navItem.href)}
                   className="group w-fit text-xs font-mono uppercase tracking-wider text-muted hover:text-fg transition-colors"
                 >
                   <FlipLabel label={navItem.label} />
@@ -300,7 +306,7 @@ export default function Footer() {
 
           <Link
             href={resolve("#hero")}
-            onClick={(e) => scrollToSection(e, "#hero")}
+            onClick={(e) => handleNav(e, "#hero")}
             className="group inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-2 border border-line text-fg shadow-[0_4px_0_var(--line-soft)] hover:text-accent-fg hover:border-accent/50 hover:shadow-[0_3px_0_var(--line-soft)] hover:translate-y-px active:shadow-[0_0_0_var(--line-soft)] active:translate-y-1 transition-all duration-150"
           >
             <span>Back to Top</span>
