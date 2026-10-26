@@ -1,5 +1,88 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* LIGHT: Deep Navy + Cyan */
+  --canvas: #f0f6fb;
+  --sunken: #e4edf5;
+  --surface: #ffffff;
+  --surface-2: #f6fafd;
+  --surface-3: #eaf2f9;
+  --surface-4: #dce9f4;
+  --tint: #e3f5fa;
+  --line-soft: #dce7f1;
+  --line: #cbdae8;
+  --line-strong: #b4c8db;
+  --fg: #0b1f3a;
+  --muted: #4a6178;
+  --accent: #0891b2;
+  --accent-fg: #0e7490;
+  --accent-hover: #0aa5c8;
+  --accent-deep: #0a5f78;
+  --on-accent: #04182b;
+  --accent-rgb: 8 145 178;
+}
+
+.dark {
+  /* DARK: Obsidian + Warm Orange */
+  --canvas: #141414;
+  --sunken: #101010;
+  --surface: #181818;
+  --surface-2: #1a1a1a;
+  --surface-3: #212121;
+  --surface-4: #272727;
+  --tint: #1d1713;
+  --line-soft: #262626;
+  --line: #303030;
+  --line-strong: #3a3a3a;
+  --fg: #f4f0e8;
+  --muted: #a39e93;
+  --accent: #ff7849;
+  --accent-fg: #ff7849;
+  --accent-hover: #ff8559;
+  --accent-deep: #b94a22;
+  --on-accent: #141414;
+  --accent-rgb: 255 120 73;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-sunken: var(--sunken);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-surface-4: var(--surface-4);
+  --color-tint: var(--tint);
+  --color-line-soft: var(--line-soft);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-deep: var(--accent-deep);
+  --color-on-accent: var(--on-accent);
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--canvas);
+  color: var(--fg);
+}
+
+/* Light mode e kalo shadow ta onek bhari lage, tai halka navy shadow */
+:root:not(.dark) [class*="shadow-black"] {
+  --tw-shadow-color: rgb(11 31 58 / 0.14) !important;
+}
+
 @theme {
   --color-obsidian: #141414;
   --color-obsidian-deep: #0b0b0b;

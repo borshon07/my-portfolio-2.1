@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, MapPin } from "lucide-react";
 import { usePathname } from "next/navigation";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import {
   AnimatePresence,
   motion,
@@ -30,7 +31,10 @@ const cubeFaces = [
 
 function CubeLogo({ reduceMotion }: { reduceMotion: boolean | null }) {
   return (
-    <span className="relative inline-block w-[18px] h-[18px]" style={{ perspective: 200 }}>
+    <span
+      className="relative inline-block w-[18px] h-[18px]"
+      style={{ perspective: 200 }}
+    >
       <motion.span
         className="absolute inset-0 block"
         style={{ transformStyle: "preserve-3d", rotateX: -25 }}
@@ -50,13 +54,7 @@ function CubeLogo({ reduceMotion }: { reduceMotion: boolean | null }) {
 }
 
 /* ---------- 3D flip label for nav links ---------- */
-function FlipLabel({
-  label,
-  isActive,
-}: {
-  label: string;
-  isActive: boolean;
-}) {
+function FlipLabel({ label, isActive }: { label: string; isActive: boolean }) {
   return (
     <span className="relative block h-4 [perspective:400px]">
       <span className="relative block h-4 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] [transform-style:preserve-3d] group-hover:[transform:rotateX(-90deg)]">
@@ -108,11 +106,11 @@ export default function Navbar() {
 
   const [prevPathname, setPrevPathname] = useState(pathname);
 
-// Page change hole mobile menu bondho (render er somoy state adjust kora, effect lagbe na)
-if (pathname !== prevPathname) {
-  setPrevPathname(pathname);
-  setIsOpen(false);
-}
+  // Page change hole mobile menu bondho (render er somoy state adjust kora, effect lagbe na)
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
+    setIsOpen(false);
+  }
   /* ---------- Scroll progress ---------- */
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
@@ -131,7 +129,11 @@ if (pathname !== prevPathname) {
       const position = window.scrollY + 160;
       for (const id of sections) {
         const el = document.getElementById(id);
-        if (el && position >= el.offsetTop && position < el.offsetTop + el.offsetHeight) {
+        if (
+          el &&
+          position >= el.offsetTop &&
+          position < el.offsetTop + el.offsetHeight
+        ) {
           setActiveSection(id);
           break;
         }
@@ -144,7 +146,6 @@ if (pathname !== prevPathname) {
   }, []);
 
   /* ---------- Page change hole menu bondho ---------- */
-  
 
   /* ---------- Lock scroll + Esc to close ---------- */
   useEffect(() => {
@@ -202,7 +203,10 @@ if (pathname !== prevPathname) {
           scrolled ? "pt-2.5" : "pt-4"
         }`}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-12" style={{ perspective: 1200 }}>
+        <div
+          className="max-w-6xl mx-auto px-4 sm:px-6 md:px-12"
+          style={{ perspective: 1200 }}
+        >
           <motion.div
             ref={pillRef}
             onMouseMove={handlePillMove}
@@ -261,7 +265,11 @@ if (pathname !== prevPathname) {
                     {isActive && (
                       <motion.span
                         layoutId="navbar-indicator"
-                        transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 32,
+                        }}
                         className="absolute inset-0 z-0 rounded-full bg-[#FF7849] shadow-md shadow-[#FF7849]/30"
                       />
                     )}
@@ -275,6 +283,7 @@ if (pathname !== prevPathname) {
 
             {/* Right side */}
             <div className="relative flex items-center gap-2">
+               <ThemeToggle />
               {/* 3D key-style CTA */}
               <Link
                 href={resolve("#contact")}

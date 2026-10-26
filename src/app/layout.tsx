@@ -18,6 +18,18 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
+const themeScript = `
+(function () {
+  try {
+    var stored = localStorage.getItem("theme");
+    var theme = stored === "light" || stored === "dark" ? stored : "dark";
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  } catch (e) {
+    document.documentElement.classList.add("dark");
+  }
+})();
+`;
+
 export const metadata: Metadata = {
   title: "Borshon Roy — Creative Web Developer",
   description:
@@ -57,10 +69,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} scroll-smooth dark`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="min-h-screen bg-[#141414] text-[#F4F0E8] antialiased selection:bg-[#FF7849] selection:text-[#141414] flex flex-col">
-         <Preloader />
+        {/* baki ager moto */}
+
+        <Preloader />
         <CustomCursor />
         <Navbar />
         <div className="flex-1 w-full flex flex-col">{children}</div>
