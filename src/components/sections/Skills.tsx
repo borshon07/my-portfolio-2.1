@@ -68,7 +68,7 @@ const BRANDS: Brand[] = [
   { match: /mongo/i, slugs: ["mongodb"], color: "#47A248", fallback: Database },
   { match: /node/i, slugs: ["nodedotjs"], color: "#5FA04E", fallback: Server },
   { match: /git/i, slugs: ["git"], color: "#F05032", fallback: GitBranch },
-  { match: /vs ?code/i, slugs: ["visualstudiocode"], color: "#007ACC", fallback: Code },
+  { match: /VS ?code/i, slugs: ["visual studiocode"], color: "#007ACC", fallback: Code },
   { match: /npm|package/i, slugs: ["npm"], color: "#CB3837", fallback: Package },
   { match: /vercel/i, slugs: ["vercel"], color: "var(--fg)", mono: true, fallback: Triangle },
   { match: /devtools|chrome/i, slugs: ["googlechrome"], color: "#4285F4", fallback: Bug },
