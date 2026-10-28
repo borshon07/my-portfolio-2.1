@@ -10,14 +10,25 @@ export interface SocialLink {
   isPlaceholder?: boolean;
 }
 
+
 export interface SkillCategory {
-  category: "Languages" | "Frontend" | "Frameworks" | "Tools";
+  category:
+    | "Languages"
+    | "Frontend"
+    | "Frameworks"
+    | "Tools"
+    | "Frontend Development"
+    | "Backend Development"
+    | "Database & API Engineering"
+    | "Software Engineering"
+    | "Tools & Workflow";
   description: string;
   skills: {
     name: string;
     level?: "Active" | "Learning";
   }[];
 }
+
 
 export interface Project {
   id: string;
@@ -34,6 +45,7 @@ export interface Project {
   image?: string;
   challenges: string[];
   improvements: string[];
+  
 }
 
 export interface PersonalInfo {

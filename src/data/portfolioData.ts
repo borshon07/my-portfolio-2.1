@@ -56,50 +56,59 @@ export const socialLinks: SocialLink[] = [
 
 export const skillCategories: SkillCategory[] = [
   {
-    category: "Languages",
+    category: "Frontend Development",
     description:
-      "Core programming and markup languages I use to construct web logic and architecture.",
+      "Creating responsive, modern, and user-focused web experiences.",
     skills: [
+      { name: "React", level: "Active" },
+      { name: "Next.js", level: "Active" },
       { name: "JavaScript (ES6+)", level: "Active" },
       { name: "TypeScript", level: "Active" },
-      { name: "HTML5", level: "Active" },
-      { name: "CSS3", level: "Active" },
-    ],
-  },
-  {
-    category: "Frontend",
-    description:
-      "Modern UI rendering libraries, layout engines, and styling methodologies.",
-    skills: [
-      { name: "React 19", level: "Active" },
-      { name: "Next.js (App Router)", level: "Active" },
       { name: "Tailwind CSS", level: "Active" },
-      { name: "HeroUI / DaisyUI", level: "Active" },
-      { name: "Responsive Design", level: "Active" },
-      { name: "Motion / CSS Transitions", level: "Learning" },
+      { name: "Responsive Web Development", level: "Active" },
     ],
   },
   {
-    category: "Frameworks",
+    category: "Backend Development",
     description:
-      "Full-stack frameworks and authentication tooling for production web development.",
+      "Building server-side applications, backend logic, and secure authentication systems.",
     skills: [
-      { name: "Next.js 16 (App Router)", level: "Active" },
+      { name: "Node.js", level: "Active" },
+      { name: "Express.js", level: "Active" },
       { name: "Better Auth", level: "Active" },
-      { name: "MongoDB", level: "Active" },
-      { name: "Node.js (Fundamentals)", level: "Learning" },
+      { name: "REST API Integration", level: "Active" },
     ],
   },
   {
-    category: "Tools",
+    category: "Database & API Engineering",
     description:
-      "Development workflows, version management, and deployment platforms.",
+      "Designing structured data models and reliable communication between application layers.",
     skills: [
-      { name: "Git & GitHub", level: "Active" },
-      { name: "VS Code", level: "Active" },
-      { name: "npm / package managers", level: "Active" },
-      { name: "Vercel", level: "Active" },
-      { name: "Chrome DevTools", level: "Active" },
+      { name: "MongoDB", level: "Active" },
+      { name: "Mongoose", level: "Active" },
+      { name: "API Design", level: "Active" },
+      { name: "Database Design", level: "Active" },
+      { name: "Client-Server Architecture", level: "Active" },
+    ],
+  },
+  {
+    category: "Software Engineering",
+    description:
+      "Applying problem-solving skills and modern development practices to build practical applications.",
+    skills: [
+      { name: "Full-Stack Application Development", level: "Active" },
+      { name: "AI Mindset & Engineering", level: "Active" },
+      { name: "Product Development", level: "Active" },
+      { name: "Problem Solving", level: "Active" },
+    ],
+  },
+  {
+    category: "Tools & Workflow",
+    description:
+      "Using development tools to manage code and maintain efficient workflows.",
+    skills: [
+      { name: "Git", level: "Active" },
+      { name: "GitHub", level: "Active" },
     ],
   },
 ];

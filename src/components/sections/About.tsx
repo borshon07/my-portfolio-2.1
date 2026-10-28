@@ -7,37 +7,86 @@ import {
   BookOpen,
   Code2,
   Database,
-  Gamepad2,
-  Headphones,
+  GraduationCap,
   Layers,
-  Palette,
+  Puzzle,
   Rocket,
+  Search,
   Sparkles,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import {
   animate,
   motion,
+  useAnimationFrame,
   useInView,
+  useMotionValue,
   useReducedMotion,
   useScroll,
   useTransform,
   type MotionValue,
 } from "motion/react";
 import { defaultViewport, fadeInUp } from "@/utils/motion";
+import { BrandIcon, brandFor, brandSurface } from "@/components/ui/BrandIcon";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /* =====================================================================
-   EDIT: apnar nijer kotha ekhane likhun
+   Content (apnar text)
    ===================================================================== */
 
-const bio = [
-  "I'm a web developer intern in the making, currently studying for a Diploma in Computer Science & Technology. I enjoy turning ideas into clean, responsive interfaces that feel good to use.",
-  "I learn by building. Every project I start is a chance to try something I haven't done before, from my first JavaScript exercises to a full-stack app with authentication and a database.",
-  "I'm now looking for a web developer internship where I can learn from an experienced team and contribute to real products.",
+const intro =
+  "I'm a Full-Stack Web Developer passionate about building modern, scalable, and user-focused web applications. My work focuses on connecting intuitive frontend experiences with reliable backend systems to create meaningful digital products.";
+
+const foundation =
+  "My technical foundation includes JavaScript, TypeScript, React, Next.js, Tailwind CSS, Node.js, Express.js, MongoDB, Mongoose, and Better Auth. Beyond coding, I'm interested in API and database design, client-server architecture, AI-driven engineering workflows, and the overall product development process.";
+
+const education = {
+  degree: "Diploma in Computer Science & Technology",
+  institute: "Dinajpur Government Polytechnic Institute",
+  status: "Currently pursuing",
+  text: "Where I continue to develop my technical knowledge and problem-solving abilities.",
+};
+
+const interests = [
+  "API & database design",
+  "Client-server architecture",
+  "AI-driven engineering workflows",
+  "Product development",
 ];
 
+const belief = {
+  quote: "I believe great software comes from more than writing code.",
+  body: "It requires understanding problems, designing thoughtful solutions, and continuously learning as technology evolves. My goal is to grow as a software engineer, build practical solutions to real-world problems, and contribute to products that deliver meaningful value.",
+  closing:
+    "I'm always exploring new technologies, refining my engineering skills, and turning ideas into functional digital experiences.",
+};
+
+const principles: { icon: LucideIcon; title: string; text: string }[] = [
+  {
+    icon: Search,
+    title: "Understand the problem",
+    text: "Great software starts with knowing what actually needs solving.",
+  },
+  {
+    icon: Puzzle,
+    title: "Design thoughtful solutions",
+    text: "Connecting frontend, backend and data into something reliable.",
+  },
+  {
+    icon: BookOpen,
+    title: "Keep learning",
+    text: "Technology keeps evolving, so I keep exploring and refining my skills.",
+  },
+  {
+    icon: Users,
+    title: "Build for people",
+    text: "Turning ideas into functional, user-focused digital experiences.",
+  },
+];
+
+// Journey: project ar skill theke neya. Apnar moto bodlate paren.
 const journey: {
   icon: LucideIcon;
   step: string;
@@ -64,70 +113,155 @@ const journey: {
   },
   {
     icon: Database,
-    step: "Full-stack",
-    title: "Auth & MongoDB",
-    text: "Shipped BazarDor with Next.js App Router, Better Auth and MongoDB.",
+    step: "Backend & data",
+    title: "Node.js, Express & MongoDB",
+    text: "Moved to the server side: Node.js and Express, MongoDB with Mongoose, and secure authentication with Better Auth.",
   },
   {
     icon: Rocket,
     step: "Now",
-    title: "Polish & animation",
-    text: "Refining my craft with motion, 3D effects and this portfolio, while looking for an internship.",
+    title: "Product thinking",
+    text: "Designing APIs and data models, thinking in whole products, and studying for my Diploma while building.",
   },
 ];
-
-const enjoy = [
-  "Responsive interfaces",
-  "Animation & micro-interactions",
-  "Next.js apps",
-  "Problem solving",
-];
-
-// EDIT: hobby gulo apnar moto bodlan (icon + naam + chhoto lekha)
-const hobbies: {
-  icon: LucideIcon;
-  title: string;
-  text: string;
-}[] = [
-  {
-    icon: Gamepad2,
-    title: "Gaming",
-    text: "A good way to unwind and a source of UI and game design ideas.",
-  },
-  {
-    icon: Headphones,
-    title: "Music",
-    text: "Headphones on while coding keeps me focused for hours.",
-  },
-  {
-    icon: BookOpen,
-    title: "Reading",
-    text: "Docs, blogs and books. I like learning something new every day.",
-  },
-  {
-    icon: Palette,
-    title: "Design",
-    text: "I love studying great websites and figuring out why they feel right.",
-  },
-];
-
-// EDIT: nijeke kemon bolben
-const personality = {
-  quote:
-    "Curious by nature, detail-oriented by habit, and always building something.",
-  traits: ["Curious", "Detail-oriented", "Consistent learner", "Team player"],
-};
 
 /* Stats real data theke ashe, kono number banano na */
-const TECH_COUNT = new Set(
+const SKILL_COUNT = new Set(
   skillCategories.flatMap((c) => c.skills.map((s) => s.name))
 ).size;
 
 const STATS = [
   { value: projects.length, label: "Projects built" },
   { value: projects.filter((p) => p.liveUrl).length, label: "Live demos" },
-  { value: TECH_COUNT, label: "Technologies" },
+  { value: SKILL_COUNT, label: "Skills" },
 ];
+
+/* =====================================================================
+   3D tech cube (drag kore ghurano jay)
+   ===================================================================== */
+const CUBE = 112;
+const HALF = CUBE / 2;
+const CUBE_FACES = [
+  `rotateY(0deg) translateZ(${HALF}px)`,
+  `rotateY(90deg) translateZ(${HALF}px)`,
+  `rotateY(180deg) translateZ(${HALF}px)`,
+  `rotateY(270deg) translateZ(${HALF}px)`,
+  `rotateX(90deg) translateZ(${HALF}px)`,
+  `rotateX(-90deg) translateZ(${HALF}px)`,
+];
+const CORE_STACK = [
+  "React",
+  "Next.js",
+  "TypeScript",
+  "Node.js",
+  "Express.js",
+  "MongoDB",
+];
+
+function StackCube() {
+  const reduceMotion = useReducedMotion();
+  const rotY = useMotionValue(28);
+  const rotX = useMotionValue(-22);
+  const dragging = useRef(false);
+  const last = useRef({ x: 0, y: 0 });
+
+  useAnimationFrame((_, delta) => {
+    if (reduceMotion || dragging.current) return;
+    rotY.set(rotY.get() + delta * 0.022);
+  });
+
+  const onDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    dragging.current = true;
+    last.current = { x: e.clientX, y: e.clientY };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging.current) return;
+    rotY.set(rotY.get() + (e.clientX - last.current.x) * 0.6);
+    rotX.set(
+      Math.max(-70, Math.min(70, rotX.get() - (e.clientY - last.current.y) * 0.4))
+    );
+    last.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const onUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    dragging.current = false;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={defaultViewport}
+      transition={{ duration: 0.7, ease: EASE }}
+      className="relative mb-8 overflow-hidden rounded-2xl border border-line bg-surface p-6 shadow-lg shadow-black/10"
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle 200px at 50% 55%, rgb(var(--accent-rgb)/0.16), transparent 70%)",
+        }}
+      />
+
+      <div className="relative flex items-center justify-between">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-muted">
+          Core stack
+        </span>
+        <span className="text-[11px] font-mono text-muted">Drag to rotate</span>
+      </div>
+
+      <div
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerUp={onUp}
+        onPointerCancel={onUp}
+        style={{ perspective: 900, touchAction: "pan-y" }}
+        className="relative flex h-60 items-center justify-center"
+      >
+        <motion.div
+          style={{
+            width: CUBE,
+            height: CUBE,
+            rotateX: rotX,
+            rotateY: rotY,
+            transformStyle: "preserve-3d",
+          }}
+          className="relative"
+        >
+          {CORE_STACK.map((name, i) => {
+            const brand = brandFor(name);
+            return (
+              <div
+                key={name}
+                style={{
+                  ...brandSurface(brand),
+                  width: CUBE,
+                  height: CUBE,
+                  transform: CUBE_FACES[i],
+                  backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
+                }}
+                className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl border shadow-[inset_0_0_30px_rgba(255,255,255,0.06)]"
+              >
+                <span className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/25 via-transparent to-transparent" />
+                <BrandIcon brand={brand} className="relative h-11 w-11" />
+                <span className="relative text-[10px] font-mono text-fg">
+                  {name}
+                </span>
+              </div>
+            );
+          })}
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+}
 
 /* =====================================================================
    Scroll korle shobdo-e-shobdo jele othe
@@ -143,7 +277,7 @@ function RevealWord({
 }) {
   const opacity = useTransform(progress, range, [0.18, 1]);
   return (
-    <motion.span style={{ opacity }} className="inline-block mr-[0.28em]">
+    <motion.span style={{ opacity }} className="mr-[0.28em] inline-block">
       {word}
     </motion.span>
   );
@@ -232,12 +366,12 @@ function Journey() {
     <div ref={ref} className="relative">
       <div
         aria-hidden
-        className="absolute left-[19px] top-5 bottom-5 w-px bg-line"
+        className="absolute bottom-5 left-[19px] top-5 w-px bg-line"
       />
       <motion.div
         aria-hidden
         style={{ scaleY: reduceMotion ? 1 : scrollYProgress }}
-        className="absolute left-[19px] top-5 bottom-5 w-px origin-top bg-gradient-to-b from-accent to-accent/40"
+        className="absolute bottom-5 left-[19px] top-5 w-px origin-top bg-gradient-to-b from-accent to-accent/40"
       />
 
       <ol className="flex flex-col gap-5">
@@ -255,7 +389,7 @@ function Journey() {
                 className="absolute left-0 top-4 flex h-10 w-10 items-center justify-center rounded-xl border border-accent/50 bg-surface text-accent-fg"
               >
                 {isNow && (
-                  <span className="absolute inset-0 rounded-xl bg-accent/20 animate-ping" />
+                  <span className="absolute inset-0 animate-ping rounded-xl bg-accent/20" />
                 )}
                 <Icon className="relative h-4 w-4" />
               </motion.span>
@@ -357,7 +491,7 @@ function FlipCard({
           {/* Front */}
           <div
             style={face}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border border-line bg-surface shadow-lg shadow-black/10"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border border-line bg-surface px-4 text-center shadow-lg shadow-black/10"
           >
             <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-line bg-surface-3 text-accent-fg">
               <Icon className="h-5 w-5" />
@@ -386,7 +520,7 @@ export default function About() {
   return (
     <section
       id="about"
-      className="scroll-mt-24 py-24 sm:py-32 px-6 md:px-12 max-w-6xl mx-auto w-full"
+      className="mx-auto w-full max-w-6xl scroll-mt-24 px-6 py-24 sm:py-32 md:px-12"
     >
       {/* Section header */}
       <motion.div
@@ -414,7 +548,7 @@ export default function About() {
           </h2>
         </div>
         <p className="max-w-xs text-xs font-mono text-muted sm:text-sm md:text-right">
-          My journey, the work I enjoy, and who I am outside of code.
+          Who I am, how I think, and what I&apos;m building toward.
         </p>
       </motion.div>
 
@@ -422,37 +556,78 @@ export default function About() {
       <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-16">
         {/* Left: story */}
         <div className="flex flex-col gap-9 lg:col-span-7">
-          <motion.h3
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={defaultViewport}
-            transition={{ duration: 0.8, ease: EASE }}
-            className="font-display text-3xl leading-[1.12] text-fg sm:text-4xl md:text-5xl"
-          >
-            Hi, I&apos;m{" "}
-            <span className="italic text-accent-fg">{personalInfo.name}</span>,
-            a {personalInfo.title.toLowerCase()} who learns by building real
-            things.
-          </motion.h3>
+          <div>
+            <motion.span
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={defaultViewport}
+              transition={{ duration: 0.6, ease: EASE }}
+              className="mb-4 block text-xs font-mono uppercase tracking-[0.25em] text-muted"
+            >
+              Hi, I&apos;m {personalInfo.name}
+            </motion.span>
+
+            <motion.h3
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={defaultViewport}
+              transition={{ duration: 0.8, ease: EASE }}
+              className="font-display text-3xl leading-[1.12] text-fg sm:text-4xl md:text-5xl"
+            >
+              Connecting{" "}
+              <span className="italic text-accent-fg">intuitive frontends</span>{" "}
+              with{" "}
+              <span className="italic text-accent-fg">reliable backends.</span>
+            </motion.h3>
+          </div>
 
           <div className="flex flex-col gap-5">
             <ScrollReveal
-              text={bio[0]}
+              text={intro}
               className="text-lg leading-relaxed text-fg sm:text-xl"
             />
-            {bio.slice(1).map((paragraph, idx) => (
-              <motion.p
-                key={idx}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={defaultViewport}
-                transition={{ duration: 0.6, delay: idx * 0.08, ease: EASE }}
-                className="text-base leading-relaxed text-muted"
-              >
-                {paragraph}
-              </motion.p>
-            ))}
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={defaultViewport}
+              transition={{ duration: 0.6, ease: EASE }}
+              className="text-base leading-relaxed text-muted"
+            >
+              {foundation}
+            </motion.p>
           </div>
+
+          {/* Education */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={defaultViewport}
+            transition={{ duration: 0.6, ease: EASE }}
+            className="group flex gap-4 rounded-2xl border border-line bg-surface p-5 shadow-lg shadow-black/10 transition-colors duration-300 hover:border-accent/50 sm:p-6"
+          >
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-line bg-surface-3 text-accent-fg transition-all duration-300 group-hover:border-accent group-hover:bg-accent group-hover:text-on-accent">
+              <GraduationCap className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <span className="mb-1 block text-[10px] font-mono uppercase tracking-wider text-muted">
+                Education
+              </span>
+              <h4 className="text-base font-semibold text-fg sm:text-lg">
+                {education.degree}
+              </h4>
+              <p className="mt-0.5 text-sm text-muted">{education.institute}</p>
+              <p className="mt-3 text-xs leading-relaxed text-muted">
+                {education.text}
+              </p>
+              <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-2.5 py-1 text-[10px] font-mono text-accent-fg">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+                </span>
+                {education.status}
+              </span>
+            </div>
+          </motion.div>
 
           {/* Stats (real data) */}
           <div className="grid grid-cols-3 gap-3 sm:gap-4">
@@ -475,13 +650,13 @@ export default function About() {
             ))}
           </div>
 
-          {/* Work I enjoy */}
+          {/* Interests */}
           <div className="border-t border-line-soft pt-6">
             <div className="mb-4 text-xs font-mono uppercase tracking-wider text-muted">
-              Work I enjoy
+              What I&apos;m interested in
             </div>
             <div className="flex flex-wrap gap-2.5">
-              {enjoy.map((item, i) => (
+              {interests.map((item, i) => (
                 <motion.span
                   key={item}
                   initial={{ opacity: 0, y: 10 }}
@@ -505,7 +680,7 @@ export default function About() {
               {
                 label: "STATUS",
                 value: personalInfo.isAvailableForWork
-                  ? "Open to internships"
+                  ? "Open to opportunities"
                   : "Currently busy",
                 live: personalInfo.isAvailableForWork,
               },
@@ -527,7 +702,7 @@ export default function About() {
                   }`}
                 >
                   {tile.live && (
-                    <span className="relative flex h-1.5 w-1.5">
+                    <span className="relative flex h-1.5 w-1.5 shrink-0">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
                       <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
                     </span>
@@ -539,8 +714,10 @@ export default function About() {
           </div>
         </div>
 
-        {/* Right: journey */}
+        {/* Right: 3D cube + journey */}
         <div className="lg:col-span-5">
+          <StackCube />
+
           <div className="mb-6 text-xs font-mono uppercase tracking-wider text-muted">
             My programming journey
           </div>
@@ -548,7 +725,7 @@ export default function About() {
         </div>
       </div>
 
-      {/* Beyond the code */}
+      {/* How I work */}
       <div className="mt-24">
         <motion.div
           initial="hidden"
@@ -558,7 +735,7 @@ export default function About() {
           className="mb-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-end"
         >
           <h3 className="text-2xl font-bold tracking-tight text-fg sm:text-3xl">
-            Beyond the code
+            How I work
           </h3>
           <span className="text-xs font-mono text-muted">
             Hover or tap a card to flip it
@@ -566,43 +743,36 @@ export default function About() {
         </motion.div>
 
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {hobbies.map((hobby, i) => (
+          {principles.map((p, i) => (
             <FlipCard
-              key={hobby.title}
-              icon={hobby.icon}
-              title={hobby.title}
-              text={hobby.text}
+              key={p.title}
+              icon={p.icon}
+              title={p.title}
+              text={p.text}
               index={i}
             />
           ))}
         </div>
 
-        {/* Personality */}
+        {/* Belief + goal */}
         <motion.div
           initial={{ opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={defaultViewport}
           transition={{ duration: 0.7, ease: EASE }}
-          className="mt-6 rounded-2xl border border-line bg-surface p-6 shadow-xl shadow-black/10 transition-colors duration-300 hover:border-accent/50 sm:p-8"
+          className="mt-6 rounded-2xl border border-line bg-surface p-6 shadow-xl shadow-black/10 transition-colors duration-300 hover:border-accent/50 sm:p-10"
         >
-          <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
-            <p className="max-w-2xl font-display text-2xl italic leading-snug text-fg sm:text-3xl">
-              <span className="text-accent-fg">&ldquo;</span>
-              {personality.quote}
-              <span className="text-accent-fg">&rdquo;</span>
-            </p>
-
-            <div className="flex flex-wrap gap-2 lg:justify-end">
-              {personality.traits.map((trait) => (
-                <span
-                  key={trait}
-                  className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 text-xs font-mono text-accent-fg"
-                >
-                  {trait}
-                </span>
-              ))}
-            </div>
-          </div>
+          <p className="max-w-3xl font-display text-3xl italic leading-snug text-fg sm:text-4xl">
+            <span className="text-accent-fg">&ldquo;</span>
+            {belief.quote}
+            <span className="text-accent-fg">&rdquo;</span>
+          </p>
+          <p className="mt-6 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
+            {belief.body}
+          </p>
+          <p className="mt-5 max-w-3xl border-t border-line-soft pt-5 text-xs font-mono leading-relaxed text-muted">
+            {belief.closing}
+          </p>
         </motion.div>
       </div>
     </section>

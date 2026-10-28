@@ -3,26 +3,13 @@
 import React, { useRef, useState } from "react";
 import { skillCategories } from "@/data/portfolioData";
 import {
-  Atom,
-  Braces,
-  Bug,
   Code,
-  Component,
+  Cpu,
   Database,
-  FileCode,
-  GitBranch,
-  Layers,
   Layout,
-  Package,
-  Palette,
   Server,
-  ShieldCheck,
-  Smartphone,
   Sparkles,
-  Triangle,
-  Wind,
   Wrench,
-  Zap,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -34,89 +21,27 @@ import {
   useSpring,
 } from "motion/react";
 import { defaultViewport, fadeInUp, transitionConfig } from "@/utils/motion";
+import { BrandIcon, brandFor, brandSurface } from "@/components/ui/BrandIcon";
 
 type SkillGroup = (typeof skillCategories)[number];
 type Skill = SkillGroup["skills"][number];
 
-/* =====================================================================
-   Brand icons
-   Logo ashe cdn.simpleicons.org theke, asol brand rong-e.
-   slugs: ekta na ele porer ta try kore, shob fail hole lucide icon dekhay.
-   color: shudhu 3D glow er jonno (icon er rong CDN nije dey).
-   mono: kalo logo (Next.js, Vercel), dark mode e shada hoye jay.
-   ===================================================================== */
-type Brand = {
-  match: RegExp;
-  slugs: string[];
-  color: string;
-  mono?: boolean;
-  fallback: LucideIcon;
-};
-
-const BRANDS: Brand[] = [
-  { match: /javascript/i, slugs: ["javascript"], color: "#F7DF1E", fallback: Braces },
-  { match: /typescript/i, slugs: ["typescript"], color: "#3178C6", fallback: Braces },
-  { match: /html/i, slugs: ["html5"], color: "#E34F26", fallback: FileCode },
-  { match: /tailwind/i, slugs: ["tailwindcss"], color: "#06B6D4", fallback: Wind },
-  { match: /heroui|daisy/i, slugs: ["daisyui", "heroui"], color: "#5A0EF8", fallback: Component },
-  { match: /motion/i, slugs: ["framer"], color: "#0055FF", fallback: Zap },
-  { match: /css/i, slugs: ["css3", "css"], color: "#1572B6", fallback: Palette },
-  { match: /react/i, slugs: ["react"], color: "#61DAFB", fallback: Atom },
-  { match: /next/i, slugs: ["nextdotjs"], color: "var(--fg)", mono: true, fallback: Layers },
-  { match: /responsive/i, slugs: [], color: "#22D3EE", fallback: Smartphone },
-  { match: /auth/i, slugs: [], color: "#10B981", fallback: ShieldCheck },
-  { match: /mongo/i, slugs: ["mongodb"], color: "#47A248", fallback: Database },
-  { match: /node/i, slugs: ["nodedotjs"], color: "#5FA04E", fallback: Server },
-  { match: /git/i, slugs: ["git"], color: "#F05032", fallback: GitBranch },
-  { match: /VS ?code/i, slugs: ["visual studiocode"], color: "#007ACC", fallback: Code },
-  { match: /npm|package/i, slugs: ["npm"], color: "#CB3837", fallback: Package },
-  { match: /vercel/i, slugs: ["vercel"], color: "var(--fg)", mono: true, fallback: Triangle },
-  { match: /devtools|chrome/i, slugs: ["googlechrome"], color: "#4285F4", fallback: Bug },
-];
-
-const DEFAULT_BRAND: Brand = {
-  match: /./,
-  slugs: [],
-  color: "var(--accent)",
-  fallback: Code,
-};
-
-const brandFor = (name: string): Brand =>
-  BRANDS.find((b) => b.match.test(name)) ?? DEFAULT_BRAND;
-
 const categoryIcons: Record<string, LucideIcon> = {
-  Languages: Braces,
-  Frontend: Layout,
-  Frameworks: Layers,
-  Tools: Wrench,
+  "Frontend Development": Layout,
+  "Backend Development": Server,
+  "Database & API Engineering": Database,
+  "Software Engineering": Cpu,
+  "Tools & Workflow": Wrench,
 };
 
-/* ---------- Logo (CDN fail korle lucide fallback) ---------- */
-function BrandIcon({ brand }: { brand: Brand }) {
-  const [attempt, setAttempt] = useState(0);
-  const slug = brand.slugs[attempt];
-  const Fallback = brand.fallback;
-
-  if (!slug) {
-    return <Fallback className="h-6 w-6" style={{ color: brand.color }} />;
-  }
-
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      key={slug}
-      src={`https://cdn.simpleicons.org/${slug}`}
-      alt=""
-      width={24}
-      height={24}
-      loading="lazy"
-      decoding="async"
-      draggable={false}
-      onError={() => setAttempt((a) => a + 1)}
-      className={`h-6 w-6 select-none ${brand.mono ? "dark:invert" : ""}`}
-    />
-  );
-}
+// Filter tab e choto naam
+const shortLabel: Record<string, string> = {
+  "Frontend Development": "Frontend",
+  "Backend Development": "Backend",
+  "Database & API Engineering": "Data & API",
+  "Software Engineering": "Engineering",
+  "Tools & Workflow": "Tools",
+};
 
 /* ---------- Ekta skill chip: 3D tile + naam ---------- */
 function SkillChip({ skill, index }: { skill: Skill; index: number }) {
@@ -146,12 +71,9 @@ function SkillChip({ skill, index }: { skill: Skill; index: number }) {
 
   const dark = "color-mix(in srgb, var(--brand) 40%, #000)";
 
-  const tileStyle = {
-    "--brand": brand.color,
+  const tileStyle: React.CSSProperties = {
+    ...brandSurface(brand),
     transformStyle: "preserve-3d",
-    background:
-      "linear-gradient(145deg, color-mix(in srgb, var(--brand) 20%, var(--surface)), var(--surface-3))",
-    borderColor: "color-mix(in srgb, var(--brand) 45%, var(--line))",
     boxShadow: [
       `0 1px 0 ${dark}`,
       `0 2px 0 ${dark}`,
@@ -159,7 +81,7 @@ function SkillChip({ skill, index }: { skill: Skill; index: number }) {
       `0 4px 0 ${dark}`,
       "0 12px 18px -6px color-mix(in srgb, var(--brand) 55%, transparent)",
     ].join(", "),
-  } as React.CSSProperties;
+  };
 
   return (
     <motion.div
@@ -167,13 +89,14 @@ function SkillChip({ skill, index }: { skill: Skill; index: number }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.15 + index * 0.04 }}
       style={{ perspective: 700 }}
+      className="max-w-full"
     >
       <motion.div
         ref={ref}
         onMouseMove={handleMove}
         onMouseLeave={handleLeave}
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className={`group/chip relative inline-flex cursor-default items-center gap-3 rounded-2xl border py-2 pl-2.5 pr-4 transition-colors duration-200 ${
+        className={`group/chip relative inline-flex max-w-full cursor-default items-center gap-3 rounded-2xl border py-2 pl-2.5 pr-4 transition-colors duration-200 ${
           isLearning
             ? "border-dashed border-line-strong bg-surface-2 hover:border-accent/60"
             : "border-line bg-surface-2 hover:border-accent/60"
@@ -206,12 +129,14 @@ function SkillChip({ skill, index }: { skill: Skill; index: number }) {
           <span
             aria-hidden
             className="relative flex items-center justify-center"
-            style={{
-              transform: "translateZ(12px)",
-              filter:
-                "drop-shadow(0 4px 5px color-mix(in srgb, var(--brand) 55%, rgba(0,0,0,0.35)))",
-              ...({ "--brand": brand.color } as React.CSSProperties),
-            }}
+            style={
+              {
+                transform: "translateZ(12px)",
+                "--brand": brand.color,
+                filter:
+                  "drop-shadow(0 4px 5px color-mix(in srgb, var(--brand) 55%, rgba(0,0,0,0.35)))",
+              } as React.CSSProperties
+            }
           >
             <BrandIcon brand={brand} />
           </span>
@@ -219,9 +144,11 @@ function SkillChip({ skill, index }: { skill: Skill; index: number }) {
 
         <span
           style={{ transform: "translateZ(6px)" }}
-          className="flex flex-col items-start gap-1"
+          className="flex min-w-0 flex-col items-start gap-1"
         >
-          <span className="text-xs font-mono text-fg">{skill.name}</span>
+          <span className="break-words text-xs font-mono text-fg">
+            {skill.name}
+          </span>
           {isLearning && (
             <span className="inline-flex items-center gap-1 rounded bg-accent/15 px-1.5 py-0.5 font-sans text-[9px] font-medium uppercase text-accent-fg">
               <Sparkles className="h-2.5 w-2.5" />
@@ -235,13 +162,17 @@ function SkillChip({ skill, index }: { skill: Skill; index: number }) {
 }
 
 /* ---------- Ekta category card ---------- */
-function SkillCard({ group, index }: { group: SkillGroup; index: number }) {
+function SkillCard({
+  group,
+  index,
+  wide,
+}: {
+  group: SkillGroup;
+  index: number;
+  wide: boolean;
+}) {
   const reduceMotion = useReducedMotion();
   const CategoryIcon = categoryIcons[group.category] ?? Code;
-
-  const activeCount = group.skills.filter((s) => s.level !== "Learning").length;
-  const learningCount = group.skills.length - activeCount;
-  const activePercent = Math.round((activeCount / group.skills.length) * 100);
 
   // Cursor spotlight
   const x = useMotionValue(-400);
@@ -258,17 +189,24 @@ function SkillCard({ group, index }: { group: SkillGroup; index: number }) {
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 25, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      initial={
+        reduceMotion
+          ? { opacity: 0 }
+          : { opacity: 0, y: 40, rotateX: 14, scale: 0.97 }
+      }
+      animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       whileHover={reduceMotion ? undefined : { y: -4 }}
       transition={{
-        duration: 0.45,
+        duration: 0.6,
         delay: index * 0.08,
         ease: transitionConfig.easeEditorial,
       }}
+      style={{ transformPerspective: 1100, transformOrigin: "center bottom" }}
       onMouseMove={handleMove}
-      className="group relative flex flex-col justify-between rounded-2xl border border-line bg-surface p-6 shadow-xl shadow-black/20 transition-colors duration-300 hover:border-accent/50 sm:p-8"
+      className={`group relative flex flex-col rounded-2xl border border-line bg-surface p-6 shadow-xl shadow-black/20 transition-colors duration-300 hover:border-accent/50 sm:p-8 ${
+        wide ? "md:col-span-2" : ""
+      }`}
     >
       {/* Top accent line */}
       <div className="pointer-events-none absolute left-0 right-0 top-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-transparent via-accent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
@@ -301,12 +239,12 @@ function SkillCard({ group, index }: { group: SkillGroup; index: number }) {
               {group.category}
             </h3>
             <span className="text-[11px] font-mono text-muted">
-              {group.skills.length} tools
+              {group.skills.length} skills
             </span>
           </div>
         </div>
 
-        <p className="mb-7 max-w-md text-xs leading-relaxed text-muted sm:text-[13px]">
+        <p className="mb-7 max-w-lg text-xs leading-relaxed text-muted sm:text-[13px]">
           {group.description}
         </p>
 
@@ -315,36 +253,6 @@ function SkillCard({ group, index }: { group: SkillGroup; index: number }) {
           {group.skills.map((skill, i) => (
             <SkillChip key={skill.name} skill={skill} index={i} />
           ))}
-        </div>
-      </div>
-
-      {/* Footer: real stats */}
-      <div className="relative z-10 mt-8 border-t border-line/60 pt-4">
-        <div className="mb-2.5 flex items-center justify-between text-[11px] font-mono text-muted">
-          <span>
-            <span className="font-semibold text-fg">{activeCount}</span> active
-          </span>
-          {learningCount > 0 && (
-            <span>
-              <span className="font-semibold text-accent-fg">
-                {learningCount}
-              </span>{" "}
-              learning
-            </span>
-          )}
-        </div>
-        <div className="h-1 w-full overflow-hidden rounded-full bg-line-soft">
-          <motion.div
-            initial={{ width: 0 }}
-            whileInView={{ width: `${activePercent}%` }}
-            viewport={defaultViewport}
-            transition={{
-              duration: 0.9,
-              delay: 0.3,
-              ease: transitionConfig.easeEditorial,
-            }}
-            className="h-full rounded-full bg-gradient-to-r from-accent/70 to-accent"
-          />
         </div>
       </div>
     </motion.div>
@@ -357,7 +265,7 @@ export default function Skills() {
 
   const categories = ["All", ...skillCategories.map((c) => c.category)];
 
-  const displayedCategories =
+  const displayed =
     activeTab === "All"
       ? skillCategories
       : skillCategories.filter((c) => c.category === activeTab);
@@ -379,7 +287,7 @@ export default function Skills() {
         whileInView="visible"
         viewport={defaultViewport}
         variants={fadeInUp}
-        className="mb-12 flex flex-col justify-between gap-6 border-b border-line/80 pb-8 md:flex-row md:items-end"
+        className="mb-10 flex flex-col justify-between gap-6 border-b border-line/80 pb-8 md:flex-row md:items-end"
       >
         <div>
           <div className="mb-3 flex items-center gap-3">
@@ -395,58 +303,69 @@ export default function Skills() {
             />
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight text-fg sm:text-5xl md:text-6xl">
-            Skills &amp; Tooling
+            Skills &amp; Expertise
           </h2>
         </div>
-
-        {/* Category filter (mobile e ek line, scroll kora jay) */}
-        <div
-          role="tablist"
-          aria-label="Filter skills by category"
-          className="flex max-w-full flex-nowrap gap-1.5 overflow-x-auto rounded-full border border-line bg-canvas p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {categories.map((category) => {
-            const isActive = activeTab === category;
-            return (
-              <button
-                key={category}
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => setActiveTab(category)}
-                className={`relative shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-mono transition-colors duration-200 ${
-                  isActive
-                    ? "font-bold text-on-accent"
-                    : "text-muted hover:text-fg"
-                }`}
-              >
-                {isActive && (
-                  <motion.span
-                    layoutId="skills-active-pill"
-                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
-                    className="absolute inset-0 rounded-full bg-accent shadow-md shadow-accent/25"
-                  />
-                )}
-                <span className="relative z-10 inline-flex items-center gap-1.5">
-                  {category}
-                  <span
-                    className={`rounded-full px-1.5 text-[10px] ${
-                      isActive ? "bg-black/15" : "bg-surface-3"
-                    }`}
-                  >
-                    {countFor(category)}
-                  </span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <p className="max-w-xs text-xs font-mono text-muted sm:text-sm md:text-right">
+          What I build with, and how I think about building.
+        </p>
       </motion.div>
 
-      {/* Skills grid */}
+      {/* Category filter */}
+      <div
+        role="tablist"
+        aria-label="Filter skills by category"
+        className="mb-10 flex w-fit max-w-full flex-nowrap gap-1.5 overflow-x-auto rounded-full border border-line bg-canvas p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {categories.map((category) => {
+          const isActive = activeTab === category;
+          return (
+            <button
+              key={category}
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => setActiveTab(category)}
+              className={`relative shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-mono transition-colors duration-200 ${
+                isActive
+                  ? "font-bold text-on-accent"
+                  : "text-muted hover:text-fg"
+              }`}
+            >
+              {isActive && (
+                <motion.span
+                  layoutId="skills-active-pill"
+                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  className="absolute inset-0 rounded-full bg-accent shadow-md shadow-accent/25"
+                />
+              )}
+              <span className="relative z-10 inline-flex items-center gap-1.5">
+                {shortLabel[category] ?? category}
+                <span
+                  className={`rounded-full px-1.5 text-[10px] ${
+                    isActive ? "bg-black/15" : "bg-surface-3"
+                  }`}
+                >
+                  {countFor(category)}
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Skills grid: prothom card (Frontend) duita column jure boro */}
       <motion.div layout className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <AnimatePresence mode="popLayout">
-          {displayedCategories.map((group, groupIdx) => (
-            <SkillCard key={group.category} group={group} index={groupIdx} />
+          {displayed.map((group, i) => (
+            <SkillCard
+              key={group.category}
+              group={group}
+              index={i}
+              wide={
+                displayed.length === 1 ||
+                (i === 0 && displayed.length === skillCategories.length)
+              }
+            />
           ))}
         </AnimatePresence>
       </motion.div>
