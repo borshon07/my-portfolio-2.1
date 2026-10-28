@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Instrument_Serif, Geist, Geist_Mono } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import CustomCursor from "@/components/ui/CustomCursor";
 import "./globals.css";
 import Preloader from "@/components/ui/Preloader";
+import CinemaOpen from "@/components/ui/CinemaOpen";
+
 
 
 const geistSans = Geist({
@@ -16,6 +18,14 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const instrument = Instrument_Serif({
+  variable: "--font-instrument",
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -71,7 +81,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} scroll-smooth dark`}
+      className={`${geistSans.variable} ${geistMono.variable} ${instrument.variable} scroll-smooth dark`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
@@ -80,7 +90,7 @@ export default function RootLayout({
         {/* baki ager moto */}
 
         <Preloader />
-        
+        <CinemaOpen />
         <CustomCursor />
         <Navbar />
         <div className="flex-1 w-full flex flex-col">{children}</div>

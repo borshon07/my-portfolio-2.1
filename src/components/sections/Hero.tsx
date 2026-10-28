@@ -1,10 +1,15 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ArrowDown,
   ArrowUpRight,
   Atom,
   Braces,
@@ -13,29 +18,160 @@ import {
   Layers,
   Mail,
   MapPin,
-  Sparkles,
   Wind,
   type LucideIcon,
 } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/Icons";
 import {
+  AnimatePresence,
   motion,
   useMotionTemplate,
   useMotionValue,
   useReducedMotion,
+  useScroll,
   useSpring,
   useTransform,
+  type Variants,
 } from "motion/react";
-import { personalInfo, socialLinks } from "@/data/portfolioData";
-import { scrollToSection } from "@/utils/scrollToSection";
 import {
-  fadeInUp,
-  headlineContainer,
-  headlineWord,
-  transitionConfig,
-} from "@/utils/motion";
+  personalInfo,
+  projects,
+  skillCategories,
+  socialLinks,
+} from "@/data/portfolioData";
+import { scrollToSection } from "@/utils/scrollToSection";
 
-/* ---------- Floating 3D chip ---------- */
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+/* =====================================================================
+   Preloader shesh na hole Hero animate kore na
+   ===================================================================== */
+type IntroWindow = Window & { __preloaderDone?: boolean };
+
+const subscribeIntro = (cb: () => void) => {
+  window.addEventListener("preloader:done", cb);
+  return () => window.removeEventListener("preloader:done", cb);
+};
+const introSnapshot = () => Boolean((window as IntroWindow).__preloaderDone);
+
+function useIntroReady() {
+  const done = useSyncExternalStore(subscribeIntro, introSnapshot, () => false);
+  const [forced, setForced] = useState(false);
+
+  // Safety: kono karone event na ashle 7 sec pore ei ready hobe
+  useEffect(() => {
+    const t = setTimeout(() => setForced(true), 7000);
+    return () => clearTimeout(t);
+  }, []);
+
+  return done || forced;
+}
+
+/* =====================================================================
+   Data
+   ===================================================================== */
+const ROLES = [
+  "Web Developer",
+  "Frontend Builder",
+  "Next.js Developer",
+  "Always Learning",
+];
+
+const HEADLINE = [
+  { text: "Turning", accent: false, underline: false },
+  { text: "ideas", accent: false, underline: false },
+  { text: "into", accent: false, underline: false },
+  { text: "digital", accent: true, underline: false },
+  { text: "experiences.", accent: true, underline: true },
+];
+
+const TECH = Array.from(
+  new Set(skillCategories.flatMap((c) => c.skills.map((s) => s.name)))
+);
+const LIVE_COUNT = projects.filter((p) => p.liveUrl).length;
+
+const rise: Variants = {
+  hidden: { opacity: 0, y: 26 },
+  visible: (delay: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.75, delay, ease: EASE },
+  }),
+};
+
+/* =====================================================================
+   Rotating role
+   ===================================================================== */
+function RoleSwap({ reduceMotion }: { reduceMotion: boolean | null }) {
+  const [i, setI] = useState(0);
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    const t = setInterval(() => setI((v) => (v + 1) % ROLES.length), 2400);
+    return () => clearInterval(t);
+  }, [reduceMotion]);
+
+  return (
+    <span className="relative inline-flex h-5 overflow-hidden align-bottom">
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={ROLES[i]}
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: "-100%", opacity: 0 }}
+          transition={{ duration: 0.4, ease: EASE }}
+          className="inline-block whitespace-nowrap"
+        >
+          {ROLES[i]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
+/* =====================================================================
+   Magnetic wrapper
+   ===================================================================== */
+function Magnetic({
+  children,
+  strength = 0.28,
+}: {
+  children: React.ReactNode;
+  strength?: number;
+}) {
+  const reduceMotion = useReducedMotion();
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const sx = useSpring(x, { stiffness: 220, damping: 16, mass: 0.4 });
+  const sy = useSpring(y, { stiffness: 220, damping: 16, mass: 0.4 });
+
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (reduceMotion) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    x.set((e.clientX - (r.left + r.width / 2)) * strength);
+    y.set((e.clientY - (r.top + r.height / 2)) * strength);
+  };
+
+  const onLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      style={{ x: sx, y: sy }}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      className="inline-block"
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* =====================================================================
+   Floating 3D chip
+   ===================================================================== */
 function FloatingChip({
   icon: Icon,
   label,
@@ -43,6 +179,7 @@ function FloatingChip({
   z,
   delay,
   duration,
+  ready,
   reduceMotion,
 }: {
   icon: LucideIcon;
@@ -51,44 +188,58 @@ function FloatingChip({
   z: number;
   delay: number;
   duration: number;
+  ready: boolean;
   reduceMotion: boolean | null;
 }) {
   return (
     <motion.div
       style={{ z }}
       initial={{ opacity: 0, scale: 0.8 }}
-      animate={
-        reduceMotion
-          ? { opacity: 1, scale: 1 }
-          : { opacity: 1, scale: 1, y: [0, -12, 0] }
-      }
-      transition={{
-        opacity: { duration: 0.5, delay: 0.9 + delay },
-        scale: { duration: 0.5, delay: 0.9 + delay },
-        y: { duration, delay, repeat: Infinity, ease: "easeInOut" },
-      }}
-      className={`absolute hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-2/90 backdrop-blur-md border border-line shadow-xl shadow-black/40 text-[11px] font-mono text-fg ${className}`}
+      animate={ready ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+      transition={{ duration: 0.5, delay: ready ? 0.9 + delay : 0 }}
+      className={`absolute hidden sm:block ${className}`}
     >
-      <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-accent/15 text-accent-fg">
-        <Icon className="w-3.5 h-3.5" />
-      </span>
-      {label}
+      <motion.div
+        animate={reduceMotion ? undefined : { y: [0, -10, 0] }}
+        transition={{ duration, delay, repeat: Infinity, ease: "easeInOut" }}
+        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface/90 backdrop-blur-md border border-line shadow-xl shadow-black/30 text-[11px] font-mono text-fg"
+      >
+        <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-accent/15 text-accent-fg">
+          <Icon className="w-3.5 h-3.5" />
+        </span>
+        {label}
+      </motion.div>
     </motion.div>
   );
 }
 
+/* =====================================================================
+   Hero
+   ===================================================================== */
 export default function Hero() {
   const reduceMotion = useReducedMotion();
+  const ready = useIntroReady();
+  const state = ready ? "visible" : "hidden";
 
-  /* ---------- Resume button state ---------- */
+  const sectionRef = useRef<HTMLElement>(null);
+
+  /* ---------- Resume button (PDF na thakle) ---------- */
   const [resumeNote, setResumeNote] = useState(false);
-
   const handleResumeMissing = () => {
     setResumeNote(true);
     setTimeout(() => setResumeNote(false), 2500);
   };
 
-  /* ---------- Section mouse: ambient light + parallax orbs ---------- */
+  /* ---------- Scroll parallax ---------- */
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const textY = useTransform(scrollYProgress, [0, 1], [0, -70]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
+  const cardY = useTransform(scrollYProgress, [0, 1], [0, 50]);
+
+  /* ---------- Mouse: ambient light + parallax orbs ---------- */
   const lx = useMotionValue(50);
   const ly = useMotionValue(50);
   const ambient = useMotionTemplate`radial-gradient(circle 520px at ${lx}% ${ly}%, rgb(var(--accent-rgb)/0.14), transparent 75%)`;
@@ -107,10 +258,10 @@ export default function Hero() {
       lx.set(((e.clientX - rect.left) / rect.width) * 100);
       ly.set(((e.clientY - rect.top) / rect.height) * 100);
     },
-    [lx, ly, reduceMotion],
+    [lx, ly, reduceMotion]
   );
 
-  /* ---------- 3D tilt card ---------- */
+  /* ---------- 3D tilt portrait ---------- */
   const cardRef = useRef<HTMLDivElement>(null);
   const [hovering, setHovering] = useState(false);
   const rx = useMotionValue(0);
@@ -138,22 +289,13 @@ export default function Hero() {
     setHovering(false);
   };
 
-  const headlineWords = [
-    { text: "Turning", highlight: false },
-    { text: "ideas", highlight: false },
-    { text: "into", highlight: false },
-    { text: "digital", highlight: true },
-    { text: "experiences.", highlight: true },
-  ];
-
   return (
     <section
       id="hero"
+      ref={sectionRef}
       onMouseMove={handleSectionMove}
-      className="relative min-h-[94vh] flex flex-col justify-between pt-28 sm:pt-36 pb-12 px-6 md:px-12 max-w-6xl mx-auto w-full overflow-hidden"
+      className="relative min-h-[94vh] flex flex-col justify-between pt-28 sm:pt-36 pb-10 px-6 md:px-12 max-w-6xl mx-auto w-full overflow-hidden"
     >
-      <div aria-hidden className="bg-aurora absolute inset-0 pointer-events-none -z-10" />
-
       {/* Background: cursor light */}
       <motion.div
         aria-hidden
@@ -161,7 +303,7 @@ export default function Hero() {
         style={{ background: ambient }}
       />
 
-      {/* Background: faint grid, fades out at the edges */}
+      {/* Background: faint grid */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none -z-10 opacity-[0.05]"
@@ -180,25 +322,28 @@ export default function Hero() {
       <motion.div
         aria-hidden
         style={{ x: orb1X, y: orb1Y }}
-        className="absolute top-1/4 -right-24 w-96 h-96 bg-accent/8 rounded-full blur-3xl pointer-events-none -z-10"
+        className="absolute top-1/4 -right-24 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none -z-10"
       />
       <motion.div
         aria-hidden
         style={{ x: orb2X, y: orb2Y }}
-        className="absolute -top-12 left-1/3 w-72 h-72 bg-line/30 rounded-full blur-2xl pointer-events-none -z-10"
+        className="absolute -top-12 left-1/3 w-72 h-72 bg-line/40 rounded-full blur-2xl pointer-events-none -z-10"
       />
 
       {/* Main grid */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-14 lg:gap-12 items-center py-6 sm:py-8">
         {/* Left: text */}
-        <div className="lg:col-span-7 flex flex-col justify-center">
+        <motion.div
+          style={reduceMotion ? undefined : { y: textY, opacity: textOpacity }}
+          className="lg:col-span-7 flex flex-col justify-center"
+        >
           {/* Status row */}
           <motion.div
-            variants={fadeInUp}
+            variants={rise}
+            custom={0.05}
             initial="hidden"
-            animate="visible"
-            custom={0.1}
-            className="flex flex-wrap items-center gap-3 mb-6"
+            animate={state}
+            className="flex flex-wrap items-center gap-3 mb-7"
           >
             <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-mono font-medium tracking-wider uppercase bg-surface-2 border border-line text-accent-fg shadow-sm">
               <span className="relative flex w-1.5 h-1.5">
@@ -220,101 +365,133 @@ export default function Hero() {
             )}
           </motion.div>
 
-          {/* Name */}
+          {/* Name + rotating role */}
           <motion.div
-            variants={fadeInUp}
+            variants={rise}
+            custom={0.15}
             initial="hidden"
-            animate="visible"
-            custom={0.2}
-            className="mb-4"
+            animate={state}
+            className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-5"
           >
-            <span className="text-xs sm:text-sm font-mono uppercase tracking-[0.25em] text-muted">
-              Personal Portfolio of
+            <span className="text-xl sm:text-2xl font-semibold tracking-tight text-fg">
+              {personalInfo.name}
             </span>
-            <h2 className="text-2xl sm:text-3xl text-fg tracking-tight mt-0.5">
-              <span className="font-bold">{personalInfo.name}</span>
-            </h2>
+            <span aria-hidden className="h-px w-8 bg-line-strong" />
+            <span className="text-sm font-mono text-accent-fg">
+              <RoleSwap reduceMotion={reduceMotion} />
+            </span>
           </motion.div>
 
           {/* Headline */}
-          <motion.h1
-            variants={headlineContainer}
-            initial="hidden"
-            animate="visible"
-            className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-fg leading-[1.08] mb-6 sm:mb-8 flex flex-wrap gap-x-3.5 sm:gap-x-4 gap-y-1"
-          >
-            {headlineWords.map((word, i) => (
-              <span key={i} className="inline-block overflow-hidden py-0.5">
-                <motion.span
-                  variants={headlineWord}
-                  className={`inline-block ${
-                    word.highlight
-                      ? "text-transparent bg-clip-text bg-gradient-to-r from-fg to-accent"
-                      : "text-fg"
-                  }`}
-                >
-                  {word.text}
-                </motion.span>
+          <h1 className="text-[2.75rem] sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.08] mb-7 sm:mb-9 flex flex-wrap gap-x-3 sm:gap-x-4 gap-y-1">
+            {HEADLINE.map((w, i) => (
+              <span key={w.text} className="relative inline-block">
+                <span className="inline-block overflow-hidden pb-[0.15em] -mb-[0.15em]">
+                  <motion.span
+                    initial={{ y: "115%" }}
+                    animate={{ y: ready ? "0%" : "115%" }}
+                    transition={
+                      reduceMotion
+                        ? { duration: 0 }
+                        : { duration: 0.85, delay: 0.25 + i * 0.09, ease: EASE }
+                    }
+                    className={`inline-block ${
+                      w.accent
+                        ? "font-display italic font-normal text-[1.08em] text-accent-fg"
+                        : "text-fg"
+                    }`}
+                  >
+                    {w.text}
+                  </motion.span>
+                </span>
+
+                {w.underline && (
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 300 10"
+                    preserveAspectRatio="none"
+                    className="absolute left-0 right-0 -bottom-2 h-2.5 w-full text-accent"
+                  >
+                    <motion.path
+                      d="M2 7 C 50 1, 110 11, 170 4 S 230 8, 298 3"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      vectorEffect="non-scaling-stroke"
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: ready ? 1 : 0 }}
+                      transition={
+                        reduceMotion
+                          ? { duration: 0 }
+                          : { duration: 1, delay: 1.35, ease: EASE }
+                      }
+                    />
+                  </svg>
+                )}
               </span>
             ))}
-          </motion.h1>
+          </h1>
 
           {/* Supporting copy */}
           <motion.p
-            variants={fadeInUp}
+            variants={rise}
+            custom={0.7}
             initial="hidden"
-            animate="visible"
-            custom={0.5}
-            className="text-base sm:text-lg text-muted max-w-xl leading-relaxed mb-8 sm:mb-10 font-normal"
+            animate={state}
+            className="text-base sm:text-lg text-muted max-w-xl leading-relaxed mb-8 sm:mb-10"
           >
             {personalInfo.supportingText}
           </motion.p>
 
           {/* CTAs */}
           <motion.div
-            variants={fadeInUp}
+            variants={rise}
+            custom={0.85}
             initial="hidden"
-            animate="visible"
-            custom={0.65}
-            className="flex flex-wrap items-center gap-4 sm:gap-6"
+            animate={state}
+            className="flex flex-wrap items-center gap-4 sm:gap-5"
           >
-            <Link
-              href="#projects"
-              onClick={(e) => scrollToSection(e, "#projects")}
-              className="group relative inline-flex items-center gap-2.5 bg-accent hover:bg-accent-hover text-on-accent font-bold text-xs uppercase tracking-wider px-7 py-4 rounded-full transition-all duration-300 active:scale-95 shadow-lg shadow-accent/20 hover:shadow-accent/40 hover:-translate-y-0.5"
-            >
-              <span>Explore Projects</span>
-              <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-            </Link>
+            <Magnetic>
+              <Link
+                href="#projects"
+                onClick={(e) => scrollToSection(e, "#projects")}
+                className="group inline-flex items-center gap-2.5 bg-accent hover:bg-accent-hover text-on-accent font-bold text-xs uppercase tracking-wider px-7 py-4 rounded-full transition-colors duration-300 active:scale-95 shadow-lg shadow-accent/25"
+              >
+                <span>Explore Projects</span>
+                <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+              </Link>
+            </Magnetic>
 
-            <Link
-              href="#contact"
-              onClick={(e) => scrollToSection(e, "#contact")}
-              className="group relative inline-flex items-center gap-2 bg-surface-2 hover:bg-surface-4 text-fg border border-line hover:border-accent/60 text-xs font-semibold uppercase tracking-wider px-6 py-4 rounded-full transition-all duration-300 active:scale-95 hover:-translate-y-0.5"
-            >
-              <span>Let&apos;s Connect</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-accent opacity-70 group-hover:opacity-100 group-hover:scale-125 transition-all" />
-            </Link>
+            <Magnetic strength={0.2}>
+              <Link
+                href="#contact"
+                onClick={(e) => scrollToSection(e, "#contact")}
+                className="group inline-flex items-center gap-2 bg-surface-2 hover:bg-surface-3 text-fg border border-line hover:border-accent/60 text-xs font-semibold uppercase tracking-wider px-6 py-4 rounded-full transition-colors duration-300 active:scale-95"
+              >
+                <span>Let&apos;s Connect</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-accent opacity-70 group-hover:opacity-100 group-hover:scale-125 transition-all" />
+              </Link>
+            </Magnetic>
 
-            {/* Resume: download + view */}
+            {/* Resume */}
             {personalInfo.resumeUrl ? (
               <div className="inline-flex items-stretch rounded-full bg-surface-2 border border-line hover:border-accent/60 transition-colors duration-300 overflow-hidden">
                 <a
                   href={personalInfo.resumeUrl}
                   download
-                  className="group inline-flex items-center gap-2 pl-6 pr-4 py-4 text-xs font-semibold uppercase tracking-wider text-fg hover:text-accent-fg hover:bg-surface-4 transition-colors active:scale-95"
+                  className="group inline-flex items-center gap-2 pl-6 pr-4 py-4 text-xs font-semibold uppercase tracking-wider text-fg hover:text-accent-fg hover:bg-surface-3 transition-colors active:scale-95"
                 >
                   <Download className="w-4 h-4 text-accent-fg transition-transform duration-300 group-hover:translate-y-0.5" />
                   <span>Resume</span>
                 </a>
-
                 <a
                   href={personalInfo.resumeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="View resume in a new tab"
                   title="View resume"
-                  className="inline-flex items-center px-4 border-l border-line text-muted hover:text-accent-fg hover:bg-surface-4 transition-colors"
+                  className="inline-flex items-center px-4 border-l border-line text-muted hover:text-accent-fg hover:bg-surface-3 transition-colors"
                 >
                   <Eye className="w-4 h-4" />
                 </a>
@@ -323,7 +500,7 @@ export default function Hero() {
               <button
                 type="button"
                 onClick={handleResumeMissing}
-                className="group inline-flex items-center gap-2 bg-surface-2 hover:bg-surface-4 text-fg border border-line hover:border-accent/60 text-xs font-semibold uppercase tracking-wider px-6 py-4 rounded-full transition-all duration-300 active:scale-95 hover:-translate-y-0.5"
+                className="group inline-flex items-center gap-2 bg-surface-2 hover:bg-surface-3 text-fg border border-line hover:border-accent/60 text-xs font-semibold uppercase tracking-wider px-6 py-4 rounded-full transition-all duration-300 active:scale-95"
               >
                 <Download className="w-4 h-4 text-accent-fg" />
                 <span>{resumeNote ? "Coming soon" : "Resume"}</span>
@@ -352,22 +529,24 @@ export default function Hero() {
               ))}
             </div>
           </motion.div>
-        </div>
+        </motion.div>
 
-        {/* Right: 3D portrait scene */}
-        <div className="lg:col-span-5 flex justify-center lg:justify-end mt-4 lg:mt-0">
+        {/* Right: 3D portrait */}
+        <motion.div
+          style={reduceMotion ? undefined : { y: cardY }}
+          className="lg:col-span-5 flex justify-center lg:justify-end mt-4 lg:mt-0"
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.94, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{
-              duration: 0.85,
-              delay: 0.35,
-              ease: transitionConfig.easeEditorial,
-            }}
+            animate={
+              ready
+                ? { opacity: 1, scale: 1, y: 0 }
+                : { opacity: 0, scale: 0.94, y: 30 }
+            }
+            transition={{ duration: 0.9, delay: ready ? 0.3 : 0, ease: EASE }}
             className="relative w-full max-w-[280px] sm:max-w-[340px] lg:max-w-[370px]"
             style={{ perspective: 1100 }}
           >
-            {/* Tilt layer */}
             <motion.div
               ref={cardRef}
               onMouseMove={handleCardMove}
@@ -376,30 +555,26 @@ export default function Hero() {
               style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
               className="relative"
             >
-              {/* Back layer: soft aura */}
+              {/* Aura */}
               <div
                 aria-hidden
                 style={{ transform: "translateZ(-60px)" }}
                 className="absolute -inset-4 rounded-3xl bg-gradient-to-b from-accent/30 via-accent/10 to-transparent blur-2xl opacity-80 pointer-events-none"
               />
 
-              {/* Back layer: rotating dashed ring */}
+              {/* Rotating dashed ring */}
               {!reduceMotion && (
                 <motion.div
                   aria-hidden
                   style={{ z: -30 }}
                   animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 40,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
+                  transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
                   className="absolute -inset-8 rounded-full border border-dashed border-accent/25 pointer-events-none"
                 />
               )}
 
-              {/* Main frame */}
-              <div className="relative p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl bg-surface border border-line hover:border-accent/50 shadow-2xl shadow-black/50 transition-colors duration-300">
+              {/* Frame */}
+              <div className="relative p-2.5 sm:p-3 rounded-2xl sm:rounded-3xl bg-surface border border-line hover:border-accent/50 shadow-2xl shadow-black/40 transition-colors duration-300">
                 <div className="absolute top-3.5 right-3.5 z-10 w-2 h-2 rounded-full bg-accent opacity-80" />
 
                 <div className="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[3/4] bg-sunken">
@@ -413,9 +588,8 @@ export default function Hero() {
                     sizes="(max-width: 640px) 280px, (max-width: 1024px) 340px, 370px"
                   />
 
-                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-canvas/70 to-transparent pointer-events-none" />
+                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
 
-                  {/* Glare that follows the cursor */}
                   {!reduceMotion && (
                     <motion.div
                       aria-hidden
@@ -425,10 +599,9 @@ export default function Hero() {
                   )}
                 </div>
 
-                {/* Floating name plate */}
                 <div
                   style={{ transform: "translateZ(40px)" }}
-                  className="mt-3 px-3.5 py-2.5 rounded-xl bg-canvas/95 border border-line/90 flex items-center justify-between text-[11px] font-mono shadow-lg shadow-black/40"
+                  className="mt-3 px-3.5 py-2.5 rounded-xl bg-canvas/95 border border-line/90 flex items-center justify-between text-[11px] font-mono shadow-lg shadow-black/30"
                 >
                   <span className="text-muted flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
@@ -440,13 +613,14 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Floating tech chips at different depths */}
+              {/* Chips */}
               <FloatingChip
                 icon={Layers}
                 label="Next.js"
                 z={90}
                 delay={0}
                 duration={4.2}
+                ready={ready}
                 reduceMotion={reduceMotion}
                 className="-left-8 top-10"
               />
@@ -456,6 +630,7 @@ export default function Hero() {
                 z={70}
                 delay={0.6}
                 duration={5}
+                ready={ready}
                 reduceMotion={reduceMotion}
                 className="-right-8 top-1/3"
               />
@@ -465,6 +640,7 @@ export default function Hero() {
                 z={110}
                 delay={1.1}
                 duration={4.6}
+                ready={ready}
                 reduceMotion={reduceMotion}
                 className="-left-10 bottom-28"
               />
@@ -474,42 +650,86 @@ export default function Hero() {
                 z={80}
                 delay={0.3}
                 duration={5.4}
+                ready={ready}
                 reduceMotion={reduceMotion}
                 className="-right-6 bottom-12"
               />
             </motion.div>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
 
-      {/* Bottom bar */}
+      {/* Bottom: marquee + scroll cue */}
       <motion.div
-        variants={fadeInUp}
+        variants={rise}
+        custom={1.1}
         initial="hidden"
-        animate="visible"
-        custom={0.8}
-        className="pt-8 sm:pt-12 flex flex-col sm:flex-row sm:items-center justify-between border-t border-line/60 gap-4"
+        animate={state}
+        className="pt-8 sm:pt-10 border-t border-line/60 flex flex-col gap-6"
       >
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg border border-line bg-surface-2 flex items-center justify-center text-accent-fg">
-            <Sparkles className="w-4 h-4" />
-          </div>
-          <div className="text-xs font-mono text-muted">
-            <span className="text-fg block font-sans font-medium">
-              Crafted with precision
-            </span>
-            Next.js App Router &bull; TypeScript &bull; Motion
+        <div
+          className="marquee relative overflow-hidden"
+          style={{
+            maskImage:
+              "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent)",
+          }}
+        >
+          <div className="marquee-track flex w-max">
+            {[0, 1].map((copy) => (
+              <ul
+                key={copy}
+                aria-hidden={copy === 1}
+                className="flex shrink-0 items-center gap-10 pr-10"
+              >
+                {TECH.map((name) => (
+                  <li
+                    key={name}
+                    className="flex items-center gap-10 whitespace-nowrap text-sm font-mono uppercase tracking-widest text-muted"
+                  >
+                    {name}
+                    <span className="h-1 w-1 rounded-full bg-accent" />
+                  </li>
+                ))}
+              </ul>
+            ))}
           </div>
         </div>
 
-        <Link
-          href="#about"
-          onClick={(e) => scrollToSection(e, "#about")}
-          className="group inline-flex items-center gap-2 text-xs font-mono text-muted hover:text-accent-fg transition-colors"
-        >
-          <span>SCROLL TO EXPLORE</span>
-          <ArrowDown className="w-3.5 h-3.5 animate-bounce text-accent-fg" />
-        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            href="#projects"
+            onClick={(e) => scrollToSection(e, "#projects")}
+            className="group inline-flex items-center gap-2 text-xs font-mono text-muted hover:text-accent-fg transition-colors"
+          >
+            <span>
+              {projects.length} projects · {LIVE_COUNT} live demos
+            </span>
+            <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+
+          <Link
+            href="#about"
+            onClick={(e) => scrollToSection(e, "#about")}
+            className="group inline-flex items-center gap-3 text-xs font-mono uppercase tracking-widest text-muted hover:text-accent-fg transition-colors"
+          >
+            <span className="relative flex h-8 w-5 justify-center overflow-hidden rounded-full border border-line-strong group-hover:border-accent/60 transition-colors">
+              <motion.span
+                animate={
+                  reduceMotion ? undefined : { y: [0, 12], opacity: [1, 0] }
+                }
+                transition={{
+                  duration: 1.4,
+                  repeat: Infinity,
+                  ease: "easeOut",
+                }}
+                className="mt-1.5 h-1.5 w-0.5 rounded-full bg-accent"
+              />
+            </span>
+            <span className="hidden sm:inline">Scroll</span>
+          </Link>
+        </div>
       </motion.div>
     </section>
   );

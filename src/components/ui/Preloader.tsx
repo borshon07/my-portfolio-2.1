@@ -186,6 +186,8 @@ export default function Preloader() {
     cancelAnimationFrame(rafRef.current);
     if (timerRef.current) clearTimeout(timerRef.current);
     setVisible(false);
+    (window as Window & { __preloaderDone?: boolean }).__preloaderDone = true;
+    window.dispatchEvent(new Event("preloader:done"));
   }, []);
 
   /* ---------- Timeline ---------- */
@@ -221,7 +223,7 @@ export default function Preloader() {
           ? -1
           : Math.min(
               Math.floor((elapsed - GREET_START) / GREET_MS),
-              GREETINGS.length
+              GREETINGS.length,
             );
       if (s !== lastStep) {
         lastStep = s;
@@ -353,7 +355,10 @@ export default function Preloader() {
               <div className="flex flex-col items-center gap-4">
                 <div className="flex flex-wrap justify-center gap-x-4 text-5xl sm:text-7xl md:text-8xl font-extrabold tracking-tight text-fg">
                   {NAME_WORDS.map(({ word, start }) => (
-                    <span key={word + start} className="inline-flex whitespace-nowrap">
+                    <span
+                      key={word + start}
+                      className="inline-flex whitespace-nowrap"
+                    >
                       {Array.from(word).map((ch, i) => (
                         <motion.span
                           key={i}

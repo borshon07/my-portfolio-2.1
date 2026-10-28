@@ -7,6 +7,7 @@ import type { Project } from "@/types/portfolio";
 import { ArrowUpRight, ExternalLink, FolderGit2 } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
 import ProjectVisual from "@/components/ui/ProjectVisual";
+import FilmFrame from "@/components/ui/FilmFrame";
 import {
   motion,
   useMotionValue,
@@ -37,9 +38,17 @@ function ProjectRow({
     target: rowRef,
     offset: ["start end", "center center"],
   });
-  const rotateX = useTransform(scrollYProgress, [0, 1], [reduceMotion ? 0 : 20, 0]);
+  const rotateX = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [reduceMotion ? 0 : 20, 0],
+  );
   const y = useTransform(scrollYProgress, [0, 1], [reduceMotion ? 0 : 90, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [reduceMotion ? 1 : 0.92, 1]);
+  const scale = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [reduceMotion ? 1 : 0.92, 1],
+  );
   const opacity = useTransform(scrollYProgress, [0, 0.55], [0, 1]);
 
   /* Hover tilt on the image */
@@ -98,7 +107,11 @@ function ProjectRow({
           ref={frameRef}
           onMouseMove={handleMove}
           onMouseLeave={handleLeave}
-          style={{ rotateX: tiltX, rotateY: tiltY, transformStyle: "preserve-3d" }}
+          style={{
+            rotateX: tiltX,
+            rotateY: tiltY,
+            transformStyle: "preserve-3d",
+          }}
           className="group relative"
         >
           {/* Glow behind */}
@@ -111,28 +124,22 @@ function ProjectRow({
           <Link
             href={detailsHref}
             aria-label={`View ${project.title} details`}
-            className="relative block overflow-hidden rounded-2xl bg-surface border border-line group-hover:border-accent/60 transition-colors duration-300 shadow-2xl shadow-black/40"
+            className="block"
           >
-            {/* Browser chrome */}
-            <div className="flex items-center gap-1.5 px-4 py-3 bg-surface-2 border-b border-line-soft">
-              <span className="w-2.5 h-2.5 rounded-full bg-line-strong group-hover:bg-accent transition-colors duration-300" />
-              <span className="w-2.5 h-2.5 rounded-full bg-line-strong group-hover:bg-accent/60 transition-colors duration-500" />
-              <span className="w-2.5 h-2.5 rounded-full bg-line-strong group-hover:bg-accent/30 transition-colors duration-700" />
-              <span className="ml-3 hidden sm:block flex-1 truncate text-[10px] font-mono text-muted px-3 py-1 rounded-md bg-surface-3">
-                {project.liveUrl
+            <FilmFrame
+              label={`Scene ${String(index + 1).padStart(2, "0")}`}
+              caption={
+                project.liveUrl
                   ? project.liveUrl.replace(/^https?:\/\//, "")
-                  : project.id}
-              </span>
-            </div>
-
-            <div className="relative overflow-hidden">
+                  : project.id
+              }
+            >
               <ProjectVisual
                 project={project}
                 className="aspect-[16/10] transition-transform duration-700 ease-out group-hover:scale-[1.04]"
                 sizes="(max-width: 1024px) 100vw, 720px"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-canvas/40 via-transparent to-transparent pointer-events-none" />
-            </div>
+            </FilmFrame>
           </Link>
 
           {/* Floating tech chips */}
@@ -182,7 +189,10 @@ function ProjectRow({
         </div>
 
         <h3 className="text-3xl sm:text-4xl font-extrabold text-fg tracking-tight leading-[1.1] mb-4">
-          <Link href={detailsHref} className="hover:text-accent-fg transition-colors">
+          <Link
+            href={detailsHref}
+            className="hover:text-accent-fg transition-colors"
+          >
             {project.title}
           </Link>
         </h3>
@@ -238,7 +248,8 @@ function ProjectRow({
         </div>
 
         <span className="mt-6 text-xs font-mono text-muted/70 tabular-nums">
-          {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+          {String(index + 1).padStart(2, "0")} /{" "}
+          {String(total).padStart(2, "0")}
         </span>
       </div>
     </motion.article>

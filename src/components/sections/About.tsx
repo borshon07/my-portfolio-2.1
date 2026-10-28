@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import { personalInfo } from "@/data/portfolioData";
+import React, { useEffect, useRef, useState } from "react";
+import { personalInfo, projects, skillCategories } from "@/data/portfolioData";
 import {
   Atom,
   BookOpen,
@@ -16,13 +16,17 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import {
+  animate,
   motion,
-  useMotionTemplate,
-  useMotionValue,
+  useInView,
   useReducedMotion,
-  useSpring,
+  useScroll,
+  useTransform,
+  type MotionValue,
 } from "motion/react";
-import { defaultViewport, fadeInUp, transitionConfig } from "@/utils/motion";
+import { defaultViewport, fadeInUp } from "@/utils/motion";
+
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /* =====================================================================
    EDIT: apnar nijer kotha ekhane likhun
@@ -114,77 +118,171 @@ const personality = {
   traits: ["Curious", "Detail-oriented", "Consistent learner", "Team player"],
 };
 
+/* Stats real data theke ashe, kono number banano na */
+const TECH_COUNT = new Set(
+  skillCategories.flatMap((c) => c.skills.map((s) => s.name))
+).size;
+
+const STATS = [
+  { value: projects.length, label: "Projects built" },
+  { value: projects.filter((p) => p.liveUrl).length, label: "Live demos" },
+  { value: TECH_COUNT, label: "Technologies" },
+];
+
 /* =====================================================================
-   Reusable 3D tilt card
+   Scroll korle shobdo-e-shobdo jele othe
    ===================================================================== */
-function TiltCard({
-  children,
-  className = "",
-  intensity = 10,
-  delay = 0,
+function RevealWord({
+  word,
+  progress,
+  range,
 }: {
-  children: React.ReactNode;
+  word: string;
+  progress: MotionValue<number>;
+  range: [number, number];
+}) {
+  const opacity = useTransform(progress, range, [0.18, 1]);
+  return (
+    <motion.span style={{ opacity }} className="inline-block mr-[0.28em]">
+      {word}
+    </motion.span>
+  );
+}
+
+function ScrollReveal({
+  text,
+  className,
+}: {
+  text: string;
   className?: string;
-  intensity?: number;
-  delay?: number;
 }) {
   const reduceMotion = useReducedMotion();
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLParagraphElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 85%", "end 45%"],
+  });
 
-  const rx = useMotionValue(0);
-  const ry = useMotionValue(0);
-  const rotateX = useSpring(rx, { stiffness: 170, damping: 18, mass: 0.5 });
-  const rotateY = useSpring(ry, { stiffness: 170, damping: 18, mass: 0.5 });
+  if (reduceMotion) {
+    return (
+      <p ref={ref} className={className}>
+        {text}
+      </p>
+    );
+  }
 
-  const gx = useMotionValue(50);
-  const gy = useMotionValue(50);
-  const glare = useMotionTemplate`radial-gradient(circle at ${gx}% ${gy}%, rgb(var(--accent-rgb)/0.16), transparent 55%)`;
-
-  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (reduceMotion || !ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width;
-    const py = (e.clientY - rect.top) / rect.height;
-    ry.set((px - 0.5) * intensity * 2);
-    rx.set((0.5 - py) * intensity * 2);
-    gx.set(px * 100);
-    gy.set(py * 100);
-  };
-
-  const handleLeave = () => {
-    rx.set(0);
-    ry.set(0);
-  };
+  const words = text.split(" ");
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={defaultViewport}
-      transition={{
-        duration: 0.6,
-        delay,
-        ease: transitionConfig.easeEditorial,
-      }}
-      style={{ perspective: 900 }}
-    >
-      <motion.div
-        ref={ref}
-        onMouseMove={handleMove}
-        onMouseLeave={handleLeave}
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className={`group relative ${className}`}
-      >
-        {!reduceMotion && (
-          <motion.div
-            aria-hidden
-            style={{ background: glare }}
-            className="absolute inset-0 rounded-[inherit] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+    <p ref={ref} className={className}>
+      {words.map((word, i) => {
+        const start = i / words.length;
+        const end = Math.min(start + 1 / words.length + 0.08, 1);
+        return (
+          <RevealWord
+            key={i}
+            word={word}
+            progress={scrollYProgress}
+            range={[start, end]}
           />
-        )}
-        {children}
-      </motion.div>
-    </motion.div>
+        );
+      })}
+    </p>
+  );
+}
+
+/* =====================================================================
+   Count-up number
+   ===================================================================== */
+function CountUp({ to }: { to: number }) {
+  const reduceMotion = useReducedMotion();
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -15% 0px" });
+  const [n, setN] = useState(0);
+
+  useEffect(() => {
+    if (!inView || reduceMotion) return;
+    const controls = animate(0, to, {
+      duration: 1.4,
+      ease: "easeOut",
+      onUpdate: (v) => setN(Math.round(v)),
+    });
+    return () => controls.stop();
+  }, [inView, reduceMotion, to]);
+
+  return (
+    <span ref={ref} className="tabular-nums">
+      {reduceMotion ? to : n}
+    </span>
+  );
+}
+
+/* =====================================================================
+   Journey timeline (scroll korle line ankhe)
+   ===================================================================== */
+function Journey() {
+  const reduceMotion = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 75%", "end 55%"],
+  });
+
+  return (
+    <div ref={ref} className="relative">
+      <div
+        aria-hidden
+        className="absolute left-[19px] top-5 bottom-5 w-px bg-line"
+      />
+      <motion.div
+        aria-hidden
+        style={{ scaleY: reduceMotion ? 1 : scrollYProgress }}
+        className="absolute left-[19px] top-5 bottom-5 w-px origin-top bg-gradient-to-b from-accent to-accent/40"
+      />
+
+      <ol className="flex flex-col gap-5">
+        {journey.map((item, index) => {
+          const Icon = item.icon;
+          const isNow = index === journey.length - 1;
+
+          return (
+            <li key={item.title} className="relative pl-14">
+              <motion.span
+                initial={{ opacity: 0, scale: 0.6 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={defaultViewport}
+                transition={{ duration: 0.45, ease: EASE }}
+                className="absolute left-0 top-4 flex h-10 w-10 items-center justify-center rounded-xl border border-accent/50 bg-surface text-accent-fg"
+              >
+                {isNow && (
+                  <span className="absolute inset-0 rounded-xl bg-accent/20 animate-ping" />
+                )}
+                <Icon className="relative h-4 w-4" />
+              </motion.span>
+
+              <motion.div
+                initial={{ opacity: 0, x: 24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={defaultViewport}
+                transition={{ duration: 0.6, ease: EASE }}
+              >
+                <div className="rounded-2xl border border-line bg-surface p-5 shadow-lg shadow-black/10 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/50">
+                  <span className="mb-1 block text-[10px] font-mono uppercase tracking-wider text-accent-fg">
+                    {item.step}
+                  </span>
+                  <h4 className="mb-1.5 text-base font-semibold text-fg">
+                    {item.title}
+                  </h4>
+                  <p className="text-xs leading-relaxed text-muted">
+                    {item.text}
+                  </p>
+                </div>
+              </motion.div>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
 
@@ -216,11 +314,7 @@ function FlipCard({
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={defaultViewport}
-      transition={{
-        duration: 0.6,
-        delay: index * 0.1,
-        ease: transitionConfig.easeEditorial,
-      }}
+      transition={{ duration: 0.6, delay: index * 0.1, ease: EASE }}
       style={{ perspective: 900 }}
     >
       <div
@@ -235,12 +329,10 @@ function FlipCard({
           if (e.pointerType === "mouse") setFlipped(false);
         }}
         onFocus={(e) => {
-          // Shudhu keyboard focus e flip hoy, tap e na
           if (e.currentTarget.matches(":focus-visible")) setFlipped(true);
         }}
         onBlur={() => setFlipped(false)}
         onClick={(e) => {
-          // Mouse e hover-i flip kore, tai click e touch/pen e toggle hoy
           const type = (e.nativeEvent as PointerEvent).pointerType;
           if (type !== "mouse") setFlipped((v) => !v);
         }}
@@ -250,7 +342,7 @@ function FlipCard({
             setFlipped((v) => !v);
           }
         }}
-        className="relative h-44 outline-none focus-visible:ring-2 focus-visible:ring-accent/60 rounded-2xl"
+        className="relative h-44 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
       >
         <motion.div
           animate={{ rotateY: flipped ? 180 : 0 }}
@@ -260,28 +352,26 @@ function FlipCard({
               : { type: "spring", stiffness: 110, damping: 16 }
           }
           style={{ transformStyle: "preserve-3d" }}
-          className="relative w-full h-full"
+          className="relative h-full w-full"
         >
           {/* Front */}
           <div
             style={face}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl bg-surface border border-line shadow-lg shadow-black/20"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-2xl border border-line bg-surface shadow-lg shadow-black/10"
           >
-            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-surface-3 border border-line-strong text-accent-fg">
-              <Icon className="w-5 h-5" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-line bg-surface-3 text-accent-fg">
+              <Icon className="h-5 w-5" />
             </div>
-            <span className="text-base font-semibold text-fg">
-              {title}
-            </span>
+            <span className="text-base font-semibold text-fg">{title}</span>
           </div>
 
           {/* Back */}
           <div
             style={{ ...face, transform: "rotateY(180deg)" }}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-5 text-center rounded-2xl bg-tint border border-accent/50 shadow-lg shadow-accent/10"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border border-accent/50 bg-tint px-5 text-center shadow-lg shadow-accent/10"
           >
-            <Icon className="w-4 h-4 text-accent-fg" />
-            <p className="text-xs text-fg/85 leading-relaxed">{text}</p>
+            <Icon className="h-4 w-4 text-accent-fg" />
+            <p className="text-xs leading-relaxed text-fg/85">{text}</p>
           </div>
         </motion.div>
       </div>
@@ -293,8 +383,6 @@ function FlipCard({
    Section
    ===================================================================== */
 export default function About() {
-  const reduceMotion = useReducedMotion();
-
   return (
     <section
       id="about"
@@ -306,11 +394,11 @@ export default function About() {
         whileInView="visible"
         viewport={defaultViewport}
         variants={fadeInUp}
-        className="flex flex-col md:flex-row md:items-end justify-between border-b border-line/80 pb-8 mb-16 gap-6 relative"
+        className="relative mb-16 flex flex-col justify-between gap-6 border-b border-line/80 pb-8 md:flex-row md:items-end"
       >
         <div>
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-xs font-mono text-accent-fg uppercase tracking-widest font-semibold">
+          <div className="mb-3 flex items-center gap-3">
+            <span className="text-xs font-mono font-semibold uppercase tracking-widest text-accent-fg">
               01 // Profile &amp; Purpose
             </span>
             <motion.span
@@ -318,60 +406,78 @@ export default function About() {
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="w-12 h-[1px] bg-accent origin-left"
+              className="h-[1px] w-12 origin-left bg-accent"
             />
           </div>
-          <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-fg">
+          <h2 className="text-3xl font-extrabold tracking-tight text-fg sm:text-5xl md:text-6xl">
             About Me
           </h2>
         </div>
-        <p className="text-xs sm:text-sm font-mono text-muted max-w-xs md:text-right">
+        <p className="max-w-xs text-xs font-mono text-muted sm:text-sm md:text-right">
           My journey, the work I enjoy, and who I am outside of code.
         </p>
       </motion.div>
 
       {/* Main grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-        {/* Left column: story */}
-        <div className="lg:col-span-7 flex flex-col gap-8">
-          {/* 3D flip-up reveal */}
-          <motion.div
-            initial={
-              reduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, rotateX: -22, y: 40 }
-            }
-            whileInView={{ opacity: 1, rotateX: 0, y: 0 }}
-            viewport={defaultViewport}
-            transition={{ duration: 0.9, ease: transitionConfig.easeEditorial }}
-            style={{ transformPerspective: 1200, transformOrigin: "top center" }}
-            className="flex flex-col gap-6"
-          >
-            <h3 className="text-xl sm:text-2xl font-light text-fg leading-relaxed">
-              Hi, I&apos;m{" "}
-              <span className="font-semibold text-accent-fg">
-                {personalInfo.name}
-              </span>
-              , a {personalInfo.title.toLowerCase()} who learns by building real
-              things.
-            </h3>
-
-            <div className="space-y-4 text-base text-muted leading-relaxed font-normal">
-              {bio.map((paragraph, idx) => (
-                <p key={idx}>{paragraph}</p>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Work I enjoy */}
-          <motion.div
+      <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-16">
+        {/* Left: story */}
+        <div className="flex flex-col gap-9 lg:col-span-7">
+          <motion.h3
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={defaultViewport}
-            transition={{ duration: 0.6, ease: transitionConfig.easeEditorial }}
-            className="pt-6 border-t border-line/60"
+            transition={{ duration: 0.8, ease: EASE }}
+            className="font-display text-3xl leading-[1.12] text-fg sm:text-4xl md:text-5xl"
           >
-            <div className="text-xs font-mono text-muted uppercase tracking-wider mb-4">
+            Hi, I&apos;m{" "}
+            <span className="italic text-accent-fg">{personalInfo.name}</span>,
+            a {personalInfo.title.toLowerCase()} who learns by building real
+            things.
+          </motion.h3>
+
+          <div className="flex flex-col gap-5">
+            <ScrollReveal
+              text={bio[0]}
+              className="text-lg leading-relaxed text-fg sm:text-xl"
+            />
+            {bio.slice(1).map((paragraph, idx) => (
+              <motion.p
+                key={idx}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={defaultViewport}
+                transition={{ duration: 0.6, delay: idx * 0.08, ease: EASE }}
+                className="text-base leading-relaxed text-muted"
+              >
+                {paragraph}
+              </motion.p>
+            ))}
+          </div>
+
+          {/* Stats (real data) */}
+          <div className="grid grid-cols-3 gap-3 sm:gap-4">
+            {STATS.map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={defaultViewport}
+                transition={{ duration: 0.6, delay: i * 0.1, ease: EASE }}
+                className="rounded-2xl border border-line bg-surface p-4 transition-colors duration-300 hover:border-accent/50 sm:p-5"
+              >
+                <div className="font-display text-4xl text-fg sm:text-5xl">
+                  <CountUp to={stat.value} />
+                </div>
+                <div className="mt-1 text-[10px] font-mono uppercase tracking-wider text-muted sm:text-[11px]">
+                  {stat.label}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Work I enjoy */}
+          <div className="border-t border-line-soft pt-6">
+            <div className="mb-4 text-xs font-mono uppercase tracking-wider text-muted">
               Work I enjoy
             </div>
             <div className="flex flex-wrap gap-2.5">
@@ -382,140 +488,76 @@ export default function About() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={defaultViewport}
                   transition={{ duration: 0.4, delay: 0.1 + i * 0.07 }}
-                  className="inline-flex items-center gap-2 text-xs font-mono px-3.5 py-2 rounded-xl bg-surface-3 text-fg border border-line hover:border-accent/50 hover:text-accent-fg transition-colors"
+                  className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface-3 px-3.5 py-2 text-xs font-mono text-fg transition-colors hover:border-accent/50 hover:text-accent-fg"
                 >
-                  <Sparkles className="w-3 h-3 text-accent-fg" />
+                  <Sparkles className="h-3 w-3 text-accent-fg" />
                   {item}
                 </motion.span>
               ))}
             </div>
-          </motion.div>
+          </div>
 
-          {/* Info tiles (3D tilt) */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs font-mono">
-            <TiltCard
-              intensity={14}
-              delay={0}
-              className="h-full bg-surface p-4 rounded-xl border border-line/80 hover:border-accent/40 transition-colors"
-            >
-              <span className="text-muted block mb-1">LOCATION</span>
-              <span
-                style={{ transform: "translateZ(24px)" }}
-                className="block text-fg font-medium"
+          {/* Info tiles */}
+          <div className="grid grid-cols-2 gap-4 text-xs font-mono sm:grid-cols-3">
+            {[
+              { label: "LOCATION", value: personalInfo.location, live: false },
+              { label: "ROLE", value: personalInfo.title, live: false },
+              {
+                label: "STATUS",
+                value: personalInfo.isAvailableForWork
+                  ? "Open to internships"
+                  : "Currently busy",
+                live: personalInfo.isAvailableForWork,
+              },
+            ].map((tile, i) => (
+              <motion.div
+                key={tile.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={defaultViewport}
+                transition={{ duration: 0.5, delay: i * 0.08, ease: EASE }}
+                className={`rounded-xl border border-line bg-surface p-4 transition-colors hover:border-accent/40 ${
+                  i === 2 ? "col-span-2 sm:col-span-1" : ""
+                }`}
               >
-                {personalInfo.location}
-              </span>
-            </TiltCard>
-
-            <TiltCard
-              intensity={14}
-              delay={0.08}
-              className="h-full bg-surface p-4 rounded-xl border border-line/80 hover:border-accent/40 transition-colors"
-            >
-              <span className="text-muted block mb-1">ROLE</span>
-              <span
-                style={{ transform: "translateZ(24px)" }}
-                className="block text-fg font-medium"
-              >
-                {personalInfo.title}
-              </span>
-            </TiltCard>
-
-            <div className="col-span-2 sm:col-span-1">
-              <TiltCard
-                intensity={14}
-                delay={0.16}
-                className="h-full bg-surface p-4 rounded-xl border border-line/80 hover:border-accent/40 transition-colors"
-              >
-                <span className="text-muted block mb-1">STATUS</span>
+                <span className="mb-1 block text-muted">{tile.label}</span>
                 <span
-                  style={{ transform: "translateZ(24px)" }}
-                  className="text-accent-fg font-medium flex items-center gap-1.5"
+                  className={`flex items-center gap-1.5 font-medium ${
+                    tile.live ? "text-accent-fg" : "text-fg"
+                  }`}
                 >
-                  <span className="relative flex w-1.5 h-1.5">
-                    <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />
-                    <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-accent" />
-                  </span>
-                  {personalInfo.isAvailableForWork
-                    ? "Open to internships"
-                    : "Currently busy"}
+                  {tile.live && (
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+                    </span>
+                  )}
+                  {tile.value}
                 </span>
-              </TiltCard>
-            </div>
+              </motion.div>
+            ))}
           </div>
         </div>
 
-        {/* Right column: journey timeline */}
+        {/* Right: journey */}
         <div className="lg:col-span-5">
-          <div className="text-xs font-mono text-muted uppercase tracking-wider mb-6">
+          <div className="mb-6 text-xs font-mono uppercase tracking-wider text-muted">
             My programming journey
           </div>
-
-          <div className="relative">
-            <div
-              aria-hidden
-              className="absolute left-[19px] top-6 bottom-6 w-px bg-gradient-to-b from-accent/60 via-line to-transparent"
-            />
-
-            <div className="flex flex-col gap-4">
-              {journey.map((item, index) => {
-                const Icon = item.icon;
-                const isNow = index === journey.length - 1;
-
-                return (
-                  <div key={item.title} className="relative pl-14">
-                    {/* Timeline node */}
-                    <span className="absolute left-0 top-5 flex items-center justify-center w-10 h-10 rounded-xl bg-surface border border-accent/50 text-accent-fg">
-                      {isNow && (
-                        <span className="absolute inset-0 rounded-xl bg-accent/20 animate-ping" />
-                      )}
-                      <Icon className="relative w-4 h-4" />
-                    </span>
-
-                    <TiltCard
-                      intensity={8}
-                      delay={index * 0.1}
-                      className="p-5 rounded-2xl bg-surface border border-line hover:border-accent/60 transition-colors duration-300 shadow-lg shadow-black/20"
-                    >
-                      <div className="relative">
-                        <span
-                          style={{ transform: "translateZ(14px)" }}
-                          className="block text-[10px] font-mono uppercase tracking-wider text-accent-fg mb-1"
-                        >
-                          {item.step}
-                        </span>
-                        <h4
-                          style={{ transform: "translateZ(28px)" }}
-                          className="text-base font-semibold text-fg mb-1.5 group-hover:text-accent-fg transition-colors"
-                        >
-                          {item.title}
-                        </h4>
-                        <p
-                          style={{ transform: "translateZ(10px)" }}
-                          className="text-xs text-muted leading-relaxed"
-                        >
-                          {item.text}
-                        </p>
-                      </div>
-                    </TiltCard>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <Journey />
         </div>
       </div>
 
-      {/* Beyond code */}
+      {/* Beyond the code */}
       <div className="mt-24">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={defaultViewport}
           variants={fadeInUp}
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8"
+          className="mb-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-end"
         >
-          <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-fg">
+          <h3 className="text-2xl font-bold tracking-tight text-fg sm:text-3xl">
             Beyond the code
           </h3>
           <span className="text-xs font-mono text-muted">
@@ -523,7 +565,7 @@ export default function About() {
           </span>
         </motion.div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {hobbies.map((hobby, i) => (
             <FlipCard
               key={hobby.title}
@@ -536,36 +578,32 @@ export default function About() {
         </div>
 
         {/* Personality */}
-        <TiltCard
-          intensity={4}
-          delay={0.1}
-          className="mt-6 p-6 sm:p-8 rounded-2xl bg-surface border border-line hover:border-accent/50 transition-colors duration-300 shadow-xl shadow-black/20"
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={defaultViewport}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="mt-6 rounded-2xl border border-line bg-surface p-6 shadow-xl shadow-black/10 transition-colors duration-300 hover:border-accent/50 sm:p-8"
         >
-          <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <p
-              style={{ transform: "translateZ(24px)" }}
-              className="text-lg sm:text-xl font-light text-fg leading-relaxed max-w-2xl"
-            >
-              <span className="text-accent-fg font-semibold">&ldquo;</span>
+          <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
+            <p className="max-w-2xl font-display text-2xl italic leading-snug text-fg sm:text-3xl">
+              <span className="text-accent-fg">&ldquo;</span>
               {personality.quote}
-              <span className="text-accent-fg font-semibold">&rdquo;</span>
+              <span className="text-accent-fg">&rdquo;</span>
             </p>
 
-            <div
-              style={{ transform: "translateZ(14px)" }}
-              className="flex flex-wrap gap-2 lg:justify-end"
-            >
+            <div className="flex flex-wrap gap-2 lg:justify-end">
               {personality.traits.map((trait) => (
                 <span
                   key={trait}
-                  className="text-xs font-mono px-3 py-1.5 rounded-full bg-accent/10 text-accent-fg border border-accent/30"
+                  className="rounded-full border border-accent/30 bg-accent/10 px-3 py-1.5 text-xs font-mono text-accent-fg"
                 >
                   {trait}
                 </span>
               ))}
             </div>
           </div>
-        </TiltCard>
+        </motion.div>
       </div>
     </section>
   );

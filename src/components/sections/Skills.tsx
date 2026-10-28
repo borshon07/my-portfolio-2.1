@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { skillCategories } from "@/data/portfolioData";
 import {
   Atom,
@@ -28,37 +28,61 @@ import {
 import {
   motion,
   AnimatePresence,
-  useMotionValue,
   useMotionTemplate,
+  useMotionValue,
   useReducedMotion,
+  useSpring,
 } from "motion/react";
 import { defaultViewport, fadeInUp, transitionConfig } from "@/utils/motion";
 
 type SkillGroup = (typeof skillCategories)[number];
+type Skill = SkillGroup["skills"][number];
 
-/* ---------- Icon maps ---------- */
-const skillIcons: { match: RegExp; icon: LucideIcon }[] = [
-  { match: /javascript|typescript/i, icon: Braces },
-  { match: /html/i, icon: FileCode },
-  { match: /tailwind/i, icon: Wind },
-  { match: /heroui|daisy/i, icon: Component },
-  { match: /motion/i, icon: Zap },
-  { match: /css/i, icon: Palette },
-  { match: /react/i, icon: Atom },
-  { match: /next/i, icon: Layers },
-  { match: /responsive/i, icon: Smartphone },
-  { match: /auth/i, icon: ShieldCheck },
-  { match: /mongo/i, icon: Database },
-  { match: /node/i, icon: Server },
-  { match: /vercel/i, icon: Triangle },
-  { match: /git/i, icon: GitBranch },
-  { match: /vs code/i, icon: Code },
-  { match: /npm|package/i, icon: Package },
-  { match: /devtools|chrome/i, icon: Bug },
+/* =====================================================================
+   Brand icons
+   Logo ashe cdn.simpleicons.org theke, asol brand rong-e.
+   slugs: ekta na ele porer ta try kore, shob fail hole lucide icon dekhay.
+   color: shudhu 3D glow er jonno (icon er rong CDN nije dey).
+   mono: kalo logo (Next.js, Vercel), dark mode e shada hoye jay.
+   ===================================================================== */
+type Brand = {
+  match: RegExp;
+  slugs: string[];
+  color: string;
+  mono?: boolean;
+  fallback: LucideIcon;
+};
+
+const BRANDS: Brand[] = [
+  { match: /javascript/i, slugs: ["javascript"], color: "#F7DF1E", fallback: Braces },
+  { match: /typescript/i, slugs: ["typescript"], color: "#3178C6", fallback: Braces },
+  { match: /html/i, slugs: ["html5"], color: "#E34F26", fallback: FileCode },
+  { match: /tailwind/i, slugs: ["tailwindcss"], color: "#06B6D4", fallback: Wind },
+  { match: /heroui|daisy/i, slugs: ["daisyui", "heroui"], color: "#5A0EF8", fallback: Component },
+  { match: /motion/i, slugs: ["framer"], color: "#0055FF", fallback: Zap },
+  { match: /css/i, slugs: ["css3", "css"], color: "#1572B6", fallback: Palette },
+  { match: /react/i, slugs: ["react"], color: "#61DAFB", fallback: Atom },
+  { match: /next/i, slugs: ["nextdotjs"], color: "var(--fg)", mono: true, fallback: Layers },
+  { match: /responsive/i, slugs: [], color: "#22D3EE", fallback: Smartphone },
+  { match: /auth/i, slugs: [], color: "#10B981", fallback: ShieldCheck },
+  { match: /mongo/i, slugs: ["mongodb"], color: "#47A248", fallback: Database },
+  { match: /node/i, slugs: ["nodedotjs"], color: "#5FA04E", fallback: Server },
+  { match: /git/i, slugs: ["git"], color: "#F05032", fallback: GitBranch },
+  { match: /vs ?code/i, slugs: ["visualstudiocode"], color: "#007ACC", fallback: Code },
+  { match: /npm|package/i, slugs: ["npm"], color: "#CB3837", fallback: Package },
+  { match: /vercel/i, slugs: ["vercel"], color: "var(--fg)", mono: true, fallback: Triangle },
+  { match: /devtools|chrome/i, slugs: ["googlechrome"], color: "#4285F4", fallback: Bug },
 ];
 
-const getSkillIcon = (name: string): LucideIcon =>
-  skillIcons.find((s) => s.match.test(name))?.icon ?? Code;
+const DEFAULT_BRAND: Brand = {
+  match: /./,
+  slugs: [],
+  color: "var(--accent)",
+  fallback: Code,
+};
+
+const brandFor = (name: string): Brand =>
+  BRANDS.find((b) => b.match.test(name)) ?? DEFAULT_BRAND;
 
 const categoryIcons: Record<string, LucideIcon> = {
   Languages: Braces,
@@ -67,7 +91,150 @@ const categoryIcons: Record<string, LucideIcon> = {
   Tools: Wrench,
 };
 
-/* ---------- Single category card ---------- */
+/* ---------- Logo (CDN fail korle lucide fallback) ---------- */
+function BrandIcon({ brand }: { brand: Brand }) {
+  const [attempt, setAttempt] = useState(0);
+  const slug = brand.slugs[attempt];
+  const Fallback = brand.fallback;
+
+  if (!slug) {
+    return <Fallback className="h-6 w-6" style={{ color: brand.color }} />;
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      key={slug}
+      src={`https://cdn.simpleicons.org/${slug}`}
+      alt=""
+      width={24}
+      height={24}
+      loading="lazy"
+      decoding="async"
+      draggable={false}
+      onError={() => setAttempt((a) => a + 1)}
+      className={`h-6 w-6 select-none ${brand.mono ? "dark:invert" : ""}`}
+    />
+  );
+}
+
+/* ---------- Ekta skill chip: 3D tile + naam ---------- */
+function SkillChip({ skill, index }: { skill: Skill; index: number }) {
+  const reduceMotion = useReducedMotion();
+  const brand = brandFor(skill.name);
+  const isLearning = skill.level === "Learning";
+
+  const ref = useRef<HTMLDivElement>(null);
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const rotateX = useSpring(rx, { stiffness: 220, damping: 18, mass: 0.4 });
+  const rotateY = useSpring(ry, { stiffness: 220, damping: 18, mass: 0.4 });
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (reduceMotion || !ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;
+    const py = (e.clientY - r.top) / r.height;
+    ry.set((px - 0.5) * 22);
+    rx.set((0.5 - py) * 22);
+  };
+
+  const handleLeave = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+
+  const dark = "color-mix(in srgb, var(--brand) 40%, #000)";
+
+  const tileStyle = {
+    "--brand": brand.color,
+    transformStyle: "preserve-3d",
+    background:
+      "linear-gradient(145deg, color-mix(in srgb, var(--brand) 20%, var(--surface)), var(--surface-3))",
+    borderColor: "color-mix(in srgb, var(--brand) 45%, var(--line))",
+    boxShadow: [
+      `0 1px 0 ${dark}`,
+      `0 2px 0 ${dark}`,
+      `0 3px 0 ${dark}`,
+      `0 4px 0 ${dark}`,
+      "0 12px 18px -6px color-mix(in srgb, var(--brand) 55%, transparent)",
+    ].join(", "),
+  } as React.CSSProperties;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: 0.15 + index * 0.04 }}
+      style={{ perspective: 700 }}
+    >
+      <motion.div
+        ref={ref}
+        onMouseMove={handleMove}
+        onMouseLeave={handleLeave}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className={`group/chip relative inline-flex cursor-default items-center gap-3 rounded-2xl border py-2 pl-2.5 pr-4 transition-colors duration-200 ${
+          isLearning
+            ? "border-dashed border-line-strong bg-surface-2 hover:border-accent/60"
+            : "border-line bg-surface-2 hover:border-accent/60"
+        }`}
+      >
+        {/* Brand glow (hover e) */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -inset-1 -z-10 rounded-3xl opacity-0 blur-xl transition-opacity duration-300 group-hover/chip:opacity-100"
+          style={
+            {
+              "--brand": brand.color,
+              background: "color-mix(in srgb, var(--brand) 32%, transparent)",
+            } as React.CSSProperties
+          }
+        />
+
+        {/* 3D tile */}
+        <span
+          style={tileStyle}
+          className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-transform duration-300 ease-out [transform:translateZ(16px)] group-hover/chip:[transform:translateZ(30px)_rotateX(10deg)_rotateY(-14deg)_translateY(-2px)] motion-reduce:transition-none"
+        >
+          {/* Glossy shine */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-white/30 via-transparent to-transparent"
+          />
+
+          {/* Logo pop out kore */}
+          <span
+            aria-hidden
+            className="relative flex items-center justify-center"
+            style={{
+              transform: "translateZ(12px)",
+              filter:
+                "drop-shadow(0 4px 5px color-mix(in srgb, var(--brand) 55%, rgba(0,0,0,0.35)))",
+              ...({ "--brand": brand.color } as React.CSSProperties),
+            }}
+          >
+            <BrandIcon brand={brand} />
+          </span>
+        </span>
+
+        <span
+          style={{ transform: "translateZ(6px)" }}
+          className="flex flex-col items-start gap-1"
+        >
+          <span className="text-xs font-mono text-fg">{skill.name}</span>
+          {isLearning && (
+            <span className="inline-flex items-center gap-1 rounded bg-accent/15 px-1.5 py-0.5 font-sans text-[9px] font-medium uppercase text-accent-fg">
+              <Sparkles className="h-2.5 w-2.5" />
+              Learning
+            </span>
+          )}
+        </span>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ---------- Ekta category card ---------- */
 function SkillCard({ group, index }: { group: SkillGroup; index: number }) {
   const reduceMotion = useReducedMotion();
   const CategoryIcon = categoryIcons[group.category] ?? Code;
@@ -101,107 +268,81 @@ function SkillCard({ group, index }: { group: SkillGroup; index: number }) {
         ease: transitionConfig.easeEditorial,
       }}
       onMouseMove={handleMove}
-      className="group relative p-6 sm:p-8 rounded-2xl bg-surface border border-line hover:border-accent/50 transition-colors duration-300 flex flex-col justify-between overflow-hidden shadow-xl shadow-black/20"
+      className="group relative flex flex-col justify-between rounded-2xl border border-line bg-surface p-6 shadow-xl shadow-black/20 transition-colors duration-300 hover:border-accent/50 sm:p-8"
     >
       {/* Top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-accent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="pointer-events-none absolute left-0 right-0 top-0 h-[2px] rounded-t-2xl bg-gradient-to-r from-transparent via-accent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
       {/* Cursor spotlight */}
       {!reduceMotion && (
         <motion.div
           aria-hidden
-          className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
           style={{ background: spotlight }}
         />
       )}
 
       {/* Big faded background icon */}
-      <CategoryIcon
+      <div
         aria-hidden
-        className="absolute -bottom-6 -right-6 w-36 h-36 text-fg opacity-[0.025] group-hover:opacity-[0.05] group-hover:rotate-6 transition-all duration-500 pointer-events-none"
-      />
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
+      >
+        <CategoryIcon className="absolute -bottom-6 -right-6 h-36 w-36 text-fg opacity-[0.03] transition-all duration-500 group-hover:rotate-6 group-hover:opacity-[0.06]" />
+      </div>
 
       <div className="relative z-10">
-        {/* Card header */}
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-surface-3 border border-line-strong text-accent-fg group-hover:bg-accent group-hover:text-on-accent group-hover:border-accent group-hover:rotate-6 transition-all duration-300 shrink-0">
-              <CategoryIcon className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-lg sm:text-xl font-semibold text-fg tracking-tight">
-                {group.category}
-              </h3>
-              <span className="text-[11px] font-mono text-muted">
-                {group.skills.length} tools
-              </span>
-            </div>
+        {/* Header */}
+        <div className="mb-6 flex items-center gap-4">
+          <div className="shrink-0 rounded-xl border border-line bg-surface-3 p-3 text-accent-fg transition-all duration-300 group-hover:rotate-6 group-hover:border-accent group-hover:bg-accent group-hover:text-on-accent">
+            <CategoryIcon className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold tracking-tight text-fg sm:text-xl">
+              {group.category}
+            </h3>
+            <span className="text-[11px] font-mono text-muted">
+              {group.skills.length} tools
+            </span>
           </div>
         </div>
 
-        <p className="text-xs sm:text-[13px] text-muted mb-6 leading-relaxed font-normal max-w-md">
+        <p className="mb-7 max-w-md text-xs leading-relaxed text-muted sm:text-[13px]">
           {group.description}
         </p>
 
-        {/* Skill chips */}
-        <div className="flex flex-wrap gap-2.5">
-          {group.skills.map((skill, i) => {
-            const isLearning = skill.level === "Learning";
-            const SkillIcon = getSkillIcon(skill.name);
-
-            return (
-              <motion.div
-                key={skill.name}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={reduceMotion ? undefined : { y: -2 }}
-                transition={{ duration: 0.3, delay: 0.2 + i * 0.04 }}
-                className={`inline-flex items-center gap-2.5 pl-2 pr-3.5 py-1.5 rounded-xl text-xs font-mono border cursor-default transition-colors duration-200 ${
-                  isLearning
-                    ? "bg-surface-2 border-dashed border-line-strong text-fg/75 hover:border-accent/60"
-                    : "bg-surface-3 border-line-strong text-fg hover:border-accent hover:bg-surface-4"
-                }`}
-              >
-                <span
-                  className={`flex items-center justify-center w-6 h-6 rounded-lg ${
-                    isLearning
-                      ? "bg-accent/10 text-accent-fg/80"
-                      : "bg-accent/15 text-accent-fg"
-                  }`}
-                >
-                  <SkillIcon className="w-3.5 h-3.5" />
-                </span>
-                <span>{skill.name}</span>
-                {isLearning && (
-                  <span className="inline-flex items-center gap-1 text-[9px] uppercase px-1.5 py-0.5 rounded bg-accent/15 text-accent-fg font-sans font-medium">
-                    <Sparkles className="w-2.5 h-2.5" />
-                    Learning
-                  </span>
-                )}
-              </motion.div>
-            );
-          })}
+        {/* Chips */}
+        <div className="flex flex-wrap gap-x-3 gap-y-4">
+          {group.skills.map((skill, i) => (
+            <SkillChip key={skill.name} skill={skill} index={i} />
+          ))}
         </div>
       </div>
 
-      {/* Footer: real stats from data */}
-      <div className="relative z-10 mt-8 pt-4 border-t border-line/60">
-        <div className="flex items-center justify-between text-[11px] font-mono text-muted mb-2.5">
+      {/* Footer: real stats */}
+      <div className="relative z-10 mt-8 border-t border-line/60 pt-4">
+        <div className="mb-2.5 flex items-center justify-between text-[11px] font-mono text-muted">
           <span>
-            <span className="text-fg font-semibold">{activeCount}</span> active
+            <span className="font-semibold text-fg">{activeCount}</span> active
           </span>
           {learningCount > 0 && (
             <span>
-              <span className="text-accent-fg font-semibold">{learningCount}</span> learning
+              <span className="font-semibold text-accent-fg">
+                {learningCount}
+              </span>{" "}
+              learning
             </span>
           )}
         </div>
-        <div className="h-1 w-full rounded-full bg-line-soft overflow-hidden">
+        <div className="h-1 w-full overflow-hidden rounded-full bg-line-soft">
           <motion.div
             initial={{ width: 0 }}
             whileInView={{ width: `${activePercent}%` }}
             viewport={defaultViewport}
-            transition={{ duration: 0.9, delay: 0.3, ease: transitionConfig.easeEditorial }}
+            transition={{
+              duration: 0.9,
+              delay: 0.3,
+              ease: transitionConfig.easeEditorial,
+            }}
             className="h-full rounded-full bg-gradient-to-r from-accent/70 to-accent"
           />
         </div>
@@ -224,21 +365,25 @@ export default function Skills() {
   const countFor = (category: string) =>
     category === "All"
       ? skillCategories.reduce((sum, c) => sum + c.skills.length, 0)
-      : skillCategories.find((c) => c.category === category)?.skills.length ?? 0;
+      : (skillCategories.find((c) => c.category === category)?.skills.length ??
+        0);
 
   return (
-    <section id="skills" className="py-24 sm:py-32 px-6 md:px-12 max-w-6xl mx-auto w-full">
+    <section
+      id="skills"
+      className="scroll-mt-24 mx-auto w-full max-w-6xl px-6 py-24 sm:py-32 md:px-12"
+    >
       {/* Section header */}
       <motion.div
         initial="hidden"
         whileInView="visible"
         viewport={defaultViewport}
         variants={fadeInUp}
-        className="flex flex-col md:flex-row md:items-end justify-between border-b border-line/80 pb-8 mb-12 gap-6"
+        className="mb-12 flex flex-col justify-between gap-6 border-b border-line/80 pb-8 md:flex-row md:items-end"
       >
         <div>
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-xs font-mono text-accent-fg uppercase tracking-widest font-semibold">
+          <div className="mb-3 flex items-center gap-3">
+            <span className="text-xs font-mono font-semibold uppercase tracking-widest text-accent-fg">
               02 // Technical Capabilities
             </span>
             <motion.span
@@ -246,19 +391,19 @@ export default function Skills() {
               whileInView={{ scaleX: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="w-12 h-[1px] bg-accent origin-left"
+              className="h-[1px] w-12 origin-left bg-accent"
             />
           </div>
-          <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-fg">
+          <h2 className="text-3xl font-extrabold tracking-tight text-fg sm:text-5xl md:text-6xl">
             Skills &amp; Tooling
           </h2>
         </div>
 
-        {/* Category filter with sliding pill */}
+        {/* Category filter (mobile e ek line, scroll kora jay) */}
         <div
           role="tablist"
           aria-label="Filter skills by category"
-          className="flex flex-nowrap gap-1.5 p-1.5 rounded-full bg-canvas border border-line max-w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex max-w-full flex-nowrap gap-1.5 overflow-x-auto rounded-full border border-line bg-canvas p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {categories.map((category) => {
             const isActive = activeTab === category;
@@ -268,8 +413,10 @@ export default function Skills() {
                 role="tab"
                 aria-selected={isActive}
                 onClick={() => setActiveTab(category)}
-                className={`shrink-0 whitespace-nowrap relative px-4 py-2 rounded-full text-xs font-mono transition-colors duration-200 ${
-                  isActive ? "text-on-accent font-bold" : "text-muted hover:text-fg"
+                className={`relative shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-xs font-mono transition-colors duration-200 ${
+                  isActive
+                    ? "font-bold text-on-accent"
+                    : "text-muted hover:text-fg"
                 }`}
               >
                 {isActive && (
@@ -282,8 +429,8 @@ export default function Skills() {
                 <span className="relative z-10 inline-flex items-center gap-1.5">
                   {category}
                   <span
-                    className={`text-[10px] px-1.5 rounded-full ${
-                      isActive ? "bg-canvas/15" : "bg-surface-3"
+                    className={`rounded-full px-1.5 text-[10px] ${
+                      isActive ? "bg-black/15" : "bg-surface-3"
                     }`}
                   >
                     {countFor(category)}
@@ -296,7 +443,7 @@ export default function Skills() {
       </motion.div>
 
       {/* Skills grid */}
-      <motion.div layout className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <motion.div layout className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <AnimatePresence mode="popLayout">
           {displayedCategories.map((group, groupIdx) => (
             <SkillCard key={group.category} group={group} index={groupIdx} />

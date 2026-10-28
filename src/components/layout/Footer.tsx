@@ -1,20 +1,13 @@
 "use client";
 
-import React, { useRef, useSyncExternalStore } from "react";
+import React, { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { navItems, personalInfo, socialLinks } from "@/data/portfolioData";
 import { ArrowUp, ArrowUpRight, Mail, MapPin } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/Icons";
 import { usePathname, useRouter } from "next/navigation";
 import { goToSection } from "@/utils/goToSection";
-import {
-  motion,
-  useMotionTemplate,
-  useMotionValue,
-  useReducedMotion,
-  useSpring,
-  type Variants,
-} from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import { defaultViewport } from "@/utils/motion";
 
 const emptySubscribe = () => () => {};
@@ -91,10 +84,8 @@ export default function Footer() {
   const router = useRouter();
   const isHome = pathname === "/";
 
-  // Link er href: home e "#about", onno page e "/#about" (new tab e khulleo thik kaj kore)
   const resolve = (href: string) => (isHome ? href : `/${href}`);
 
-  // Click: home e smooth scroll, onno page e home e giye oi section e jay
   const handleNav = (e: React.MouseEvent<HTMLElement>, href: string) =>
     goToSection(e, href, isHome, (url) => router.push(url));
 
@@ -104,41 +95,12 @@ export default function Footer() {
     () => 2026
   );
 
-  /* ---------- 3D wordmark tilt ---------- */
-  const wordRef = useRef<HTMLDivElement>(null);
-  const rx = useMotionValue(0);
-  const ry = useMotionValue(0);
-  const rotateX = useSpring(rx, { stiffness: 120, damping: 16, mass: 0.6 });
-  const rotateY = useSpring(ry, { stiffness: 120, damping: 16, mass: 0.6 });
-  const gx = useMotionValue(50);
-  const gy = useMotionValue(50);
-  const wordGlow = useMotionTemplate`radial-gradient(500px circle at ${gx}% ${gy}%, rgb(var(--accent-rgb)/0.16), transparent 65%)`;
-
-  const handleWordMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (reduceMotion || !wordRef.current) return;
-    const rect = wordRef.current.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width;
-    const py = (e.clientY - rect.top) / rect.height;
-    ry.set((px - 0.5) * 16);
-    rx.set((0.5 - py) * 16);
-    gx.set(px * 100);
-    gy.set(py * 100);
-  };
-
-  const handleWordLeave = () => {
-    rx.set(0);
-    ry.set(0);
-  };
-
   return (
     <footer className="theme-inverse relative w-full bg-sunken border-t border-line/80 pt-20 pb-10 px-6 md:px-12 mt-12 overflow-hidden">
-      {/* Top accent line */}
       <div
         aria-hidden
         className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent"
       />
-
-      {/* Ambient glow */}
       <div
         aria-hidden
         className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent/8 rounded-full blur-3xl pointer-events-none"
@@ -151,84 +113,46 @@ export default function Footer() {
         variants={container}
         className="relative max-w-6xl mx-auto flex flex-col gap-14"
       >
-        {/* Row 1: call to action + 3D wordmark */}
-        <motion.div variants={item} className="flex flex-col gap-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div className="max-w-md">
-              <div className="flex items-center gap-2 mb-3">
-                {personalInfo.isAvailableForWork && (
-                  <span className="relative flex w-2 h-2">
-                    <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />
-                    <span className="relative inline-flex w-2 h-2 rounded-full bg-accent" />
-                  </span>
-                )}
-                <span className="text-xs font-mono text-accent-fg uppercase tracking-widest font-semibold">
-                  {personalInfo.isAvailableForWork
-                    ? "Available for new projects"
-                    : "Say hello"}
+        {/* Row 1: call to action */}
+        <motion.div
+          variants={item}
+          className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-12 border-b border-line-soft"
+        >
+          <div className="max-w-xl">
+            <div className="flex items-center gap-2 mb-3">
+              {personalInfo.isAvailableForWork && (
+                <span className="relative flex w-2 h-2">
+                  <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />
+                  <span className="relative inline-flex w-2 h-2 rounded-full bg-accent" />
                 </span>
-              </div>
-              <p className="text-lg sm:text-xl text-fg font-light leading-relaxed">
-                Have a project in mind? Let&apos;s talk about how I can help bring it to life.
-              </p>
-            </div>
-
-            <Link
-              href={resolve("#contact")}
-              onClick={(e) => handleNav(e, "#contact")}
-              className="group self-start md:self-auto inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-on-accent text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full shadow-[0_4px_0_var(--accent-deep)] hover:shadow-[0_3px_0_var(--accent-deep)] hover:translate-y-px active:shadow-[0_0_0_var(--accent-deep)] active:translate-y-1 transition-all duration-150"
-            >
-              <span>Start a Conversation</span>
-              <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
-          </div>
-
-          {/* 3D wordmark (size screen er sathe chhoto-boro hoy, 8.5rem er beshi na) */}
-          <div style={{ perspective: 1000 }}>
-            <motion.div
-              ref={wordRef}
-              onMouseMove={handleWordMove}
-              onMouseLeave={handleWordLeave}
-              style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-              className="relative select-none py-4"
-              aria-hidden
-            >
-              {/* Cursor glow */}
-              {!reduceMotion && (
-                <motion.div
-                  style={{ background: wordGlow }}
-                  className="absolute inset-0 pointer-events-none"
-                />
               )}
-
-              {/* Back layer (extrusion) */}
-              <div
-                style={{ transform: "translateZ(-28px)" }}
-                className="absolute inset-0 flex items-center justify-center text-[length:min(10vw,8.5rem)] leading-none font-extrabold tracking-tighter uppercase text-accent-fg/12 whitespace-nowrap py-4"
-              >
-                {personalInfo.name}
-              </div>
-
-              {/* Front layer (outlined text) */}
-              <div
-                style={{
-                  transform: "translateZ(0px)",
-                  WebkitTextStroke: "1px var(--line-strong)",
-                }}
-                className="relative flex items-center justify-center text-[length:min(10vw,8.5rem)] leading-none font-extrabold tracking-tighter uppercase text-transparent whitespace-nowrap hover:text-fg/5 transition-colors duration-500"
-              >
-                {personalInfo.name}
-              </div>
-            </motion.div>
+              <span className="text-xs font-mono text-accent-fg uppercase tracking-widest font-semibold">
+                {personalInfo.isAvailableForWork
+                  ? "Available for new projects"
+                  : "Say hello"}
+              </span>
+            </div>
+            <p className="text-2xl sm:text-3xl text-fg font-light leading-snug">
+              Have a project in mind? Let&apos;s talk about how I can help bring it
+              to life.
+            </p>
           </div>
+
+          <Link
+            href={resolve("#contact")}
+            onClick={(e) => handleNav(e, "#contact")}
+            className="group self-start md:self-auto inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-on-accent text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-full shadow-[0_4px_0_var(--accent-deep)] hover:shadow-[0_3px_0_var(--accent-deep)] hover:translate-y-px active:shadow-[0_0_0_var(--accent-deep)] active:translate-y-1 transition-all duration-150"
+          >
+            <span>Start a Conversation</span>
+            <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
         </motion.div>
 
         {/* Row 2: brand, nav, socials */}
         <motion.div
           variants={item}
-          className="grid grid-cols-1 md:grid-cols-12 gap-10 pt-12 border-t border-line-soft"
+          className="grid grid-cols-1 md:grid-cols-12 gap-10"
         >
-          {/* Brand */}
           <div className="md:col-span-5">
             <Link
               href={resolve("#hero")}
@@ -239,7 +163,8 @@ export default function Footer() {
               <span>{personalInfo.name}</span>
             </Link>
             <p className="text-xs text-muted font-mono mt-3 max-w-sm leading-relaxed">
-              Web Developer crafting responsive, clean, and thoughtful web interfaces.
+              Web Developer crafting responsive, clean, and thoughtful web
+              interfaces.
             </p>
             <div className="flex items-center gap-1.5 mt-4 text-xs font-mono text-muted">
               <MapPin className="w-3.5 h-3.5 text-accent-fg" />
@@ -247,7 +172,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Navigation */}
           <div className="md:col-span-3">
             <div className="text-[11px] font-mono text-muted/70 uppercase tracking-widest mb-4">
               Navigate
@@ -266,7 +190,6 @@ export default function Footer() {
             </nav>
           </div>
 
-          {/* Socials */}
           <div className="md:col-span-4">
             <div className="text-[11px] font-mono text-muted/70 uppercase tracking-widest mb-4">
               Find me online
