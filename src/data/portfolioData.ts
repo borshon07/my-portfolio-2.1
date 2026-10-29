@@ -12,12 +12,12 @@ export const personalInfo: PersonalInfo = {
   eyebrow: "WEB DEVELOPER",
   headline: "Turning ideas into digital experiences.",
   supportingText:
-    "I'm a web developer focused on building thoughtful, responsive, and user-friendly web experiences.",
+  "I'm a full-stack web developer building modern, scalable, and user-focused web applications, from intuitive interfaces to reliable backends.",
   bioParagraphs: [
     "I am an emerging web developer driven by the craft of turning concepts into intuitive digital interfaces. With a strong commitment to clean code, semantic structure, and accessible user experiences, I focus on building responsive web applications that feel natural to use.",
     "My current focus is on deepening my modern frontend and full-stack capabilities with TypeScript, Next.js (App Router), and Tailwind CSS. I prioritize thoughtful problem-solving, continuous learning, and crafting details that bridge visual design with robust code.",
   ],
-  email: "contact@borshonroy.dev",
+  email: "borshonroy73@gmail.com",
   location: "Bangladesh",
   isAvailableForWork: true,
   resumeUrl: "/resume/Borshon_Roy_Web_Developer_Intern_Resume.pdf",
@@ -48,7 +48,7 @@ export const socialLinks: SocialLink[] = [
   },
   {
     platform: "Email",
-    url: "mailto:contact@borshonroy.dev",
+    url: "mailto:borshonroy73@gmail.com",
     iconName: "mail",
     isPlaceholder: false,
   },

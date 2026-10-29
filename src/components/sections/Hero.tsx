@@ -9,19 +9,13 @@ import React, {
 } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowUpRight,
-  Atom,
-  Braces,
-  Download,
-  Eye,
-  Layers,
-  Mail,
-  MapPin,
-  Wind,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowUpRight, Download, Eye, Mail, MapPin } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/Icons";
+import {
+  BrandIcon,
+  brandFor,
+  brandSurface,
+} from "@/components/ui/BrandIcon";
 import {
   AnimatePresence,
   motion,
@@ -33,12 +27,8 @@ import {
   useTransform,
   type Variants,
 } from "motion/react";
-import {
-  personalInfo,
-  projects,
-  skillCategories,
-  socialLinks,
-} from "@/data/portfolioData";
+import { personalInfo, projects, socialLinks } from "@/data/portfolioData";
+import type { SocialLink } from "@/types/portfolio";
 import { scrollToSection } from "@/utils/scrollToSection";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -71,9 +61,9 @@ function useIntroReady() {
    Data
    ===================================================================== */
 const ROLES = [
-  "Web Developer",
-  "Frontend Builder",
-  "Next.js Developer",
+  "Full-Stack Developer",
+  "React & Next.js Builder",
+  "API & Database Design",
   "Always Learning",
 ];
 
@@ -85,9 +75,22 @@ const HEADLINE = [
   { text: "experiences.", accent: true, underline: true },
 ];
 
-const TECH = Array.from(
-  new Set(skillCategories.flatMap((c) => c.skills.map((s) => s.name)))
-);
+// Marquee e shudhu asol tech (concept skill na)
+const TECH = [
+  "React",
+  "Next.js",
+  "TypeScript",
+  "JavaScript",
+  "Tailwind CSS",
+  "Node.js",
+  "Express.js",
+  "MongoDB",
+  "Mongoose",
+  "Better Auth",
+  "Git",
+  "GitHub",
+];
+
 const LIVE_COUNT = projects.filter((p) => p.liveUrl).length;
 
 const rise: Variants = {
@@ -107,20 +110,20 @@ function RoleSwap({ reduceMotion }: { reduceMotion: boolean | null }) {
 
   useEffect(() => {
     if (reduceMotion) return;
-    const t = setInterval(() => setI((v) => (v + 1) % ROLES.length), 2400);
+    const t = setInterval(() => setI((v) => (v + 1) % ROLES.length), 2600);
     return () => clearInterval(t);
   }, [reduceMotion]);
 
   return (
-    <span className="relative inline-flex h-5 overflow-hidden align-bottom">
-      <AnimatePresence mode="wait" initial={false}>
+    <span className="relative inline-block h-5 min-w-[13rem] overflow-hidden align-bottom">
+      <AnimatePresence initial={false}>
         <motion.span
           key={ROLES[i]}
           initial={{ y: "100%", opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "-100%", opacity: 0 }}
-          transition={{ duration: 0.4, ease: EASE }}
-          className="inline-block whitespace-nowrap"
+          transition={{ duration: 0.45, ease: EASE }}
+          className="absolute left-0 top-0 whitespace-nowrap"
         >
           {ROLES[i]}
         </motion.span>
@@ -170,11 +173,10 @@ function Magnetic({
 }
 
 /* =====================================================================
-   Floating 3D chip
+   Floating 3D chip (asol brand logo)
    ===================================================================== */
 function FloatingChip({
-  icon: Icon,
-  label,
+  name,
   className,
   z,
   delay,
@@ -182,8 +184,7 @@ function FloatingChip({
   ready,
   reduceMotion,
 }: {
-  icon: LucideIcon;
-  label: string;
+  name: string;
   className: string;
   z: number;
   delay: number;
@@ -191,6 +192,8 @@ function FloatingChip({
   ready: boolean;
   reduceMotion: boolean | null;
 }) {
+  const brand = brandFor(name);
+
   return (
     <motion.div
       style={{ z }}
@@ -202,14 +205,68 @@ function FloatingChip({
       <motion.div
         animate={reduceMotion ? undefined : { y: [0, -10, 0] }}
         transition={{ duration, delay, repeat: Infinity, ease: "easeInOut" }}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface/90 backdrop-blur-md border border-line shadow-xl shadow-black/30 text-[11px] font-mono text-fg"
+        className="flex items-center gap-2.5 rounded-xl border border-line bg-surface/90 py-1.5 pl-1.5 pr-3 font-mono text-[11px] text-fg shadow-xl shadow-black/30 backdrop-blur-md"
       >
-        <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-accent/15 text-accent-fg">
-          <Icon className="w-3.5 h-3.5" />
+        <span
+          style={brandSurface(brand)}
+          className="flex h-7 w-7 items-center justify-center rounded-lg border"
+        >
+          <BrandIcon brand={brand} className="h-4 w-4" />
         </span>
-        {label}
+        {name}
       </motion.div>
     </motion.div>
+  );
+}
+
+/* =====================================================================
+   Social button
+   GitHub / LinkedIn: notun tab e khole.
+   Email: copy hoy + mail app kholar chesta kore (mail app na thakleo kaj kore).
+   ===================================================================== */
+function SocialButton({ social }: { social: SocialLink }) {
+  const isMail = social.iconName === "mail";
+  const email = isMail ? social.url.replace(/^mailto:/i, "") : "";
+  const [copied, setCopied] = useState(false);
+
+  const handleClick = async () => {
+    if (!isMail) return;
+    try {
+      await navigator.clipboard.writeText(email);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch {
+      /* clipboard blocked, mailto abar-o khulte chesta korbe */
+    }
+  };
+
+  const label = isMail ? "Email" : social.platform;
+
+  return (
+    <a
+      href={social.url}
+      target={isMail ? undefined : "_blank"}
+      rel="noopener noreferrer"
+      onClick={handleClick}
+      aria-label={isMail ? `Email ${email}` : `${social.platform} profile`}
+      className="group relative flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface-2 text-fg transition-all duration-200 hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-on-accent active:scale-95"
+    >
+      {social.iconName === "github" ? (
+        <GithubIcon className="h-4 w-4" />
+      ) : social.iconName === "linkedin" ? (
+        <LinkedinIcon className="h-4 w-4" />
+      ) : (
+        <Mail className="h-4 w-4" />
+      )}
+
+      <span
+        className={`pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-line bg-canvas/95 px-2 py-1 text-[10px] font-mono text-fg transition-opacity duration-200 ${
+          copied ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        }`}
+      >
+        {copied ? "Email copied" : label}
+      </span>
+    </a>
   );
 }
 
@@ -294,7 +351,7 @@ export default function Hero() {
       id="hero"
       ref={sectionRef}
       onMouseMove={handleSectionMove}
-      className="relative min-h-[94vh] flex flex-col justify-between pt-28 sm:pt-36 pb-10 px-6 md:px-12 max-w-6xl mx-auto w-full overflow-hidden"
+      className="relative min-h-[94vh] flex flex-col justify-between pt-28 sm:pt-32 pb-10 px-6 md:px-12 max-w-6xl mx-auto w-full overflow-hidden"
     >
       {/* Background: cursor light */}
       <motion.div
@@ -383,7 +440,7 @@ export default function Hero() {
           </motion.div>
 
           {/* Headline */}
-          <h1 className="text-[2.75rem] sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.08] mb-7 sm:mb-9 flex flex-wrap gap-x-3 sm:gap-x-4 gap-y-1">
+          <h1 className="text-[2.5rem] sm:text-5xl md:text-6xl 2xl:text-7xl font-extrabold tracking-tight leading-[1.04] mb-6 sm:mb-8 flex flex-wrap gap-x-3 sm:gap-x-4 gap-y-0">
             {HEADLINE.map((w, i) => (
               <span key={w.text} className="relative inline-block">
                 <span className="inline-block overflow-hidden pb-[0.15em] -mb-[0.15em]">
@@ -506,26 +563,23 @@ export default function Hero() {
                 <span>{resumeNote ? "Coming soon" : "Resume"}</span>
               </button>
             )}
+          </motion.div>
 
-            <div className="flex items-center gap-1.5 pl-2 sm:border-l sm:border-line/80">
+          {/* Social links (alada row) */}
+          <motion.div
+            variants={rise}
+            custom={1}
+            initial="hidden"
+            animate={state}
+            className="relative z-20 mt-7 flex items-center gap-3"
+          >
+            <span className="text-[11px] font-mono uppercase tracking-widest text-muted">
+              Find me on
+            </span>
+            <span aria-hidden className="h-px w-8 bg-line-strong" />
+            <div className="flex items-center gap-2.5">
               {socialLinks.map((social) => (
-                <a
-                  key={social.platform}
-                  href={social.url}
-                  target={social.iconName === "mail" ? undefined : "_blank"}
-                  rel="noopener noreferrer"
-                  aria-label={`${social.platform} profile`}
-                  title={social.platform}
-                  className="p-3 rounded-full text-muted hover:text-accent-fg hover:bg-line/50 transition-all duration-200 hover:scale-110"
-                >
-                  {social.iconName === "github" ? (
-                    <GithubIcon className="w-4 h-4" />
-                  ) : social.iconName === "linkedin" ? (
-                    <LinkedinIcon className="w-4 h-4" />
-                  ) : (
-                    <Mail className="w-4 h-4" />
-                  )}
-                </a>
+                <SocialButton key={social.platform} social={social} />
               ))}
             </div>
           </motion.div>
@@ -580,7 +634,7 @@ export default function Hero() {
                 <div className="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[3/4] bg-sunken">
                   <Image
                     src="/Assits/profile images/profile image.jpg"
-                    alt="Portrait of Borshon Roy, Web Developer"
+                    alt={`Portrait of ${personalInfo.name}, ${personalInfo.title}`}
                     width={450}
                     height={600}
                     priority
@@ -601,22 +655,21 @@ export default function Hero() {
 
                 <div
                   style={{ transform: "translateZ(40px)" }}
-                  className="mt-3 px-3.5 py-2.5 rounded-xl bg-canvas/95 border border-line/90 flex items-center justify-between text-[11px] font-mono shadow-lg shadow-black/30"
+                  className="mt-3 px-3.5 py-2.5 rounded-xl bg-canvas/95 border border-line/90 flex items-center justify-between gap-3 text-[11px] font-mono shadow-lg shadow-black/30"
                 >
-                  <span className="text-muted flex items-center gap-2">
+                  <span className="text-muted flex items-center gap-2 whitespace-nowrap">
                     <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                     {personalInfo.name}
                   </span>
-                  <span className="text-fg font-sans font-semibold">
+                  <span className="text-fg font-sans font-semibold text-right">
                     {personalInfo.title}
                   </span>
                 </div>
               </div>
 
-              {/* Chips */}
+              {/* Chips: frontend + backend + database */}
               <FloatingChip
-                icon={Layers}
-                label="Next.js"
+                name="Next.js"
                 z={90}
                 delay={0}
                 duration={4.2}
@@ -625,8 +678,7 @@ export default function Hero() {
                 className="-left-8 top-10"
               />
               <FloatingChip
-                icon={Braces}
-                label="TypeScript"
+                name="TypeScript"
                 z={70}
                 delay={0.6}
                 duration={5}
@@ -635,8 +687,7 @@ export default function Hero() {
                 className="-right-8 top-1/3"
               />
               <FloatingChip
-                icon={Wind}
-                label="Tailwind"
+                name="Node.js"
                 z={110}
                 delay={1.1}
                 duration={4.6}
@@ -645,8 +696,7 @@ export default function Hero() {
                 className="-left-10 bottom-28"
               />
               <FloatingChip
-                icon={Atom}
-                label="React"
+                name="MongoDB"
                 z={80}
                 delay={0.3}
                 duration={5.4}
