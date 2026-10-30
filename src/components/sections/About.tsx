@@ -7,8 +7,11 @@ import {
   BookOpen,
   Code2,
   Database,
+  Gamepad2,
   GraduationCap,
+  Headphones,
   Layers,
+  Plane,
   Puzzle,
   Rocket,
   Search,
@@ -24,11 +27,13 @@ import {
   useMotionValue,
   useReducedMotion,
   useScroll,
+  useSpring,
   useTransform,
   type MotionValue,
 } from "motion/react";
 import { defaultViewport, fadeInUp } from "@/utils/motion";
 import { BrandIcon, brandFor, brandSurface } from "@/components/ui/BrandIcon";
+
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -122,6 +127,68 @@ const journey: {
     step: "Now",
     title: "Product thinking",
     text: "Designing APIs and data models, thinking in whole products, and studying for my Diploma while building.",
+  },
+];
+
+/* =====================================================================
+   Hobbies
+   Lucide e cricket icon nai, tai nijer chhoto SVG (bat + ball).
+   Pochondo na hole icon: CricketIcon er jaygay Trophy (lucide) dao.
+   EDIT: text gulo apnar moto bodlan.
+   ===================================================================== */
+function CricketIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden
+    >
+      {/* Bat blade */}
+      <path d="M2.8 17.8 10.8 9.8l3.4 3.4-8 8z" />
+      {/* Handle */}
+      <path d="M12.5 11.5 18.5 5.5" />
+      {/* Ball */}
+      <circle cx="19" cy="18.5" r="2.4" />
+    </svg>
+  );
+}
+
+type Hobby = {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  text: string;
+  color: string;
+};
+
+const hobbies: Hobby[] = [
+  {
+    icon: CricketIcon,
+    title: "Cricket",
+    text: "A game I love. It teaches patience, teamwork and staying calm under pressure.",
+    color: "#22C55E",
+  },
+  {
+    icon: Headphones,
+    title: "Music",
+    text: "Part of my everyday routine, for staying focused and for unwinding.",
+    color: "#EC4899",
+  },
+  {
+    icon: Plane,
+    title: "Travel",
+    text: "I enjoy exploring new places and seeing how other people live and work.",
+    color: "#38BDF8",
+  },
+  {
+    icon: Gamepad2,
+    title: "Gaming",
+    text: "My way to unwind, and a constant source of ideas about interaction and design.",
+    color: "#8B5CF6",
   },
 ];
 
@@ -514,6 +581,108 @@ function FlipCard({
 }
 
 /* =====================================================================
+   Hobby card: 3D tilt + brand-rong er 3D icon tile
+   ===================================================================== */
+function HobbyCard({ hobby, index }: { hobby: Hobby; index: number }) {
+  const reduceMotion = useReducedMotion();
+  const Icon = hobby.icon;
+
+  const ref = useRef<HTMLDivElement>(null);
+  const rx = useMotionValue(0);
+  const ry = useMotionValue(0);
+  const rotateX = useSpring(rx, { stiffness: 180, damping: 18, mass: 0.5 });
+  const rotateY = useSpring(ry, { stiffness: 180, damping: 18, mass: 0.5 });
+
+  const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (reduceMotion || !ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;
+    const py = (e.clientY - r.top) / r.height;
+    ry.set((px - 0.5) * 16);
+    rx.set((0.5 - py) * 16);
+  };
+
+  const handleLeave = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+
+  const dark = "color-mix(in srgb, var(--brand) 40%, #000)";
+
+  const tileStyle = {
+    "--brand": hobby.color,
+    color: hobby.color,
+    transformStyle: "preserve-3d",
+    background:
+      "linear-gradient(145deg, color-mix(in srgb, var(--brand) 24%, var(--surface)), var(--surface-3))",
+    borderColor: "color-mix(in srgb, var(--brand) 45%, var(--line))",
+    boxShadow: [
+      `0 1px 0 ${dark}`,
+      `0 2px 0 ${dark}`,
+      `0 3px 0 ${dark}`,
+      `0 4px 0 ${dark}`,
+      "0 12px 18px -6px color-mix(in srgb, var(--brand) 55%, transparent)",
+    ].join(", "),
+  } as React.CSSProperties;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={defaultViewport}
+      transition={{ duration: 0.6, delay: index * 0.1, ease: EASE }}
+      style={{ perspective: 900 }}
+      className="h-full"
+    >
+      <motion.div
+        ref={ref}
+        onMouseMove={handleMove}
+        onMouseLeave={handleLeave}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className="group relative h-full rounded-2xl border border-line bg-surface p-6 shadow-lg shadow-black/10 transition-colors duration-300 hover:border-accent/50"
+      >
+        {/* Brand glow (hover e) */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -inset-1 -z-10 rounded-3xl opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100"
+          style={
+            {
+              "--brand": hobby.color,
+              background: "color-mix(in srgb, var(--brand) 22%, transparent)",
+            } as React.CSSProperties
+          }
+        />
+
+        {/* 3D tile */}
+        <span
+          style={tileStyle}
+          className="relative mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border transition-transform duration-300 ease-out [transform:translateZ(24px)] group-hover:[transform:translateZ(40px)_rotateX(8deg)_rotateY(-12deg)] motion-reduce:transition-none"
+        >
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/30 via-transparent to-transparent"
+          />
+          <Icon className="relative h-6 w-6" />
+        </span>
+
+        <h4
+          style={{ transform: "translateZ(14px)" }}
+          className="mb-1.5 text-lg font-semibold text-fg"
+        >
+          {hobby.title}
+        </h4>
+        <p
+          style={{ transform: "translateZ(6px)" }}
+          className="text-xs leading-relaxed text-muted"
+        >
+          {hobby.text}
+        </p>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* =====================================================================
    Section
    ===================================================================== */
 export default function About() {
@@ -753,6 +922,30 @@ export default function About() {
             />
           ))}
         </div>
+      </div>
+
+      {/* Beyond the code */}
+      <div className="mt-20">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={defaultViewport}
+          variants={fadeInUp}
+          className="mb-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-end"
+        >
+          <h3 className="text-2xl font-bold tracking-tight text-fg sm:text-3xl">
+            Beyond the code
+          </h3>
+          <span className="text-xs font-mono text-muted">
+            What I enjoy when I&apos;m not building
+          </span>
+        </motion.div>
+
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {hobbies.map((hobby, i) => (
+            <HobbyCard key={hobby.title} hobby={hobby} index={i} />
+          ))}
+        </div>
 
         {/* Belief + goal */}
         <motion.div
@@ -760,7 +953,7 @@ export default function About() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={defaultViewport}
           transition={{ duration: 0.7, ease: EASE }}
-          className="mt-6 rounded-2xl border border-line bg-surface p-6 shadow-xl shadow-black/10 transition-colors duration-300 hover:border-accent/50 sm:p-10"
+          className="mt-10 rounded-2xl border border-line bg-surface p-6 shadow-xl shadow-black/10 transition-colors duration-300 hover:border-accent/50 sm:p-10"
         >
           <p className="max-w-3xl font-display text-3xl italic leading-snug text-fg sm:text-4xl">
             <span className="text-accent-fg">&ldquo;</span>

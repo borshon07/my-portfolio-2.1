@@ -8,11 +8,11 @@ import {
 
 export const personalInfo: PersonalInfo = {
   name: "Borshon Roy",
-  title: "Web Developer",
-  eyebrow: "WEB DEVELOPER",
+  title: "Full-Stack Web Developer",
+  eyebrow: "FULL-STACK DEVELOPER",
   headline: "Turning ideas into digital experiences.",
   supportingText:
-  "I'm a full-stack web developer building modern, scalable, and user-focused web applications, from intuitive interfaces to reliable backends.",
+    "I'm a full-stack web developer building modern, scalable, and user-focused web applications, from intuitive interfaces to reliable backends.",
   bioParagraphs: [
     "I am an emerging web developer driven by the craft of turning concepts into intuitive digital interfaces. With a strong commitment to clean code, semantic structure, and accessible user experiences, I focus on building responsive web applications that feel natural to use.",
     "My current focus is on deepening my modern frontend and full-stack capabilities with TypeScript, Next.js (App Router), and Tailwind CSS. I prioritize thoughtful problem-solving, continuous learning, and crafting details that bridge visual design with robust code.",
@@ -118,10 +118,18 @@ export const projects: Project[] = [
     id: "bazardor-market-tracker",
     title: "বাজার দর (BazarDor)",
     eyebrow: "Full-Stack Next.js 16 App",
-    tagline: "Today's grocery market prices in Bangladesh at a glance with daily change tickers.",
+    tagline:
+      "Today's grocery market prices in Bangladesh at a glance with daily change tickers.",
     description:
       "A Bangla grocery market tracker built with Next.js 16 App Router, TypeScript, and Better Auth. Features an infinite scrolling price ticker, top price risers and fallers, category browsing, and bazar-wise price comparisons connected to MongoDB.",
-    technologies: ["Next.js 16", "TypeScript", "Tailwind CSS", "HeroUI", "Better Auth", "MongoDB"],
+    technologies: [
+      "Next.js 16",
+      "TypeScript",
+      "Tailwind CSS",
+      "HeroUI",
+      "Better Auth",
+      "MongoDB",
+    ],
     githubUrl: "https://github.com/borshon07/BazarDor-web-B14-Ass-07",
     liveUrl: "https://bazar-dor-web-b14-ass-07.vercel.app/",
     image: "/projects/bazardor.png", // screenshot rakhar por uncomment koro
@@ -143,10 +151,18 @@ export const projects: Project[] = [
     id: "fitlog-workout-tracker",
     title: "FitLog Workout Companion",
     eyebrow: "Fitness Web Application",
-    tagline: "Dark-themed workout tracking app with exercise library and personalized workout plans.",
+    tagline:
+      "Dark-themed workout tracking app with exercise library and personalized workout plans.",
     description:
       "A distraction-free training companion featuring a categorized workout directory with muscle groups, equipment requirements, difficulty filters, and saved exercises built with Next.js and Tailwind CSS.",
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "DaisyUI", "next-themes", "Sonner"],
+    technologies: [
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "DaisyUI",
+      "next-themes",
+      "Sonner",
+    ],
     githubUrl: "https://github.com/borshon07/B-14-A06--FitLog-by-Borshon",
     liveUrl: "https://fitlog.vercel.app/",
     image: "/projects/fitlog.png",
@@ -168,10 +184,17 @@ export const projects: Project[] = [
     id: "devstack-builder",
     title: "DevStack Builder",
     eyebrow: "Interactive Developer Utility",
-    tagline: "Modern developer stack builder for discovering technologies and saving custom stacks.",
+    tagline:
+      "Modern developer stack builder for discovering technologies and saving custom stacks.",
     description:
       "An interactive web application enabling developers to explore frontend, backend, database, and dev tool catalogs. Features real-time stack assembly, duplicate-selection prevention, and dynamic toast feedback.",
-    technologies: ["React", "TypeScript", "Tailwind CSS", "Vite", "React-Toastify"],
+    technologies: [
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Vite",
+      "React-Toastify",
+    ],
     githubUrl: "https://github.com/borshon07/B-14-A05--DevStack-",
     liveUrl: "https://devstack-builder.vercel.app/",
     image: "/projects/devstack.png",

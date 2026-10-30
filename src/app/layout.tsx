@@ -42,9 +42,9 @@ const themeScript = `
 `;
 
 export const metadata: Metadata = {
-  title: "Borshon Roy — Creative Web Developer",
+    title: "Borshon Roy — Full-Stack Web Developer",
   description:
-    "Portfolio of Borshon Roy, a web developer focused on building thoughtful, responsive, and user-friendly web experiences.",
+    "Portfolio of Borshon Roy, a full-stack web developer building modern, scalable web applications with React, Next.js, Node.js and MongoDB.",
   keywords: [
     "Borshon Roy",
     "Full-Stack Developer",
@@ -58,9 +58,9 @@ export const metadata: Metadata = {
   authors: [{ name: "Borshon Roy" }],
   creator: "Borshon Roy",
   openGraph: {
-    title: "Borshon Roy — Creative Web Developer",
+    title: "Borshon Roy — Full-Stack Web Developer",
     description:
-      "Turning ideas into digital experiences. Thoughtful, responsive, and user-friendly web interfaces.",
+       "Full-stack web developer building modern, scalable web applications.",
     type: "website",
     locale: "en_US",
   },
