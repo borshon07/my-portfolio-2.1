@@ -164,7 +164,7 @@ export const projects: Project[] = [
       "Sonner",
     ],
     githubUrl: "https://github.com/borshon07/B-14-A06--FitLog-by-Borshon",
-    liveUrl: "https://fitlog.vercel.app/",
+    liveUrl: "https://b-14-a06-fit-log-by-borshon.vercel.app/",
     image: "/projects/fitlog.png",
     challenges: [
       "Building filters for muscle group, equipment and difficulty that work together without confusing results.",
@@ -196,7 +196,7 @@ export const projects: Project[] = [
       "React-Toastify",
     ],
     githubUrl: "https://github.com/borshon07/B-14-A05--DevStack-",
-    liveUrl: "https://devstack-builder.vercel.app/",
+    liveUrl: "https://b14-a05-devstack-by-borshon.netlify.app/",
     image: "/projects/devstack.png",
     challenges: [
       "Managing the selected-technology state and preventing duplicates while keeping the UI responsive.",
