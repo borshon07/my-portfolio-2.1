@@ -20,6 +20,10 @@ const emptySubscribe = () => () => {};
 const INTERACTIVE =
   "a, button, [role='button'], input, textarea, select, summary, [data-cursor]";
 
+// Ei attribute thaka element (ba tar vitore) e cursor morph/grow kore na,
+// shudhu chhoto dot hoye thake. Jemon flip card, jekhane text porte hoy.
+const IGNORE = "[data-cursor-ignore]";
+
 const IDLE_SIZE = 22;
 const SNAP_PADDING = 8;
 
@@ -208,7 +212,9 @@ export default function CustomCursor() {
       const target = e.target as HTMLElement | null;
       const el = target?.closest<HTMLElement>(INTERACTIVE) ?? null;
 
-      if (!el) {
+      // Interactive na, ba "data-cursor-ignore" element (jemon flip card):
+      // blob chhoto dot-i thake, text dhake na
+      if (!el || el.closest(IGNORE)) {
         snapEl.current = null;
         applyMode("idle");
         updateTarget();

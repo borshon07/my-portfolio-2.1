@@ -34,7 +34,6 @@ import {
 import { defaultViewport, fadeInUp } from "@/utils/motion";
 import { BrandIcon, brandFor, brandSurface } from "@/components/ui/BrandIcon";
 
-
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /* =====================================================================
@@ -490,6 +489,8 @@ function Journey() {
 /* =====================================================================
    3D flip card
    Mouse: hover | Keyboard: Tab / Enter / Space | Touch: tap
+   data-cursor-ignore: liquid cursor ei card-er upor morph kore na,
+   tai card-er text dhake na.
    ===================================================================== */
 function FlipCard({
   icon: Icon,
@@ -520,6 +521,7 @@ function FlipCard({
     >
       <div
         role="button"
+        data-cursor-ignore
         tabIndex={0}
         aria-pressed={flipped}
         aria-label={`${title}. Press to ${flipped ? "hide" : "show"} details`}
